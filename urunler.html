@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <title>Tüm Modeller | Trend Optik Mersin</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="index.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="pt-5">
+
+<nav class="navbar navbar-expand-lg navbar-dark fixed-top scrolled">
+  <div class="container">
+    <a href="index.html" class="navbar-brand logo-letters">
+      <span>T</span><span>r</span><span>e</span><span>n</span><span>d</span>
+      <span> </span>
+      <span>O</span><span>p</span><span>t</span><span>i</span><span>k</span>
+    </a>
+    <div class="collapse navbar-collapse justify-content-end" id="menu">
+      <ul class="navbar-nav gap-3">
+        <li class="nav-item"><a class="nav-link" href="index.html">Ana Sayfaya Dön</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<section class="container py-5 mt-5">
+  <div class="text-center mb-5 fade-in show">
+    <h2 class="display-4 fw-bold accent">Koleksiyonumuz</h2>
+    <p class="opacity-75">Aradığınız tarzı filtreleyerek bulun</p>
+  </div>
+
+  <div class="row justify-content-center mb-4 fade-in show">
+    <div class="col-md-6">
+      <div class="input-group">
+        <span class="input-group-text bg-transparent border-end-0" style="border-color: rgba(255,255,255,0.2); color: #f5a623;"><i class="bi bi-search"></i></span>
+        <input type="text" id="searchInput" class="form-control rounded-end-pill border-start-0" placeholder="Marka veya model ara..." style="background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.2); color: #fff;">
+      </div>
+    </div>
+  </div>
+
+  <div class="text-center mt-4 mb-5 fade-in show">
+    <div class="btn-group flex-wrap" role="group">
+      <button type="button" class="btn btn-outline-light rounded-pill px-4 me-2 mb-2 filter-btn active" data-category="all">Tüm Modeller</button>
+      <button type="button" class="btn btn-outline-light rounded-pill px-4 me-2 mb-2 filter-btn" data-category="gunes">Güneş Gözlükleri</button>
+      <button type="button" class="btn btn-outline-light rounded-pill px-4 me-2 mb-2 filter-btn" data-category="klasik">Klasik Çerçeveler</button>
+      <button type="button" class="btn btn-outline-light rounded-pill px-4 me-2 mb-2 filter-btn" data-category="kadin">Kadın</button>
+      <button type="button" class="btn btn-outline-light rounded-pill px-4 me-2 mb-2 filter-btn" data-category="cocuk">Çocuk</button>
+    </div>
+  </div>
+
+  <div class="row g-4" id="allProductGrid">
+    </div>
+</section>
+
+<a href="https://wa.me/905312075818?text=Merhaba%20Trend%20Optik%21" class="whatsapp-float"><i class="bi bi-whatsapp"></i></a>
+<button id="themeToggle" class="theme-toggle-btn position-fixed end-0 p-3 rounded-circle shadow-lg border-0" style="top: 80px; right: 20px; z-index: 1051;"><i class="bi bi-moon-fill fs-4"></i></button>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script type="module" src="script.js"></script>
+</body>
+</html>
