@@ -17,8 +17,8 @@ const db = getFirestore(app);
 document.addEventListener("DOMContentLoaded", function () {
   const navbar = document.querySelector(".navbar");
   const themeToggle = document.getElementById("themeToggle");
-  const homeProductGrid = document.getElementById("homeProductGrid"); // Ana sayfa vitrini
-  const allProductGrid = document.getElementById("allProductGrid");   // Ürünler sayfası vitrini
+  const homeProductGrid = document.getElementById("homeProductGrid"); 
+  const allProductGrid = document.getElementById("allProductGrid");   
   const searchInput = document.getElementById("searchInput");
   const statsSection = document.querySelector("#nedenbiz");
   const counters = document.querySelectorAll(".counter");
@@ -56,12 +56,32 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // ÜRÜN KARTI OLUŞTURMA FONKSİYONU (Ortak Tasarım)
+  // FADE IN EFEKTİ (Hizmetler ve Sayaç İçin Düzeltildi)
+  function activateFade() {
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("show");
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll(".fade-in").forEach(el => observer.observe(el));
+  }
+  
+  // Sayfa yüklenir yüklenmez statik elementleri (hizmetler, yorumlar vs.) canlandır
+  activateFade();
+
+  // ÜRÜN KARTI OLUŞTURMA (₺ Simgesi eklendi)
   function createProductCard(product, index) {
-    const wpMessage = `Merhaba Trend Optik! Sitenizdeki "${product.name}" modeliyle ilgileniyorum. Fiyatı: ${product.price}. Bu model şu an stoklarınızda mevcut mu? (Görsel: ${product.img} )`;
+    // Sadece rakam girilmişse sonuna ₺ ekle, zaten ₺ girilmişse elleme
+    const finalPrice = product.price.toString().includes("₺") ? product.price : `${product.price} ₺`;
+    
+    const wpMessage = `Merhaba Trend Optik! Sitenizdeki "${product.name}" modeliyle ilgileniyorum. Fiyatı: ${finalPrice}. Bu model şu an stoklarınızda mevcut mu? (Görsel: ${product.img} )`;
     const wpLink = `https://wa.me/905312075818?text=${encodeURIComponent(wpMessage)}`;
+    
     return `
-      <div class="col-lg-3 col-md-6 fade-in show" style="transition-delay:${index * 0.1}s">
+      <div class="col-lg-3 col-md-6 fade-in" style="transition-delay:${index * 0.1}s">
         <div class="card h-100 border-0 shadow-sm product-card">
           <div style="height:250px; overflow:hidden; position:relative;">
             <div style="background-image:url('${product.img}'); background-size:cover; background-position:center; filter:blur(20px); position:absolute; width:100%; height:100%; transform:scale(1.2); opacity:0.6;"></div>
@@ -70,7 +90,7 @@ document.addEventListener("DOMContentLoaded", function () {
           <div class="card-body text-center d-flex flex-column">
             <h5 class="fw-bold">${product.name}</h5>
             <p class="opacity-75 small mb-auto">${product.desc}</p>
-            <p class="fw-bold accent fs-5 mt-3">${product.price}</p>
+            <p class="fw-bold accent fs-5 mt-3">${finalPrice}</p>
             <a href="${wpLink}" target="_blank" class="btn btn-accent rounded-pill px-4 mt-2">
               <i class="bi bi-whatsapp"></i> WhatsApp'tan Sor
             </a>
@@ -80,12 +100,12 @@ document.addEventListener("DOMContentLoaded", function () {
     `;
   }
 
-  // 1. EĞER ANA SAYFADAYSAK (Sadece 4 ürün çek)
+  // ANA SAYFA VİTRİNİ (Sadece 4 ürün)
   if (homeProductGrid) {
     async function fetchHomeProducts() {
       homeProductGrid.innerHTML = `<div class="col-12 text-center my-5"><div class="spinner-border text-warning"></div></div>`;
       try {
-        const q = query(collection(db, "products"), orderBy("createdAt", "desc"), limit(4)); // LIMIT EKLENDİ!
+        const q = query(collection(db, "products"), orderBy("createdAt", "desc"), limit(4));
         const querySnapshot = await getDocs(q);
         homeProductGrid.innerHTML = "";
         if (querySnapshot.empty) {
@@ -96,6 +116,7 @@ document.addEventListener("DOMContentLoaded", function () {
         querySnapshot.forEach((doc) => {
           homeProductGrid.innerHTML += createProductCard({ id: doc.id, ...doc.data() }, i++);
         });
+        activateFade(); // Ürünler geldikten sonra animasyonu tetikle
       } catch (error) {
         homeProductGrid.innerHTML = `<p class="text-danger text-center">Ürünler yüklenemedi.</p>`;
       }
@@ -103,7 +124,7 @@ document.addEventListener("DOMContentLoaded", function () {
     fetchHomeProducts();
   }
 
-  // 2. EĞER TÜM ÜRÜNLER SAYFASINDAYSAK (Hepsini çek ve filtrele)
+  // TÜM ÜRÜNLER SAYFASI
   if (allProductGrid) {
     async function fetchAllProducts() {
       allProductGrid.innerHTML = `<div class="col-12 text-center my-5"><div class="spinner-border text-warning"></div></div>`;
@@ -129,6 +150,7 @@ document.addEventListener("DOMContentLoaded", function () {
       list.forEach((product, index) => {
         allProductGrid.innerHTML += createProductCard(product, index);
       });
+      activateFade();
     }
 
     fetchAllProducts();
@@ -167,7 +189,7 @@ document.addEventListener("DOMContentLoaded", function () {
   updateSlider();
   setInterval(() => { current = (current + 1) % heroImages.length; updateSlider(); }, 4000);
 
-  // SAYAÇ ANİMASYONU
+  // SAYAÇ ANİMASYONU (Düzeltildi)
   if (statsSection && counters.length > 0) {
     let started = false;
     const observer = new IntersectionObserver(entries => {
