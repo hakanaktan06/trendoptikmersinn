@@ -293,27 +293,19 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
 
-  // ==========================================
-  // GÖZLÜK SİPARİŞ TAKİP MANTIĞI (İkon Odaklama Fix)
-  // ==========================================
-  // ... mevcut kargo takip kodun ...
-
-  // YENİ: Giriş alanına odaklanıldığında telefon ikonunun sönük kalmasını önleme
+    // YENİ: Giriş alanına odaklanıldığında KUSURSUZ KAPSÜLÜN parlaması
   if(trackPhone) {
-    const inputGroup = trackPhone.closest('.input-group'); // Ortak ebeveyni bul
-
-    if (inputGroup) {
-        // Kutunun içine odaklanıldığında (focus)
+    const trackSearchBar = document.getElementById('trackSearchBar');
+    if (trackSearchBar) {
         trackPhone.addEventListener('focus', () => {
-            inputGroup.classList.add('input-group-focused'); // Sapsarı parlama class'ını ekle
+            trackSearchBar.classList.add('is-focused');
         });
-
-        // Kutunun dışına tıklandığında (blur)
         trackPhone.addEventListener('blur', () => {
-            inputGroup.classList.remove('input-group-focused'); // Parlamayı kaldır
+            trackSearchBar.classList.remove('is-focused');
         });
     }
   }
+
 
 
 });
