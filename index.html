@@ -308,9 +308,40 @@
     </a>
   </div>
 
-  <div class="row g-4" id="homeProductGrid">
-    </div>
+  <div class="product-slider-wrapper">
+    <div class="row flex-nowrap overflow-auto g-4 pb-4 custom-scrollbar" id="homeProductGrid">
+      </div>
+  </div>
+
+  <style>
+    /* Mobilde kartların dışarı taşmadan kaymasını sağlayan büyü */
+    .product-slider-wrapper {
+        position: relative;
+        margin: 0 -15px; /* Kenarlara tam sıfırlansın */
+        padding: 0 15px;
+    }
+    
+    .custom-scrollbar {
+        scrollbar-width: none; /* Firefox için barı gizle */
+        -ms-overflow-style: none; /* IE için barı gizle */
+        scroll-snap-type: x mandatory; /* Kayarken tak diye oturmasını sağlar */
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .custom-scrollbar::-webkit-scrollbar {
+        display: none; /* Chrome/Safari için barı gizle (Görüntü bozulmasın) */
+    }
+
+    /* Mobilde kart genişliği ayarı */
+    @media (max-width: 768px) {
+        #homeProductGrid .col-6 {
+            flex: 0 0 75%; /* Kartlar ekranın %75'ini kaplasın ki yanındaki de gözüksün */
+            scroll-snap-align: center;
+        }
+    }
+  </style>
 </section>
+
 
 
 
