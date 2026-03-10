@@ -19,8 +19,6 @@
     .table { color: #fff; }
     .table th { border-bottom: 2px solid #f5a623; }
     .table td { border-bottom: 1px solid rgba(255, 255, 255, 0.1); vertical-align: middle; }
-    
-    /* Başlangıçta panel gizli, login açık */
     #dashboardSection { display: none; }
   </style>
 </head>
@@ -53,7 +51,7 @@
     <div class="row g-4">
       <div class="col-md-4">
         <div class="glass-panel">
-          <h5 class="accent mb-3"><i class="bi bi-plus-circle me-2"></i>Yeni Ürün Ekle</h5>
+          <h5 class="accent mb-3" id="formTitle"><i class="bi bi-plus-circle me-2"></i>Yeni Ürün Ekle</h5>
           
           <div class="mb-3">
             <label class="form-label small">Ürün Adı</label>
@@ -63,7 +61,6 @@
           <div class="mb-3">
             <label class="form-label small">Kategori</label>
             <select id="pCategory" class="form-select">
-              <option value="all">Tüm</option>
               <option value="gunes">Güneş</option>
               <option value="klasik">Klasik</option>
               <option value="kadin">Kadın</option>
@@ -72,8 +69,8 @@
           </div>
 
           <div class="mb-3">
-            <label class="form-label small">Fiyat</label>
-            <input type="text" id="pPrice" class="form-control" placeholder="Örn: 2.500 ₺">
+            <label class="form-label small">Fiyat (₺ Simgesi Otomatik Eklenecek)</label>
+            <input type="number" id="pPrice" class="form-control" placeholder="Örn: 2500">
           </div>
 
           <div class="mb-3">
@@ -95,6 +92,7 @@
           </div>
 
           <button id="addBtn" class="btn btn-accent w-100 rounded-pill py-2">Ürünü Kaydet</button>
+          <button id="cancelEditBtn" class="btn btn-outline-light w-100 rounded-pill py-2 mt-2" style="display:none;">İptal Et</button>
         </div>
       </div>
 
@@ -109,7 +107,7 @@
                   <th>Ürün Adı</th>
                   <th>Kategori</th>
                   <th>Fiyat</th>
-                  <th>İşlem</th>
+                  <th>İşlemler</th>
                 </tr>
               </thead>
               <tbody id="productTableBody">
@@ -123,37 +121,34 @@
 </div>
 
 <script type="module">
-  // Senin verdiğin sürüme (v12.10.0) uygun importlar
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
   import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
-  import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-analytics.js";
+  // updateDoc eklendi!
+  import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
-  // Senin Firebase Config Ayarların
   const firebaseConfig = {
     apiKey: "AIzaSyDKROzPt8ZaQXk_m5sMEY853BCafnZFb4o",
     authDomain: "trendoptik.firebaseapp.com",
     projectId: "trendoptik",
     storageBucket: "trendoptik.firebasestorage.app",
     messagingSenderId: "645619125341",
-    appId: "1:645619125341:web:a43aad6e213c80fbe351b4",
-    measurementId: "G-PVZTDX1VJR"
+    appId: "1:645619125341:web:a43aad6e213c80fbe351b4"
   };
 
-  // Firebase'i Başlat
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getFirestore(app);
-  const analytics = getAnalytics(app); // İsteğe bağlı, kalsın zararı yok
 
-  // HTML Elementleri
   const loginSection = document.getElementById("loginSection");
   const dashboardSection = document.getElementById("dashboardSection");
   const imagePreview = document.getElementById("imagePreview");
   const pImgUrl = document.getElementById("pImgUrl");
   const productTableBody = document.getElementById("productTableBody");
+  
+  // Düzenleme modu için değişkenler
+  let editModeId = null;
+  let adminProducts = [];
 
-  // GÖRSEL ÖNİZLEME 
   pImgUrl.addEventListener("input", function() {
     if(this.value.trim() !== "") {
       imagePreview.innerHTML = `<img src="${this.value}" style="width:100%; height:100%; object-fit:cover;">`;
@@ -164,27 +159,16 @@
     }
   });
 
-  // GİRİŞ YAP
   document.getElementById("loginBtn").addEventListener("click", () => {
     const email = document.getElementById("emailInput").value;
     const password = document.getElementById("passwordInput").value;
-    
     signInWithEmailAndPassword(auth, email, password)
-      .then(() => {
-        document.getElementById("loginError").style.display = "none";
-      })
-      .catch((error) => {
-        document.getElementById("loginError").style.display = "block";
-        console.error("Giriş hatası:", error);
-      });
+      .then(() => { document.getElementById("loginError").style.display = "none"; })
+      .catch((error) => { document.getElementById("loginError").style.display = "block"; });
   });
 
-  // ÇIKIŞ YAP
-  document.getElementById("logoutBtn").addEventListener("click", () => {
-    signOut(auth);
-  });
+  document.getElementById("logoutBtn").addEventListener("click", () => { signOut(auth); });
 
-  // OTURUM KONTROLÜ
   onAuthStateChanged(auth, (user) => {
     if (user) {
       loginSection.style.display = "none";
@@ -196,7 +180,7 @@
     }
   });
 
-  // ÜRÜN EKLE
+  // EKLE VEYA GÜNCELLE BUTONU
   document.getElementById("addBtn").addEventListener("click", async () => {
     const name = document.getElementById("pName").value;
     const category = document.getElementById("pCategory").value;
@@ -205,80 +189,118 @@
     const imgUrl = document.getElementById("pImgUrl").value;
 
     if(!name || !price || !imgUrl) {
-      alert("Lütfen Ad, Fiyat ve Resim URL alanlarını doldur agatım!");
+      alert("Lütfen Ad, Fiyat ve Resim alanlarını doldur kanka!");
       return;
     }
 
-    // Butonu pasif yap ki iki kere tıklanmasın
     const addBtn = document.getElementById("addBtn");
     addBtn.disabled = true;
-    addBtn.innerText = "Yükleniyor...";
+    addBtn.innerText = "İşleniyor...";
 
     try {
-      await addDoc(collection(db, "products"), {
-        name: name,
-        category: category,
-        price: price,
-        desc: desc,
-        img: imgUrl,
-        createdAt: serverTimestamp() 
-      });
-      
-      // Formu temizle
-      document.getElementById("pName").value = "";
-      document.getElementById("pPrice").value = "";
-      document.getElementById("pDesc").value = "";
-      document.getElementById("pImgUrl").value = "";
-      imagePreview.innerHTML = "URL girince resim burada görünecek";
-      imagePreview.style.border = "2px dashed rgba(255, 255, 255, 0.2)";
-      
+      if (editModeId) {
+        // GÜNCELLEME İŞLEMİ
+        await updateDoc(doc(db, "products", editModeId), {
+          name: name, category: category, price: price, desc: desc, img: imgUrl
+        });
+        alert("Ürün başarıyla güncellendi!");
+      } else {
+        // YENİ EKLEME İŞLEMİ
+        await addDoc(collection(db, "products"), {
+          name: name, category: category, price: price, desc: desc, img: imgUrl, createdAt: serverTimestamp() 
+        });
+      }
+      resetForm();
       loadProducts();
-
     } catch (e) {
-      console.error("Hata: ", e);
-      alert("Eklenemedi! Veritabanı kurallarını (Rules) kontrol et.");
+      alert("Hata oluştu kanka: " + e.message);
     } finally {
       addBtn.disabled = false;
-      addBtn.innerText = "Ürünü Kaydet";
     }
   });
 
-  // ÜRÜNLERİ TABLOYA ÇEK
+  // FORMU SIFIRLAMA
+  function resetForm() {
+    editModeId = null;
+    document.getElementById("pName").value = "";
+    document.getElementById("pPrice").value = "";
+    document.getElementById("pDesc").value = "";
+    document.getElementById("pImgUrl").value = "";
+    imagePreview.innerHTML = "URL girince resim burada görünecek";
+    imagePreview.style.border = "2px dashed rgba(255, 255, 255, 0.2)";
+    
+    document.getElementById("formTitle").innerHTML = `<i class="bi bi-plus-circle me-2"></i>Yeni Ürün Ekle`;
+    document.getElementById("addBtn").innerText = "Ürünü Kaydet";
+    document.getElementById("addBtn").classList.replace("btn-success", "btn-accent");
+    document.getElementById("cancelEditBtn").style.display = "none";
+  }
+
+  document.getElementById("cancelEditBtn").addEventListener("click", resetForm);
+
   async function loadProducts() {
     productTableBody.innerHTML = `<tr><td colspan="5">Ürünler Yükleniyor...</td></tr>`;
-    
     try {
       const q = query(collection(db, "products"), orderBy("createdAt", "desc"));
       const querySnapshot = await getDocs(q);
       
       productTableBody.innerHTML = ""; 
+      adminProducts = []; // Hafızayı temizle
       
       if(querySnapshot.empty) {
-        productTableBody.innerHTML = `<tr><td colspan="5">Henüz ürün eklenmemiş. Hadi ilk ürünü ekle!</td></tr>`;
+        productTableBody.innerHTML = `<tr><td colspan="5">Henüz ürün eklenmemiş.</td></tr>`;
         return;
       }
 
       querySnapshot.forEach((doc) => {
         const product = doc.data();
+        adminProducts.push({ id: doc.id, ...product });
+        const finalPrice = product.price.toString().includes("₺") ? product.price : `${product.price} ₺`;
+        
         const row = `
           <tr>
             <td><img src="${product.img}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;"></td>
             <td class="fw-bold">${product.name}</td>
             <td><span class="badge bg-secondary">${product.category}</span></td>
-            <td class="accent fw-bold">${product.price}</td>
+            <td class="accent fw-bold">${finalPrice}</td>
             <td>
-              <button class="btn btn-sm btn-danger delete-btn" data-id="${doc.id}"><i class="bi bi-trash"></i> Sil</button>
+              <button class="btn btn-sm btn-primary edit-btn me-1" data-id="${doc.id}"><i class="bi bi-pencil"></i></button>
+              <button class="btn btn-sm btn-danger delete-btn" data-id="${doc.id}"><i class="bi bi-trash"></i></button>
             </td>
           </tr>
         `;
         productTableBody.innerHTML += row;
       });
 
-      // Silme İşlemi
+      // DÜZENLE BUTONLARI
+      document.querySelectorAll(".edit-btn").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+          const id = e.target.closest('button').getAttribute("data-id");
+          const product = adminProducts.find(p => p.id === id);
+          
+          document.getElementById("pName").value = product.name;
+          document.getElementById("pCategory").value = product.category;
+          document.getElementById("pPrice").value = product.price.toString().replace(/[^0-9]/g, ''); // Sadece rakamları al
+          document.getElementById("pDesc").value = product.desc;
+          document.getElementById("pImgUrl").value = product.img;
+          
+          imagePreview.innerHTML = `<img src="${product.img}" style="width:100%; height:100%; object-fit:cover;">`;
+          imagePreview.style.border = "none";
+          
+          editModeId = id;
+          document.getElementById("formTitle").innerHTML = `<i class="bi bi-pencil-square me-2"></i>Ürünü Düzenle`;
+          document.getElementById("addBtn").innerText = "Değişiklikleri Kaydet";
+          document.getElementById("addBtn").classList.replace("btn-accent", "btn-success");
+          document.getElementById("cancelEditBtn").style.display = "block";
+          
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+      });
+
+      // SİLME BUTONLARI
       document.querySelectorAll(".delete-btn").forEach(btn => {
         btn.addEventListener("click", async (e) => {
           const id = e.target.closest('button').getAttribute("data-id");
-          if(confirm("Dayı bu ürünü siliyorum emin misin?")) {
+          if(confirm("Dayı bu ürünü kalıcı olarak siliyorum emin misin?")) {
             await deleteDoc(doc(db, "products", id));
             loadProducts(); 
           }
@@ -286,8 +308,7 @@
       });
 
     } catch (error) {
-      console.error("Veriler çekilemedi:", error);
-      productTableBody.innerHTML = `<tr><td colspan="5" class="text-danger">Firestore kurallarını test moduna aldığından emin ol kanka!</td></tr>`;
+      productTableBody.innerHTML = `<tr><td colspan="5" class="text-danger">Bağlantı hatası!</td></tr>`;
     }
   }
 </script>
