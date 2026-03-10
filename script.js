@@ -81,7 +81,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // PAYLAŞMA FONKSİYONU
   window.shareProduct = function(name, price, imgUrl) {
-    const text = `Trend Optik'te şu modele bayıldım!\n\n🕶️ ${name}\n💰 Fiyat: ${price}\n\nSen de incele: https://www.trendoptikmersin.com/urunler.html`;
+    const text = `Trend Optik'te şu modele bayıldım!\n\n🕶️ ${name}\n💰 Fiyat: ${price}\n\nSen de incele: https://www.trendoptikmersin.com/urunler`;
     if (navigator.share) {
       navigator.share({ title: 'Trend Optik', text: text }).catch(console.error);
     } else {
@@ -92,20 +92,20 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // WHATSAPP TIKLAMA TAKİBİ FONKSİYONU
   window.askWhatsApp = async function(id, wpLink) {
-    window.open(wpLink, '_blank'); // WhatsApp'ı yeni sekmede aç
+    window.open(wpLink, '_blank'); 
     try {
-      await updateDoc(doc(db, "products", id), { clicks: increment(1) }); // Firebase'de sayacı 1 artır
+      await updateDoc(doc(db, "products", id), { clicks: increment(1) }); 
     } catch(e) { console.log("Tıklama kaydedilemedi", e); }
   };
 
-  // YENİ ÜRÜN KARTI OLUŞTURMA (WhatsApp Butonu Tıklama Takipli)
+  // YENİ ÜRÜN KARTI OLUŞTURMA (col-10 eklendi ki mobilde kaydırma kusursuz olsun)
   function createProductCard(product, index) {
     const finalPrice = product.price.toString().includes("₺") ? product.price : `${product.price} ₺`;
-    const wpMessage = `Merhaba Trend Optik! Sitenizdeki "${product.name}" modeliyle ilgileniyorum. Fiyatı: ${finalPrice}. Stokta mevcut mu? (Görsel: ${product.img})`;
+    const wpMessage = `Merhaba Trend Optik! Sitenizdeki "${product.name}" modeliyle ilgileniyorum. Fiyatı: ${finalPrice}. Stokta mevcut mu?`;
     const wpLink = `https://wa.me/905312075818?text=${encodeURIComponent(wpMessage)}`;
     
     return `
-      <div class="col-lg-3 col-md-6 fade-in" style="transition-delay:${index * 0.1}s">
+      <div class="col-10 col-md-6 col-lg-3 fade-in product-slide-item" style="transition-delay:${index * 0.1}s">
         <div class="card h-100 border-0 shadow-sm product-card">
           <div style="height:250px; overflow:hidden; position:relative;">
             <div style="background-image:url('${product.img}'); background-size:cover; background-position:center; filter:blur(20px); position:absolute; width:100%; height:100%; transform:scale(1.2); opacity:0.6;"></div>
@@ -129,28 +129,67 @@ document.addEventListener("DOMContentLoaded", function () {
     `;
   }
 
-  // ANA SAYFA VİTRİNİ
+  // ==========================================
+  // ANA SAYFA VİTRİNİ VE OTOMATİK KAYDIRMA (SLIDER)
+  // ==========================================
   if (homeProductGrid) {
     async function fetchHomeProducts() {
       homeProductGrid.innerHTML = `<div class="col-12 text-center my-5"><div class="spinner-border text-warning"></div></div>`;
       try {
-        const q = query(collection(db, "products"), orderBy("createdAt", "desc"), limit(4));
+        // En yeni 6 ürünü çekiyoruz ki vitrin dolu dolu kaysın
+        const q = query(collection(db, "products"), orderBy("createdAt", "desc"), limit(6));
         const querySnapshot = await getDocs(q);
         homeProductGrid.innerHTML = "";
+        
         if (querySnapshot.empty) {
           homeProductGrid.innerHTML = `<div class="col-12 text-center"><p>Henüz ürün eklenmedi.</p></div>`;
           return;
         }
+        
         let i = 0;
         querySnapshot.forEach((doc) => {
           homeProductGrid.innerHTML += createProductCard({ id: doc.id, ...doc.data() }, i++);
         });
+        
         activateFade();
+        startAutoScroll(); // Vitrin yüklendi, kaydırma motorunu başlat!
+        
       } catch (error) {
         homeProductGrid.innerHTML = `<p class="text-danger text-center">Ürünler yüklenemedi.</p>`;
       }
     }
     fetchHomeProducts();
+
+    // VAHŞET KAYDIRMA MOTORU
+    function startAutoScroll() {
+      let isHovered = false;
+      
+      // Kullanıcı dokunurken veya üzerine gelince dursun ki rahatça okusun
+      homeProductGrid.addEventListener("mouseenter", () => isHovered = true);
+      homeProductGrid.addEventListener("mouseleave", () => isHovered = false);
+      homeProductGrid.addEventListener("touchstart", () => isHovered = true);
+      homeProductGrid.addEventListener("touchend", () => {
+        setTimeout(() => isHovered = false, 1500); // Dokunmayı bırakınca 1.5 sn sonra tekrar başlar
+      });
+
+      setInterval(() => {
+        if(!isHovered) {
+          const firstCard = homeProductGrid.querySelector('.product-slide-item');
+          if(!firstCard) return;
+          
+          // Bir kartın genişliği (boşluklar dahil)
+          const cardWidth = firstCard.offsetWidth + 24; 
+          
+          // Eğer en sona geldiysek başa sar (smooth efektiyle)
+          if (homeProductGrid.scrollLeft + homeProductGrid.clientWidth >= homeProductGrid.scrollWidth - 10) {
+            homeProductGrid.scrollTo({ left: 0, behavior: 'smooth' });
+          } else {
+            // Sona gelmediysek 1 kart ileri kaydır
+            homeProductGrid.scrollBy({ left: cardWidth, behavior: 'smooth' });
+          }
+        }
+      }, 3500); // Her 3.5 saniyede bir kart kayar
+    }
   }
 
   // TÜM ÜRÜNLER SAYFASI
@@ -238,7 +277,7 @@ document.addEventListener("DOMContentLoaded", function () {
     observer.observe(statsSection);
   }
   
-    // ==========================================
+  // ==========================================
   // GÖZLÜK SİPARİŞ TAKİP MANTIĞI
   // ==========================================
   const trackBtn = document.getElementById("trackBtn");
@@ -254,7 +293,6 @@ document.addEventListener("DOMContentLoaded", function () {
       trackBtn.disabled = true;
 
       try {
-        // Telefon numarasına göre siparişleri ara
         const q = query(collection(db, "orders"));
         const qs = await getDocs(q);
         
@@ -265,11 +303,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
         trackResult.style.display = "block";
         if(foundOrder) {
-          let statusColor = "#0dcaf0"; // Mavi (Hazırlanıyor)
+          let statusColor = "#0dcaf0"; 
           let icon = "bi-gear-wide-connected";
           
-          if(foundOrder.status === "Teslimata Hazır") { statusColor = "#25D366"; icon = "bi-check-circle-fill"; } // Yeşil
-          else if(foundOrder.status === "Teslim Edildi") { statusColor = "#6c757d"; icon = "bi-bag-check"; } // Gri
+          if(foundOrder.status === "Teslimata Hazır") { statusColor = "#25D366"; icon = "bi-check-circle-fill"; } 
+          else if(foundOrder.status === "Teslim Edildi") { statusColor = "#6c757d"; icon = "bi-bag-check"; } 
 
           trackResult.innerHTML = `
             <h6 class="mb-2 opacity-75">Sipariş Sahibi: <span class="text-white fw-bold">${foundOrder.customerName}</span></h6>
@@ -292,8 +330,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-
-    // YENİ: Giriş alanına odaklanıldığında KUSURSUZ KAPSÜLÜN parlaması
+  // GİRİŞ ALANINA ODAKLANILDIĞINDA KUSURSUZ KAPSÜLÜN PARLAMASI
   if(trackPhone) {
     const trackSearchBar = document.getElementById('trackSearchBar');
     if (trackSearchBar) {
@@ -305,7 +342,5 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
   }
-
-
 
 });
