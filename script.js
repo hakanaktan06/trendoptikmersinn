@@ -1,3 +1,21 @@
+// Firebase v12.10.0 Importları
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+
+// Senin Firebase Bilgilerin
+const firebaseConfig = {
+  apiKey: "AIzaSyDKROzPt8ZaQXk_m5sMEY853BCafnZFb4o",
+  authDomain: "trendoptik.firebaseapp.com",
+  projectId: "trendoptik",
+  storageBucket: "trendoptik.firebasestorage.app",
+  messagingSenderId: "645619125341",
+  appId: "1:645619125341:web:a43aad6e213c80fbe351b4"
+};
+
+// Firebase Başlat
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
 document.addEventListener("DOMContentLoaded", function () {
 
   /* =========================
@@ -12,6 +30,9 @@ document.addEventListener("DOMContentLoaded", function () {
   const statsSection = document.querySelector("#nedenbiz");
   const counters = document.querySelectorAll(".counter");
 
+  // Tüm ürünleri hafızada tutacağımız dizi (Filtreleme için)
+  let allProducts = [];
+
   /* =========================
      NAVBAR SCROLL
   ========================== */
@@ -19,37 +40,32 @@ document.addEventListener("DOMContentLoaded", function () {
     navbar?.classList.toggle("scrolled", window.scrollY > 50);
   });
 
+  /* =========================
+     3D HERO SLIDER
+  ========================== */
+  const heroImages = document.querySelectorAll(".hero-img");
+  let current = 0;
 
-/* =========================
-   3D HERO SLIDER
-========================= */
+  function updateSlider() {
+    if(heroImages.length === 0) return;
+    heroImages.forEach(img => {
+      img.classList.remove("active", "left", "right");
+    });
+    const prev = (current - 1 + heroImages.length) % heroImages.length;
+    const next = (current + 1) % heroImages.length;
+    heroImages[current].classList.add("active");
+    heroImages[prev].classList.add("left");
+    heroImages[next].classList.add("right");
+  }
 
-const heroImages = document.querySelectorAll(".hero-img");
-let current = 0;
-
-function updateSlider() {
-  heroImages.forEach(img => {
-    img.classList.remove("active", "left", "right");
-  });
-
-  const prev = (current - 1 + heroImages.length) % heroImages.length;
-  const next = (current + 1) % heroImages.length;
-
-  heroImages[current].classList.add("active");
-  heroImages[prev].classList.add("left");
-  heroImages[next].classList.add("right");
-}
-
-updateSlider();
-
-setInterval(() => {
-  current = (current + 1) % heroImages.length;
   updateSlider();
-}, 4000);
-
+  setInterval(() => {
+    current = (current + 1) % heroImages.length;
+    updateSlider();
+  }, 4000);
 
   /* =========================
-     HAMBURGER
+     HAMBURGER MENÜ
   ========================== */
   if (navbarToggler) {
     navbarToggler.addEventListener("click", function () {
@@ -61,99 +77,115 @@ setInterval(() => {
     navbarCollapse.addEventListener("hidden.bs.collapse", function () {
       navbarToggler.classList.remove("active");
     });
-
     const bsCollapse = new bootstrap.Collapse(navbarCollapse, { toggle: false });
-
     document.addEventListener("click", function (event) {
-      const inside =
-        navbarCollapse.contains(event.target) ||
-        navbarToggler.contains(event.target);
-
+      const inside = navbarCollapse.contains(event.target) || navbarToggler.contains(event.target);
       if (!inside && navbarCollapse.classList.contains("show")) {
         bsCollapse.hide();
       }
     });
   }
 
-  // THEME TOGGLE (Temiz, duplicated yok)
-if (themeToggle) {
-  // Sayfa yüklenirken
-  if (localStorage.getItem("theme") === "light") {
-    document.body.classList.add("light-mode");
-    navbar.classList.remove("navbar-dark");
-    navbar.classList.add("navbar-light");
-    themeToggle.innerHTML = '<i class="bi bi-sun-fill fs-4"></i>';
-  } else {
-    themeToggle.innerHTML = '<i class="bi bi-moon-fill fs-4"></i>';
-  }
-
-  // Tıklandığında
-  themeToggle.addEventListener("click", function () {
-    document.body.classList.toggle("light-mode");
-
-    if (document.body.classList.contains("light-mode")) {
-      themeToggle.innerHTML = '<i class="bi bi-sun-fill fs-4"></i>';
+  /* =========================
+     THEME TOGGLE
+  ========================== */
+  if (themeToggle) {
+    if (localStorage.getItem("theme") === "light") {
+      document.body.classList.add("light-mode");
       navbar.classList.remove("navbar-dark");
       navbar.classList.add("navbar-light");
-      localStorage.setItem("theme", "light");
+      themeToggle.innerHTML = '<i class="bi bi-sun-fill fs-4"></i>';
     } else {
       themeToggle.innerHTML = '<i class="bi bi-moon-fill fs-4"></i>';
-      navbar.classList.remove("navbar-light");
-      navbar.classList.add("navbar-dark");
-      localStorage.setItem("theme", "dark");
     }
-  });
-}
+
+    themeToggle.addEventListener("click", function () {
+      document.body.classList.toggle("light-mode");
+      if (document.body.classList.contains("light-mode")) {
+        themeToggle.innerHTML = '<i class="bi bi-sun-fill fs-4"></i>';
+        navbar.classList.remove("navbar-dark");
+        navbar.classList.add("navbar-light");
+        localStorage.setItem("theme", "light");
+      } else {
+        themeToggle.innerHTML = '<i class="bi bi-moon-fill fs-4"></i>';
+        navbar.classList.remove("navbar-light");
+        navbar.classList.add("navbar-dark");
+        localStorage.setItem("theme", "dark");
+      }
+    });
+  }
 
   /* =========================
-     ÜRÜNLER ÜRÜN EKLENEBİLİR
+     FİREBASE'DEN ÜRÜN ÇEKME VE LİSTELEME
   ========================== */
-  // Firebase'den verileri çekip ekrana basan fonksiyon (Temsili)
-async function getProductsFromFirebase() {
-    const querySnapshot = await getDocs(collection(db, "products"));
-    const firebaseProducts = [];
-    querySnapshot.forEach((doc) => {
-        firebaseProducts.push({ id: doc.id, ...doc.data() });
-    });
-    displayProducts(firebaseProducts); // Senin mevcut fonksiyonun bunu kullanacak
-}
+  async function fetchProductsFromFirebase() {
+    if (!productGrid) return;
+    productGrid.innerHTML = `<div class="col-12 text-center my-5"><div class="spinner-border text-warning" role="status"></div><p class="mt-3">Vitrin hazırlanıyor...</p></div>`;
 
+    try {
+      const q = query(collection(db, "products"), orderBy("createdAt", "desc"));
+      const querySnapshot = await getDocs(q);
+      
+      allProducts = []; // Diziyi sıfırla
+      querySnapshot.forEach((doc) => {
+        allProducts.push({ id: doc.id, ...doc.data() });
+      });
+
+      displayProducts(allProducts);
+
+    } catch (error) {
+      console.error("Ürünler çekilirken hata:", error);
+      productGrid.innerHTML = `<div class="col-12 text-center text-danger"><p>Ürünler yüklenemedi. Lütfen sayfayı yenileyin.</p></div>`;
+    }
+  }
 
   function displayProducts(list) {
-  if (!productGrid) return;
-  productGrid.innerHTML = "";
+    if (!productGrid) return;
+    productGrid.innerHTML = "";
 
-  list.forEach((product, index) => {
-    productGrid.innerHTML += `
-      <div class="col-lg-3 col-md-6 fade-in" style="transition-delay:${index * 0.1}s">
-        <div class="card h-100 border-0 shadow-sm product-card">
-          <div style="height:250px; overflow:hidden; position:relative;">
-            <div style="background-image:url('${product.img}'); background-size:cover; background-position:center; filter:blur(20px); position:absolute; width:100%; height:100%; transform:scale(1.2); opacity:0.6;"></div>
-            <img src="${product.img}" style="height:250px; width:100%; object-fit:contain; position:relative; z-index:2;">
-          </div>
-          <div class="card-body text-center">
-            <h5 class="fw-bold">${product.name}</h5>
-            <p class="opacity-75">${product.desc}</p>
-            <p class="fw-bold accent">${product.price}</p>
-            <a href="https://wa.me/905312075818?text=Merhaba%2C%20${encodeURIComponent(product.name)}%20hakk%C4%B1nda%20bilgi%20almak%20istiyorum"
-               class="btn btn-accent rounded-pill px-4">
-              WhatsApp'tan Sor
-            </a>
+    if (list.length === 0) {
+      productGrid.innerHTML = `<div class="col-12 text-center"><p class="opacity-75">Bu kategoride henüz ürün bulunmuyor.</p></div>`;
+      return;
+    }
+
+    list.forEach((product, index) => {
+      // Üst Segment WhatsApp Mesajı (Görsel URL'si, fiyatı ve tam adıyla birlikte)
+      const wpMessage = `Merhaba Trend Optik! Sitenizdeki "${product.name}" modeliyle ilgileniyorum. Fiyatı: ${product.price}. Bu model şu an stoklarınızda mevcut mu? (Ürün Görseli: ${product.img} )`;
+      const wpLink = `https://wa.me/905312075818?text=${encodeURIComponent(wpMessage)}`;
+
+      productGrid.innerHTML += `
+        <div class="col-lg-3 col-md-6 fade-in" style="transition-delay:${index * 0.1}s">
+          <div class="card h-100 border-0 shadow-sm product-card">
+            <div style="height:250px; overflow:hidden; position:relative;">
+              <div style="background-image:url('${product.img}'); background-size:cover; background-position:center; filter:blur(20px); position:absolute; width:100%; height:100%; transform:scale(1.2); opacity:0.6;"></div>
+              <img src="${product.img}" loading="lazy" style="height:250px; width:100%; object-fit:contain; position:relative; z-index:2;">
+            </div>
+            <div class="card-body text-center d-flex flex-column">
+              <h5 class="fw-bold">${product.name}</h5>
+              <p class="opacity-75 small mb-auto">${product.desc}</p>
+              <p class="fw-bold accent fs-5 mt-3">${product.price}</p>
+              <a href="${wpLink}" target="_blank" class="btn btn-accent rounded-pill px-4 mt-2">
+                <i class="bi bi-whatsapp"></i> WhatsApp'tan Sor
+              </a>
+            </div>
           </div>
         </div>
-      </div>
-    `;
-  });
+      `;
+    });
 
-  activateFade();
-}
+    activateFade();
+  }
 
-  displayProducts(products);
+  // Sayfa açıldığında ürünleri getir
+  fetchProductsFromFirebase();
 
+  /* =========================
+     ARAMA VE FİLTRELEME
+  ========================== */
   if (searchInput) {
     searchInput.addEventListener("keyup", function () {
       const value = this.value.toLowerCase();
-      const filtered = products.filter(p =>
+      const filtered = allProducts.filter(p =>
         p.name.toLowerCase().includes(value) ||
         p.desc.toLowerCase().includes(value) ||
         p.category.toLowerCase().includes(value)
@@ -169,15 +201,15 @@ async function getProductsFromFirebase() {
 
       const category = btn.dataset.category;
       const filtered = category === "all"
-        ? products
-        : products.filter(p => p.category === category);
+        ? allProducts
+        : allProducts.filter(p => p.category === category);
 
       displayProducts(filtered);
     });
   });
 
   /* =========================
-     FADE IN
+     FADE IN EFEKTİ
   ========================== */
   function activateFade() {
     const observer = new IntersectionObserver(entries => {
@@ -190,24 +222,19 @@ async function getProductsFromFirebase() {
 
     document.querySelectorAll(".fade-in").forEach(el => observer.observe(el));
   }
-
   activateFade();
 
   /* =========================
      SAYAÇ ANİMASYONU
   ========================== */
   if (statsSection && counters.length > 0) {
-
     let started = false;
-
     function startCounters() {
       if (started) return;
-
       counters.forEach(counter => {
         const target = +counter.getAttribute("data-target");
         let count = 0;
         const speed = target / 120;
-
         function update() {
           count += speed;
           if (count < target) {
@@ -217,10 +244,8 @@ async function getProductsFromFirebase() {
             counter.innerText = target;
           }
         }
-
         update();
       });
-
       started = true;
     }
 
@@ -231,9 +256,7 @@ async function getProductsFromFirebase() {
         }
       });
     }, { threshold: 0.5 });
-
     observer.observe(statsSection);
   }
 
 });
-
