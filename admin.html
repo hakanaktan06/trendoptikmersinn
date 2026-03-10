@@ -30,6 +30,21 @@
       100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
     }
     .pulse-anim { animation: pulse-red 2s infinite; border-radius: 5px; }
+
+    /* YENİ: NEON NEFES ALAN KUTULAR (CYBERPUNK EFEKTİ) */
+    .stat-card {
+        transition: all 0.4s ease;
+        position: relative;
+        overflow: hidden;
+        cursor: default;
+    }
+    .stat-card:hover {
+        transform: translateY(-5px) scale(1.02);
+    }
+    .stat-card.product-stat:hover { box-shadow: 0 10px 30px rgba(245, 166, 35, 0.25); border-color: #f5a623; }
+    .stat-card.order-stat:hover { box-shadow: 0 10px 30px rgba(240, 173, 78, 0.25); border-color: #f0ad4e; }
+    .stat-card.cert-stat:hover { box-shadow: 0 10px 30px rgba(212, 175, 55, 0.25); border-color: #d4af37; }
+    .stat-card.lens-stat:hover { box-shadow: 0 10px 30px rgba(13, 202, 240, 0.25); border-color: #0dcaf0; }
   </style>
 </head>
 <body>
@@ -54,31 +69,31 @@
 
   <div id="dashboardSection">
     <div class="d-flex justify-content-between align-items-center mb-4">
-      <h4 class="m-0">Hoş Geldiniz, <span class="accent">Patron</span></h4>
+      <h4 class="m-0" id="greetingText">Hoş Geldiniz, <span class="accent">Patron</span></h4>
       <button id="logoutBtn" class="btn btn-outline-danger rounded-pill px-4">Çıkış Yap</button>
     </div>
 
     <div class="row g-3 mb-4">
       <div class="col-md-3">
-        <div class="glass-panel text-center p-3" style="border-bottom: 3px solid #f5a623;">
+        <div class="glass-panel stat-card product-stat text-center p-3" style="border-bottom: 3px solid #f5a623;">
           <h6 class="opacity-75 mb-1"><i class="bi bi-box-seam me-2"></i>Sistemdeki Ürün</h6>
           <h2 class="fw-bold mb-0" id="totalProductCount">0</h2>
         </div>
       </div>
       <div class="col-md-3">
-        <div class="glass-panel text-center p-3" style="border-bottom: 3px solid #f0ad4e;">
+        <div class="glass-panel stat-card order-stat text-center p-3" style="border-bottom: 3px solid #f0ad4e;">
           <h6 class="opacity-75 mb-1"><i class="bi bi-truck me-2"></i>Aktif Siparişler</h6>
           <h2 class="fw-bold mb-0 text-warning" id="activeOrderCount">0</h2>
         </div>
       </div>
       <div class="col-md-3">
-        <div class="glass-panel text-center p-3" style="border-bottom: 3px solid #d4af37;">
+        <div class="glass-panel stat-card cert-stat text-center p-3" style="border-bottom: 3px solid #d4af37;">
           <h6 class="opacity-75 mb-1"><i class="bi bi-award-fill me-2"></i>VIP Sertifikalar</h6>
           <h2 class="fw-bold mb-0" style="color: #d4af37;" id="certCount">0</h2>
         </div>
       </div>
       <div class="col-md-3">
-        <div class="glass-panel text-center p-3" style="border-bottom: 3px solid #0dcaf0;">
+        <div class="glass-panel stat-card lens-stat text-center p-3" style="border-bottom: 3px solid #0dcaf0;">
           <h6 class="opacity-75 mb-1"><i class="bi bi-eye-fill me-2"></i>Lens Takipleri</h6>
           <h2 class="fw-bold mb-0 text-info" id="lensCount">0</h2>
         </div>
@@ -340,6 +355,35 @@
   let adminOrders = [];
   let adminCerts = [];
 
+  // YENİ: VAHŞET ODOMETRE (SAYI ANİMASYONU) FONKSİYONU
+  function animateValue(id, newValue) {
+    const obj = document.getElementById(id);
+    const startValue = parseInt(obj.innerText) || 0;
+    if (startValue === newValue) return;
+    
+    const duration = 1000; // 1 saniyede kadrana otursun
+    let startTimestamp = null;
+    const step = (timestamp) => {
+      if (!startTimestamp) startTimestamp = timestamp;
+      const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+      obj.innerText = Math.floor(progress * (newValue - startValue) + startValue);
+      if (progress < 1) window.requestAnimationFrame(step);
+      else obj.innerText = newValue;
+    };
+    window.requestAnimationFrame(step);
+  }
+
+  // YENİ: DİNAMİK SAAT KARŞILAMASI
+  function updateGreeting() {
+    const hour = new Date().getHours();
+    let greetingMsg = "Hoş Geldin";
+    if (hour >= 5 && hour < 12) greetingMsg = "Günaydın";
+    else if (hour >= 12 && hour < 18) greetingMsg = "İyi Günler";
+    else if (hour >= 18 && hour < 22) greetingMsg = "İyi Akşamlar";
+    else greetingMsg = "İyi Geceler";
+    document.getElementById("greetingText").innerHTML = `${greetingMsg}, <span class="accent">Patron</span>`;
+  }
+
   pImgUrl.addEventListener("input", function() {
     if(this.value.trim() !== "") {
       imagePreview.innerHTML = `<img src="${this.value}" style="width:100%; height:100%; object-fit:cover;">`;
@@ -364,6 +408,7 @@
     if (user) {
       loginSection.style.display = "none";
       dashboardSection.style.display = "block";
+      updateGreeting(); // Saate göre selam ver
       loadProducts(); 
       loadOrders(); 
       loadCerts(); 
@@ -411,13 +456,14 @@
       const q = query(collection(db, "products"), orderBy("createdAt", "desc"));
       const querySnapshot = await getDocs(q);
       productTableBody.innerHTML = ""; adminProducts = []; 
-      if(querySnapshot.empty) { document.getElementById("totalProductCount").innerText = "0"; return; }
+      if(querySnapshot.empty) { animateValue("totalProductCount", 0); return; }
       querySnapshot.forEach((doc) => {
         const p = doc.data(); adminProducts.push({ id: doc.id, ...p });
         const finalPrice = p.price.toString().includes("₺") ? p.price : `${p.price} ₺`;
         productTableBody.innerHTML += `<tr><td><input type="checkbox" class="form-check-input vip-check" data-id="${doc.id}"></td><td><img src="${p.img}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;"></td><td class="fw-bold">${p.name}</td><td><span class="badge bg-secondary">${p.category}</span></td><td class="accent fw-bold">${finalPrice}</td><td class="text-warning fw-bold"><i class="bi bi-fire"></i> ${p.clicks || 0}</td><td><button class="btn btn-sm btn-primary edit-btn me-1" data-id="${doc.id}"><i class="bi bi-pencil"></i></button><button class="btn btn-sm btn-danger delete-btn" data-id="${doc.id}"><i class="bi bi-trash"></i></button></td></tr>`;
       });
-      document.getElementById("totalProductCount").innerText = adminProducts.length;
+      // Sayıyı döndürerek yazdır
+      animateValue("totalProductCount", adminProducts.length);
 
       document.querySelectorAll(".edit-btn").forEach(btn => {
         btn.addEventListener("click", (e) => {
@@ -466,7 +512,11 @@
         let badge = order.status === "Teslimata Hazır" ? "bg-success" : (order.status === "Camlar Kesiliyor" ? "bg-primary" : "bg-info text-dark");
         orderTableBody.innerHTML += `<tr><td class="fw-bold">${order.customerName}</td><td>${order.phone}</td><td>${order.product}</td><td><span class="badge ${badge} p-2">${order.status}</span></td><td><select class="form-select form-select-sm d-inline-block w-auto status-change" data-id="${doc.id}"><option value="">Durum</option><option value="Camlar Kesiliyor">Kesiliyor</option><option value="Teslimata Hazır">Hazır</option><option value="Teslim Edildi">Arşivle</option></select><button class="btn btn-sm btn-danger delete-order-btn ms-1" data-id="${doc.id}"><i class="bi bi-x-lg"></i></button></td></tr>`;
       });
-      document.getElementById("activeOrderCount").innerText = adminOrders.filter(o => o.status !== "Teslim Edildi").length;
+      
+      // Sayıyı döndürerek yazdır
+      const activeCount = adminOrders.filter(o => o.status !== "Teslim Edildi").length;
+      animateValue("activeOrderCount", activeCount);
+
       document.querySelectorAll(".delete-order-btn").forEach(btn => btn.onclick = async (e) => { await deleteDoc(doc(db, "orders", e.target.closest('button').dataset.id)); loadOrders(); });
       document.querySelectorAll(".status-change").forEach(sel => sel.onchange = async (e) => { if(e.target.value) { await updateDoc(doc(db, "orders", e.target.dataset.id), { status: e.target.value }); loadOrders(); } });
     } catch (e) { console.error(e); }
@@ -493,9 +543,11 @@
       tbody.innerHTML = "";
       qs.forEach((d) => {
         const c = d.data(); const link = `https://www.trendoptikmersin.com/sertifika?id=${d.id}`;
-        tbody.innerHTML += `<tr><td class="accent fw-bold small">${c.certNo}</td><td>${c.customerName}</td><td>${c.product}</td><td>%${c.discountRate}</td><td><button class="btn btn-sm btn-outline-warning" onclick="navigator.clipboard.writeText('${link}'); alert('Link Kopyalandı!')"><i class="bi bi-link"></i></button><button class="btn btn-sm btn-danger delete-cert-btn" data-id="${d.id}"><i class="bi bi-trash"></i></button></td></tr>`;
+        tbody.innerHTML += `<tr><td class="accent fw-bold small">${c.certNo}</td><td>${c.customerName}</td><td>${c.product}</td><td>%${c.discountRate}</td><td><button class="btn btn-sm btn-outline-warning" onclick="navigator.clipboard.writeText('${link}'); alert('Link Kopyalandı!')"><i class="bi bi-link"></i></button><button class="btn btn-sm btn-danger delete-cert-btn ms-1" data-id="${d.id}"><i class="bi bi-trash"></i></button></td></tr>`;
       });
-      document.getElementById("certCount").innerText = qs.size;
+      // Sayıyı döndürerek yazdır
+      animateValue("certCount", qs.size);
+
       document.querySelectorAll(".delete-cert-btn").forEach(btn => btn.onclick = async (e) => { if(confirm("Siliyorum?")) { await deleteDoc(doc(db, "certificates", e.target.closest('button').dataset.id)); loadCerts(); } });
     } catch (e) { console.error(e); }
   }
@@ -520,7 +572,7 @@
     finally { document.getElementById("addLensBtn").innerText = "LENS TAKİBİNİ BAŞLAT"; }
   });
 
-    async function loadLenses() {
+  async function loadLenses() {
     const tbody = document.getElementById("lensTableBody");
     try {
       const qs = await getDocs(query(collection(db, "lenses"), orderBy("createdAt", "desc")));
@@ -576,7 +628,8 @@
           </tr>`;
       });
       
-      document.getElementById("lensCount").innerText = totalLenses;
+      // Sayıyı döndürerek yazdır
+      animateValue("lensCount", totalLenses);
 
       // SİLME BUTONU TETİKLEYİCİSİ
       document.querySelectorAll(".delete-lens-btn").forEach(btn => btn.onclick = async (e) => { 
@@ -596,7 +649,6 @@
       
     } catch (e) { console.error("Lens yükleme hatası", e); }
   }
-
 
 </script>
 </body>
