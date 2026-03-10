@@ -69,7 +69,6 @@
       </div>
     </div>
 
-
     <div class="row g-4">
       <div class="col-md-4">
         <div class="glass-panel">
@@ -145,7 +144,6 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
   import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
-  // updateDoc eklendi!
   import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -167,7 +165,6 @@
   const pImgUrl = document.getElementById("pImgUrl");
   const productTableBody = document.getElementById("productTableBody");
   
-  // Düzenleme modu için değişkenler
   let editModeId = null;
   let adminProducts = [];
 
@@ -202,7 +199,6 @@
     }
   });
 
-  // EKLE VEYA GÜNCELLE BUTONU
   document.getElementById("addBtn").addEventListener("click", async () => {
     const name = document.getElementById("pName").value;
     const category = document.getElementById("pCategory").value;
@@ -221,13 +217,10 @@
 
     try {
       if (editModeId) {
-        // GÜNCELLEME İŞLEMİ
         await updateDoc(doc(db, "products", editModeId), {
           name: name, category: category, price: price, desc: desc, img: imgUrl
         });
-        alert("Ürün başarıyla güncellendi!");
       } else {
-        // YENİ EKLEME İŞLEMİ
         await addDoc(collection(db, "products"), {
           name: name, category: category, price: price, desc: desc, img: imgUrl, createdAt: serverTimestamp() 
         });
@@ -241,7 +234,6 @@
     }
   });
 
-  // FORMU SIFIRLAMA
   function resetForm() {
     editModeId = null;
     document.getElementById("pName").value = "";
@@ -266,10 +258,11 @@
       const querySnapshot = await getDocs(q);
       
       productTableBody.innerHTML = ""; 
-      adminProducts = []; // Hafızayı temizle
+      adminProducts = []; 
       
       if(querySnapshot.empty) {
         productTableBody.innerHTML = `<tr><td colspan="5">Henüz ürün eklenmemiş.</td></tr>`;
+        document.getElementById("totalProductCount").innerText = "0"; // Eğer ürün yoksa 0 yazsın
         return;
       }
 
@@ -293,13 +286,9 @@
         productTableBody.innerHTML += row;
       });
 
+      // İŞTE SİHİRLİ KOD BURADA! Sayıyı panele basar:
+      document.getElementById("totalProductCount").innerText = adminProducts.length;
 
-// Tabloyu doldurma işlemi bittikten sonra sayacı güncelle:
-document.getElementById("totalProductCount").innerText = adminProducts.length;
-
-
-
-      // DÜZENLE BUTONLARI
       document.querySelectorAll(".edit-btn").forEach(btn => {
         btn.addEventListener("click", (e) => {
           const id = e.target.closest('button').getAttribute("data-id");
@@ -307,7 +296,7 @@ document.getElementById("totalProductCount").innerText = adminProducts.length;
           
           document.getElementById("pName").value = product.name;
           document.getElementById("pCategory").value = product.category;
-          document.getElementById("pPrice").value = product.price.toString().replace(/[^0-9]/g, ''); // Sadece rakamları al
+          document.getElementById("pPrice").value = product.price.toString().replace(/[^0-9]/g, ''); 
           document.getElementById("pDesc").value = product.desc;
           document.getElementById("pImgUrl").value = product.img;
           
@@ -324,7 +313,6 @@ document.getElementById("totalProductCount").innerText = adminProducts.length;
         });
       });
 
-      // SİLME BUTONLARI
       document.querySelectorAll(".delete-btn").forEach(btn => {
         btn.addEventListener("click", async (e) => {
           const id = e.target.closest('button').getAttribute("data-id");
@@ -337,6 +325,7 @@ document.getElementById("totalProductCount").innerText = adminProducts.length;
 
     } catch (error) {
       productTableBody.innerHTML = `<tr><td colspan="5" class="text-danger">Bağlantı hatası!</td></tr>`;
+      console.error(error);
     }
   }
 </script>
