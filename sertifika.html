@@ -8,43 +8,44 @@
   <style>
     body { background: #000; margin: 0; display: flex; align-items: center; justify-content: center; min-height: 100vh; font-family: 'Poppins', sans-serif; color: #fff; }
     .card-container { width: 90%; max-width: 400px; background: linear-gradient(145deg, #1a1a1a, #0a0a0a); border: 2px solid #d4af37; border-radius: 20px; padding: 40px 30px; text-align: center; box-shadow: 0 0 50px rgba(212, 175, 55, 0.2); }
-    .logo { font-family: 'Playfair Display', serif; font-size: 2rem; color: #d4af37; letter-spacing: 3px; margin-bottom: 10px; }
-    .vip-tag { background: #d4af37; color: #000; font-size: 0.7rem; font-weight: 800; padding: 4px 12px; border-radius: 50px; display: inline-block; margin-bottom: 30px; letter-spacing: 2px; }
+    .logo { font-family: 'Playfair Display', serif; font-size: 2rem; color: #d4af37; letter-spacing: 3px; margin-bottom: 5px; }
+    .welcome-text { font-size: 0.8rem; color: #d4af37; opacity: 0.8; margin-bottom: 15px; letter-spacing: 1px; }
+    .vip-tag { border: 1px solid #d4af37; color: #d4af37; font-size: 0.65rem; font-weight: 600; padding: 4px 15px; border-radius: 50px; display: inline-block; margin-bottom: 25px; }
     .customer-name { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #fff; margin-bottom: 30px; }
-    .info-box { border-top: 1px solid rgba(212, 175, 55, 0.2); border-bottom: 1px solid rgba(212, 175, 55, 0.2); padding: 20px 0; margin-bottom: 30px; text-align: left; }
+    .info-box { border-top: 1px solid rgba(212, 175, 55, 0.2); border-bottom: 1px solid rgba(212, 175, 55, 0.2); padding: 20px 0; margin-bottom: 25px; text-align: left; }
     .info-item { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 0.85rem; }
     .value { font-weight: 600; color: #d4af37; }
-    .reward-box { background: rgba(212, 175, 55, 0.1); border-radius: 12px; padding: 15px; margin-bottom: 20px; }
+    .reward-box { background: rgba(212, 175, 55, 0.08); border: 1px solid rgba(212, 175, 55, 0.2); border-radius: 12px; padding: 15px; margin-bottom: 25px; }
     .reward-title { font-size: 0.8rem; font-weight: 600; color: #d4af37; margin-bottom: 5px; }
+    .motto { font-style: italic; font-size: 0.8rem; color: #d4af37; opacity: 0.9; margin-bottom: 20px; }
+    .footer-note { font-size: 0.75rem; opacity: 0.6; line-height: 1.4; border-top: 1px solid rgba(255,255,255,0.05); pt: 15px; }
   </style>
 </head>
 <body>
   <div class="card-container">
     <div class="logo">TREND OPTİK</div>
-    <div class="vip-tag">VIP SADAKAT KARTI</div>
+    <div class="welcome-text">Trend Optik Ailesine Hoş Geldiniz</div>
+    <div class="vip-tag">VIP DİJİTAL SERTİFİKA</div>
+    
     <div class="customer-name" id="cName">Yükleniyor...</div>
+    
     <div class="info-box">
       <div class="info-item"><span>Ürün:</span> <span class="value" id="cProduct">...</span></div>
       <div class="info-item"><span>Garanti No:</span> <span class="value" id="cId">...</span></div>
-      <div class="info-item"><span>Geçerlilik:</span> <span class="value" id="cDuration">...</span></div>
-    </div>
-        <div class="reward-box" style="margin-top: 20px;">
-      <div class="reward-title">🎁 VIP AYRICALIĞI</div>
-      <div id="rewardDesc" style="font-size: 0.8rem; line-height: 1.5; color: rgba(255,255,255,0.9);">
-        Trend Optik ailesine hoş geldiniz. Bu sertifika ile bir sonraki alışverişinizde size özel <span id="cDiscount" style="color: #d4af37; font-weight: bold;">%15</span> indirim tanımlanmıştır.
-      </div>
-    </div>
-    
-    <div style="margin-top: 25px; font-style: italic; font-size: 0.85rem; opacity: 0.8; color: #d4af37;">
-      "Gözlerinizdeki netlik, bizim önceliğimizdir."
+      <div class="info-item"><span>Garanti Süresi:</span> <span class="value" id="cDuration">...</span></div>
     </div>
 
-    <hr style="border: 0; border-top: 1px solid rgba(212, 175, 55, 0.2); margin: 20px 0;">
-
-    <div class="footer-note" style="line-height: 1.4;">
-      Bu dijital belge, satın aldığınız ürünün orijinalliğini ve 24 aylık servis garantisini Trend Optik Mersin güvencesiyle temsil eder.
+    <div class="reward-box">
+      <div class="reward-title">🎁 SADAKAT HEDİYESİ</div>
+      <div id="rewardDesc" style="font-size: 0.75rem; line-height: 1.4;">Bir sonraki alışverişinizde size özel indirim tanımlanmıştır.</div>
     </div>
 
+    <div class="motto">"Gözlerinizdeki netlik, bizim önceliğimizdir."</div>
+
+    <div class="footer-note" id="footerText">
+      Bu belge, ürününüzün orijinalliğini ve belirlenen süre boyunca Trend Optik Mersin güvencesini temsil eder.
+    </div>
+  </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
@@ -67,18 +68,26 @@
 
     if (certId) {
       async function loadCert() {
-        const docRef = doc(db, "certificates", certId);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          const d = docSnap.data();
-          document.getElementById('cName').innerText = d.customerName;
-          document.getElementById('cProduct').innerText = d.product;
-          document.getElementById('cId').innerText = d.certNo;
-          document.getElementById('cDuration').innerText = d.duration + " Ay";
-          document.getElementById('rewardDesc').innerText = `Bir sonraki alışverişinizde %${d.discountRate} İndirim tanımlanmıştır.`;
-        } else {
-          document.getElementById('cName').innerText = "Geçersiz Sertifika";
-        }
+        try {
+          const docRef = doc(db, "certificates", certId);
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            const d = docSnap.data();
+            const durationText = d.duration + " Ay";
+            
+            document.getElementById('cName').innerText = d.customerName;
+            document.getElementById('cProduct').innerText = d.product;
+            document.getElementById('cId').innerText = d.certNo;
+            document.getElementById('cDuration').innerText = durationText;
+            document.getElementById('rewardDesc').innerText = `Bir sonraki alışverişinizde %${d.discountRate} İndirim tanımlanmıştır.`;
+            
+            // Alt metni dinamik yaptık: 24 ay yazısı yerine paneldeki süre geliyor
+            document.getElementById('footerText').innerText = `Bu dijital belge, satın aldığınız ürünün orijinalliğini ve ${durationText} servis garantisini Trend Optik Mersin güvencesiyle temsil eder.`;
+            
+          } else {
+            document.querySelector('.card-container').innerHTML = "<h2>Sertifika Bulunamadı</h2>";
+          }
+        } catch (e) { console.error(e); }
       }
       loadCert();
     }
