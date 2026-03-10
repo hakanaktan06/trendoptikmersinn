@@ -1,6 +1,5 @@
-// Firebase v12.10.0 Importları
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-import { getFirestore, collection, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+import { getFirestore, collection, getDocs, query, orderBy, limit, updateDoc, doc, increment } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDKROzPt8ZaQXk_m5sMEY853BCafnZFb4o",
@@ -24,82 +23,63 @@ document.addEventListener("DOMContentLoaded", function () {
   const counters = document.querySelectorAll(".counter");
   let allProducts = [];
 
-  // NAVBAR SCROLL
-  window.addEventListener("scroll", function () {
-    navbar?.classList.toggle("scrolled", window.scrollY > 50);
-  });
-
-  // THEME TOGGLE
+  // NAVBAR VE THEME
+  window.addEventListener("scroll", () => navbar?.classList.toggle("scrolled", window.scrollY > 50));
   if (themeToggle) {
-    if (localStorage.getItem("theme") === "light") {
-      document.body.classList.add("light-mode");
-      navbar?.classList.remove("navbar-dark");
-      navbar?.classList.add("navbar-light");
-      themeToggle.innerHTML = '<i class="bi bi-sun-fill fs-4"></i>';
-    } else {
-      themeToggle.innerHTML = '<i class="bi bi-moon-fill fs-4"></i>';
-    }
-
-    themeToggle.addEventListener("click", function () {
+    if (localStorage.getItem("theme") === "light") { document.body.classList.add("light-mode"); themeToggle.innerHTML = '<i class="bi bi-sun-fill fs-4"></i>'; } 
+    else { themeToggle.innerHTML = '<i class="bi bi-moon-fill fs-4"></i>'; }
+    themeToggle.addEventListener("click", () => {
       document.body.classList.toggle("light-mode");
-      if (document.body.classList.contains("light-mode")) {
-        themeToggle.innerHTML = '<i class="bi bi-sun-fill fs-4"></i>';
-        navbar?.classList.remove("navbar-dark");
-        navbar?.classList.add("navbar-light");
-        localStorage.setItem("theme", "light");
-      } else {
-        themeToggle.innerHTML = '<i class="bi bi-moon-fill fs-4"></i>';
-        navbar?.classList.remove("navbar-light");
-        navbar?.classList.add("navbar-dark");
-        localStorage.setItem("theme", "dark");
-      }
+      if (document.body.classList.contains("light-mode")) { themeToggle.innerHTML = '<i class="bi bi-sun-fill fs-4"></i>'; localStorage.setItem("theme", "light"); } 
+      else { themeToggle.innerHTML = '<i class="bi bi-moon-fill fs-4"></i>'; localStorage.setItem("theme", "dark"); }
     });
   }
 
-  // FADE IN EFEKTİ (Hizmetler ve Sayaç İçin Düzeltildi)
+  // FADE IN
   function activateFade() {
     const observer = new IntersectionObserver(entries => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add("show");
-        }
-      });
+      entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add("show"); });
     }, { threshold: 0.1 });
-
     document.querySelectorAll(".fade-in").forEach(el => observer.observe(el));
   }
-  
-  // Sayfa yüklenir yüklenmez statik elementleri (hizmetler, yorumlar vs.) canlandır
   activateFade();
-
-    // ==========================================
-  // BURADAN İTİBAREN KOPYALA (Eski createProductCard'ı silip yerine bunu yapıştır)
-  // ==========================================
 
   // SPLASH SCREEN KAPATICI
   window.addEventListener('load', () => {
-    setTimeout(() => {
-      const splash = document.getElementById('splashScreen');
-      if(splash) splash.classList.add('splash-fade');
-    }, 1500); // 1.5 saniye ekranda kalır
+    setTimeout(() => { const splash = document.getElementById('splashScreen'); if(splash) splash.classList.add('splash-fade'); }, 1500); 
   });
 
-  // PAYLAŞMA FONKSİYONU
-  window.shareProduct = function(name, price, imgUrl) {
-    const text = `Trend Optik'te şu modele bayıldım!\n\n🕶️ ${name}\n💰 Fiyat: ${price}\n\nSen de incele: https://www.trendoptikmersin.com/urunler.html`;
-    if (navigator.share) {
-      navigator.share({ title: 'Trend Optik', text: text }).catch(console.error);
-    } else {
-      // Telefon paylaşmayı desteklemiyorsa linki kopyala
-      navigator.clipboard.writeText(text);
-      alert("Ürün bilgileri kopyalandı! İstediğin kişiye yapıştırıp gönderebilirsin.");
-    }
+  // POLARİZE SİMÜLATÖR KAYDIRMA MANTIĞI
+  const simSlider = document.getElementById('simSlider');
+  const simForeground = document.getElementById('simForeground');
+  const simSliderBtn = document.getElementById('simSliderBtn');
+  if(simSlider && simForeground && simSliderBtn) {
+    simSlider.addEventListener('input', (e) => {
+      const val = e.target.value;
+      simForeground.style.width = val + '%';
+      simSliderBtn.style.left = val + '%';
+    });
+  }
+
+  // WHATSAPP TIKLAMA TAKİBİ (Firebase'e yazar)
+  window.askWhatsApp = async function(id, wpLink) {
+    window.open(wpLink, '_blank');
+    try {
+      await updateDoc(doc(db, "products", id), { clicks: increment(1) });
+    } catch(e) { console.log("Tıklama kaydedilemedi:", e); }
   };
 
-  // YENİ ÜRÜN KARTI OLUŞTURMA (WhatsApp ve Paylaş Butonu Yanyana)
+  // PAYLAŞMA
+  window.shareProduct = function(name, price, imgUrl) {
+    const text = `Trend Optik'te şu modele bayıldım!\n🕶️ ${name}\n💰 Fiyat: ${price}\nİncele: https://www.trendoptikmersin.com/urunler.html`;
+    if (navigator.share) { navigator.share({ title: 'Trend Optik', text: text }).catch(console.error); } 
+    else { navigator.clipboard.writeText(text); alert("Ürün kopyalandı!"); }
+  };
+
+  // ÜRÜN KARTI (Tıklama Takibi Eklendi)
   function createProductCard(product, index) {
     const finalPrice = product.price.toString().includes("₺") ? product.price : `${product.price} ₺`;
-    const wpMessage = `Merhaba Trend Optik! Sitenizdeki "${product.name}" modeliyle ilgileniyorum. Fiyatı: ${finalPrice}. Stokta mevcut mu? (Görsel: ${product.img})`;
+    const wpMessage = `Merhaba! Sitenizdeki "${product.name}" modeliyle ilgileniyorum. Fiyatı: ${finalPrice}. (Görsel: ${product.img})`;
     const wpLink = `https://wa.me/905312075818?text=${encodeURIComponent(wpMessage)}`;
     
     return `
@@ -114,103 +94,67 @@ document.addEventListener("DOMContentLoaded", function () {
             <p class="opacity-75 small mb-auto">${product.desc}</p>
             <p class="fw-bold accent fs-5 mt-3">${finalPrice}</p>
             <div class="d-flex justify-content-center gap-2 mt-2">
-  <a href="${wpLink}" target="_blank" class="btn btn-accent rounded-pill px-3 flex-grow-1" style="white-space: nowrap;">
-    <i class="bi bi-whatsapp"></i> Sor
-  </a>
-  <button onclick="shareProduct('${product.name}', '${finalPrice}', '${product.img}')" class="btn btn-accent rounded-pill px-3 share-btn">
-    <i class="bi bi-share"></i>
-  </button>
-</div>
-
+              <button onclick="askWhatsApp('${product.id}', '${wpLink}')" class="btn btn-accent rounded-pill px-3 flex-grow-1" style="white-space: nowrap;">
+                <i class="bi bi-whatsapp"></i> Sor
+              </button>
+              <button onclick="shareProduct('${product.name}', '${finalPrice}', '${product.img}')" class="btn btn-accent rounded-pill px-3 share-btn">
+                <i class="bi bi-share"></i>
+              </button>
+            </div>
           </div>
         </div>
       </div>
     `;
   }
-  // ==========================================
-  // BURAYA KADAR KOPYALA
-  // ==========================================
 
-
-  // ANA SAYFA VİTRİNİ (Sadece 4 ürün)
+  // ANA SAYFA VE TÜM ÜRÜNLER ÇEKME MANTIĞI...
   if (homeProductGrid) {
     async function fetchHomeProducts() {
-      homeProductGrid.innerHTML = `<div class="col-12 text-center my-5"><div class="spinner-border text-warning"></div></div>`;
       try {
         const q = query(collection(db, "products"), orderBy("createdAt", "desc"), limit(4));
-        const querySnapshot = await getDocs(q);
+        const qs = await getDocs(q);
         homeProductGrid.innerHTML = "";
-        if (querySnapshot.empty) {
-          homeProductGrid.innerHTML = `<div class="col-12 text-center"><p>Henüz ürün eklenmedi.</p></div>`;
-          return;
-        }
-        let i = 0;
-        querySnapshot.forEach((doc) => {
-          homeProductGrid.innerHTML += createProductCard({ id: doc.id, ...doc.data() }, i++);
-        });
-        activateFade(); // Ürünler geldikten sonra animasyonu tetikle
-      } catch (error) {
-        homeProductGrid.innerHTML = `<p class="text-danger text-center">Ürünler yüklenemedi.</p>`;
-      }
+        let i = 0; qs.forEach((doc) => { homeProductGrid.innerHTML += createProductCard({ id: doc.id, ...doc.data() }, i++); });
+        activateFade();
+      } catch (e) { homeProductGrid.innerHTML = `<p class="text-danger">Yüklenemedi.</p>`; }
     }
     fetchHomeProducts();
   }
 
-  // TÜM ÜRÜNLER SAYFASI
   if (allProductGrid) {
     async function fetchAllProducts() {
-      allProductGrid.innerHTML = `<div class="col-12 text-center my-5"><div class="spinner-border text-warning"></div></div>`;
       try {
         const q = query(collection(db, "products"), orderBy("createdAt", "desc"));
-        const querySnapshot = await getDocs(q);
-        allProducts = [];
-        querySnapshot.forEach((doc) => {
-          allProducts.push({ id: doc.id, ...doc.data() });
-        });
+        const qs = await getDocs(q);
+        allProducts = []; qs.forEach((doc) => { allProducts.push({ id: doc.id, ...doc.data() }); });
         displayAllProducts(allProducts);
-      } catch (error) {
-        allProductGrid.innerHTML = `<p class="text-danger text-center">Ürünler yüklenemedi.</p>`;
-      }
+      } catch (e) {}
     }
-
     function displayAllProducts(list) {
       allProductGrid.innerHTML = "";
-      if (list.length === 0) {
-        allProductGrid.innerHTML = `<div class="col-12 text-center"><p class="opacity-75">Bu kriterlere uygun ürün bulunamadı.</p></div>`;
-        return;
-      }
-      list.forEach((product, index) => {
-        allProductGrid.innerHTML += createProductCard(product, index);
-      });
+      list.forEach((p, i) => { allProductGrid.innerHTML += createProductCard(p, i); });
       activateFade();
     }
-
     fetchAllProducts();
 
-    // Arama Çubuğu
     if (searchInput) {
       searchInput.addEventListener("keyup", function () {
-        const value = this.value.toLowerCase();
-        const filtered = allProducts.filter(p => p.name.toLowerCase().includes(value) || p.desc.toLowerCase().includes(value));
-        displayAllProducts(filtered);
+        const val = this.value.toLowerCase();
+        displayAllProducts(allProducts.filter(p => p.name.toLowerCase().includes(val) || p.desc.toLowerCase().includes(val)));
       });
     }
-
-    // Filtre Butonları
     document.querySelectorAll(".filter-btn").forEach(btn => {
       btn.addEventListener("click", () => {
         document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
         btn.classList.add("active");
-        const category = btn.dataset.category;
-        const filtered = category === "all" ? allProducts : allProducts.filter(p => p.category === category);
-        displayAllProducts(filtered);
+        const cat = btn.dataset.category;
+        displayAllProducts(cat === "all" ? allProducts : allProducts.filter(p => p.category === cat));
       });
     });
   }
 
   // 3D HERO SLIDER
-  const heroImages = document.querySelectorAll(".hero-img");
-  let current = 0;
+  const heroImages = document.querySelectorAll(".hero-img"); let current = 0;
   function updateSlider() {
     if(heroImages.length === 0) return;
     heroImages.forEach(img => img.classList.remove("active", "left", "right"));
@@ -218,28 +162,5 @@ document.addEventListener("DOMContentLoaded", function () {
     heroImages[(current - 1 + heroImages.length) % heroImages.length].classList.add("left");
     heroImages[(current + 1) % heroImages.length].classList.add("right");
   }
-  updateSlider();
-  setInterval(() => { current = (current + 1) % heroImages.length; updateSlider(); }, 4000);
-
-  // SAYAÇ ANİMASYONU (Düzeltildi)
-  if (statsSection && counters.length > 0) {
-    let started = false;
-    const observer = new IntersectionObserver(entries => {
-      if (entries[0].isIntersecting && !started) {
-        counters.forEach(counter => {
-          const target = +counter.getAttribute("data-target");
-          let count = 0;
-          const speed = target / 120;
-          function update() {
-            count += speed;
-            if (count < target) { counter.innerText = Math.ceil(count); requestAnimationFrame(update); } 
-            else { counter.innerText = target; }
-          }
-          update();
-        });
-        started = true;
-      }
-    }, { threshold: 0.5 });
-    observer.observe(statsSection);
-  }
+  updateSlider(); setInterval(() => { current = (current + 1) % heroImages.length; updateSlider(); }, 4000);
 });
