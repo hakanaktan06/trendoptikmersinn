@@ -218,39 +218,44 @@
     </div>
 
     <div class="row g-4">
-      <div class="col-md-4">
-        <div class="glass-panel cert-panel">
-          <h5 style="color: #d4af37;" class="mb-3"><i class="bi bi-patch-check me-2"></i>Sertifika Oluştur</h5>
-          <div class="mb-3">
-            <label class="form-label small">Müşteri Ad Soyad</label>
-            <input type="text" id="certName" class="form-control" placeholder="Örn: Mehmet Öz">
-          </div>
-          <div class="mb-4">
-            <label class="form-label small">Gözlük / Lens Modeli</label>
-            <input type="text" id="certProduct" class="form-control" placeholder="Örn: Prada Silver Edition">
-          </div>
-          <button id="createCertBtn" class="btn w-100 rounded-pill py-2 fw-bold" style="background:#d4af37; color:#000;">DİJİTAL SERTİFİKAYI OLUŞTUR</button>
+  <div class="col-md-5">
+    <div class="glass-panel cert-panel">
+      <h5 style="color: #d4af37;" class="mb-3"><i class="bi bi-patch-check me-2"></i>Sertifika Oluştur</h5>
+      <input type="text" id="certName" class="form-control mb-3" placeholder="Müşteri Ad Soyad">
+      <input type="text" id="certProduct" class="form-control mb-3" placeholder="Gözlük / Lens Modeli">
+      <div class="row g-2 mb-4">
+        <div class="col-6">
+          <label class="small opacity-75">İndirim %</label>
+          <input type="number" id="certDiscount" class="form-control" value="15">
+        </div>
+        <div class="col-6">
+          <label class="small opacity-75">Süre (Ay)</label>
+          <input type="number" id="certDuration" class="form-control" value="24">
         </div>
       </div>
-      <div class="col-md-8">
-        <div class="glass-panel h-100 cert-panel">
-          <h5 style="color: #d4af37;" class="mb-3"><i class="bi bi-stars me-2"></i>Oluşturulan Sertifikalar (Müşteriye Atılacak Linkler)</h5>
-          <div class="table-responsive">
-            <table class="table table-hover table-dark text-center align-middle">
-              <thead>
-                <tr>
-                  <th>Müşteri</th>
-                  <th>Ürün</th>
-                  <th>Sertifika Linki</th>
-                  <th>İşlem</th>
-                </tr>
-              </thead>
-              <tbody id="certTableBody"></tbody>
-            </table>
-          </div>
-        </div>
+      <button id="createCertBtn" class="btn w-100 rounded-pill py-2 fw-bold" style="background:#d4af37; color:#000;">DİJİTAL SERTİFİKAYI OLUŞTUR</button>
+    </div>
+  </div>
+  <div class="col-md-7">
+    <div class="glass-panel h-100 cert-panel">
+      <h5 style="color: #d4af37;" class="mb-3">Kayıtlı VIP Sertifikalar</h5>
+      <div class="table-responsive">
+        <table class="table table-hover table-dark text-center align-middle" style="font-size: 0.85rem;">
+          <thead>
+            <tr>
+              <th>Garanti No</th>
+              <th>Müşteri</th>
+              <th>İndirim</th>
+              <th>İşlem</th>
+            </tr>
+          </thead>
+          <tbody id="certTableBody"></tbody>
+        </table>
       </div>
     </div>
+  </div>
+</div>
+
 
   </div>
 </div>
