@@ -237,4 +237,59 @@ document.addEventListener("DOMContentLoaded", function () {
     }, { threshold: 0.5 });
     observer.observe(statsSection);
   }
+  
+    // ==========================================
+  // GÖZLÜK SİPARİŞ TAKİP MANTIĞI
+  // ==========================================
+  const trackBtn = document.getElementById("trackBtn");
+  const trackPhone = document.getElementById("trackPhone");
+  const trackResult = document.getElementById("trackResult");
+
+  if(trackBtn && trackPhone && trackResult) {
+    trackBtn.addEventListener("click", async () => {
+      let phoneVal = trackPhone.value.trim();
+      if(!phoneVal) return alert("Lütfen telefon numaranızı girin!");
+
+      trackBtn.innerHTML = `<span class="spinner-border spinner-border-sm"></span>`;
+      trackBtn.disabled = true;
+
+      try {
+        // Telefon numarasına göre siparişleri ara
+        const q = query(collection(db, "orders"));
+        const qs = await getDocs(q);
+        
+        let foundOrder = null;
+        qs.forEach((doc) => {
+          if(doc.data().phone === phoneVal) foundOrder = doc.data();
+        });
+
+        trackResult.style.display = "block";
+        if(foundOrder) {
+          let statusColor = "#0dcaf0"; // Mavi (Hazırlanıyor)
+          let icon = "bi-gear-wide-connected";
+          
+          if(foundOrder.status === "Teslimata Hazır") { statusColor = "#25D366"; icon = "bi-check-circle-fill"; } // Yeşil
+          else if(foundOrder.status === "Teslim Edildi") { statusColor = "#6c757d"; icon = "bi-bag-check"; } // Gri
+
+          trackResult.innerHTML = `
+            <h6 class="mb-2 opacity-75">Sipariş Sahibi: <span class="text-white fw-bold">${foundOrder.customerName}</span></h6>
+            <h6 class="mb-3 opacity-75">Ürün: <span class="text-white">${foundOrder.product}</span></h6>
+            <div class="p-2 rounded d-flex align-items-center justify-content-center gap-2" style="background: rgba(255,255,255,0.05); border: 1px solid ${statusColor}; color: ${statusColor};">
+              <i class="bi ${icon} fs-5"></i>
+              <h5 class="m-0 fw-bold">${foundOrder.status}</h5>
+            </div>
+            <p class="mt-3 mb-0 small opacity-50">Son Güncelleme: Yakın zamanda</p>
+          `;
+        } else {
+          trackResult.innerHTML = `<div class="text-danger fw-bold"><i class="bi bi-exclamation-triangle"></i> Bu numaraya ait aktif bir sipariş bulunamadı.</div>`;
+        }
+      } catch (error) {
+        trackResult.innerHTML = `<div class="text-danger fw-bold">Sorgulama hatası!</div>`;
+      } finally {
+        trackBtn.innerHTML = `Sorgula`;
+        trackBtn.disabled = false;
+      }
+    });
+  }
+
 });
