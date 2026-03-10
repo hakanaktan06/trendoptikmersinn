@@ -298,7 +298,7 @@
 
 
 
-<section class="container py-5" id="urunler">
+<section class="container-fluid py-5" id="urunler" style="overflow: hidden;">
   <div class="text-center mb-5">
     <h2 class="display-5 fw-bold accent">Yeni Gelenler</h2>
     <p class="opacity-75 mb-4">Trend Optik vitrinindeki en yeni modeller</p>
@@ -308,39 +308,57 @@
     </a>
   </div>
 
-  <div class="product-slider-wrapper">
-    <div class="row flex-nowrap overflow-auto g-4 pb-4 custom-scrollbar" id="homeProductGrid">
+  <div class="infinite-slider-wrapper mt-4">
+    <div class="infinite-slider-track" id="homeProductGrid">
       </div>
   </div>
 
   <style>
-    /* Mobilde kartların dışarı taşmadan kaymasını sağlayan büyü */
-    .product-slider-wrapper {
+    .infinite-slider-wrapper {
+        overflow: hidden;
+        width: 100vw; /* Ekranın tamamını kaplasın */
         position: relative;
-        margin: 0 -15px; /* Kenarlara tam sıfırlansın */
-        padding: 0 15px;
+        left: 50%;
+        right: 50%;
+        margin-left: -50vw;
+        margin-right: -50vw;
+        padding: 10px 0;
     }
     
-    .custom-scrollbar {
-        scrollbar-width: none; /* Firefox için barı gizle */
-        -ms-overflow-style: none; /* IE için barı gizle */
-        scroll-snap-type: x mandatory; /* Kayarken tak diye oturmasını sağlar */
-        -webkit-overflow-scrolling: touch;
-    }
-    
-    .custom-scrollbar::-webkit-scrollbar {
-        display: none; /* Chrome/Safari için barı gizle (Görüntü bozulmasın) */
+    .infinite-slider-track {
+        display: flex;
+        width: max-content;
+        /* 30 saniyede bir tur atar, linear sayesinde pürüzsüz yağ gibi akar */
+        animation: scrollVitrin 30s linear infinite; 
     }
 
-    /* Mobilde kart genişliği ayarı */
+    /* Kullanıcı dokununca veya mouse ile üstüne gelince incelemesi için akış dursun */
+    .infinite-slider-track:hover,
+    .infinite-slider-track:active {
+        animation-play-state: paused;
+    }
+
+    @keyframes scrollVitrin {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(-50%); } /* İçerik iki katı olacağı için %50 kaydırmak kusursuz sonsuz döngü yapar */
+    }
+
+    /* Kartların Genişliği ve Boşlukları (Ezilmeyi Önler) */
+    .product-slide-item {
+        width: 280px; 
+        flex-shrink: 0;
+        margin: 0 12px;
+    }
+    
     @media (max-width: 768px) {
-        #homeProductGrid .col-6 {
-            flex: 0 0 75%; /* Kartlar ekranın %75'ini kaplasın ki yanındaki de gözüksün */
-            scroll-snap-align: center;
+        .product-slide-item {
+            width: 260px; /* Mobilde biraz daha kibar dursun */
+            margin: 0 8px;
         }
     }
   </style>
 </section>
+
 
 
 
