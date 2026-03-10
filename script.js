@@ -114,13 +114,14 @@ document.addEventListener("DOMContentLoaded", function () {
             <p class="opacity-75 small mb-auto">${product.desc}</p>
             <p class="fw-bold accent fs-5 mt-3">${finalPrice}</p>
             <div class="d-flex justify-content-center gap-2 mt-2">
-              <a href="${wpLink}" target="_blank" class="btn btn-accent rounded-pill px-3 flex-grow-1" style="white-space: nowrap;">
-                <i class="bi bi-whatsapp"></i> Sor
-              </a>
-              <button onclick="shareProduct('${product.name}', '${finalPrice}', '${product.img}')" class="btn btn-outline-light rounded-pill px-3 share-btn" style="border-color: rgba(255,255,255,0.2);">
-                <i class="bi bi-share"></i>
-              </button>
-            </div>
+  <a href="${wpLink}" target="_blank" class="btn btn-accent rounded-pill px-3 flex-grow-1" style="white-space: nowrap;">
+    <i class="bi bi-whatsapp"></i> Sor
+  </a>
+  <button onclick="shareProduct('${product.name}', '${finalPrice}', '${product.img}')" class="btn btn-accent rounded-pill px-3 share-btn">
+    <i class="bi bi-share"></i>
+  </button>
+</div>
+
           </div>
         </div>
       </div>
