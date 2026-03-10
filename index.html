@@ -177,7 +177,18 @@
 
 
 <section class="container py-5" id="kargotakip">
-  <div class="row justify-content-center fade-in">
+  
+  <style>
+    #trackPhone:focus {
+      border-color: #f5a623 !important;
+      box-shadow: 0 0 0 3px rgba(245, 166, 35, 0.3) !important;
+      -webkit-box-shadow: 0 0 0 3px rgba(245, 166, 35, 0.3) !important;
+      outline: none !important;
+      caret-color: #f5a623 !important;
+    }
+  </style>
+
+  <div class="row justify-content-center fade-in show">
     <div class="col-md-8 col-lg-6">
       <div class="p-4 p-md-5 rounded text-center" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(245,166,35,0.4); box-shadow: 0 10px 30px rgba(245,166,35,0.1); backdrop-filter: blur(10px);">
         <i class="bi bi-box-seam display-4 accent mb-3"></i>
@@ -186,7 +197,9 @@
         
         <div class="input-group mb-3">
           <span class="input-group-text bg-transparent border-end-0" style="border-color: rgba(255,255,255,0.2); color: #f5a623;"><i class="bi bi-telephone"></i></span>
-          <input type="text" id="trackPhone" class="form-control border-start-0" placeholder="Örn: 05551234567" style="background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.2); color:#fff;">
+          
+          <input type="text" id="trackPhone" autocomplete="off" class="form-control border-start-0 shadow-none" placeholder="Örn: 05551234567" style="background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.2); color:#fff;">
+          
           <button class="btn btn-accent px-4 fw-bold" id="trackBtn">Sorgula</button>
         </div>
         
@@ -197,6 +210,7 @@
     </div>
   </div>
 </section>
+
 
 
 <section class="container py-5" id="urunler">
