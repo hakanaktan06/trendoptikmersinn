@@ -38,46 +38,29 @@
     </div>
     
     <div class="reward-box">
-      <div class="reward-title">🎁 SADAKAT HEDİYESİ</div>
-      <div class="reward-desc">Bir sonraki alışverişinizde %15 İndirim tanımlanmıştır.</div>
-    </div>
-    
-    <div class="footer-note">Bu sertifika Trend Optik Mersin tarafından dijital olarak doğrulanmıştır.</div>
-  </div>
+  <div class="reward-title">🎁 SADAKAT HEDİYESİ</div>
+  <div class="reward-desc">Bir sonraki alışverişinizde <span id="cDiscount">%15</span> İndirim tanımlanmıştır.</div>
+</div>
+<div class="info-item"><span class="label">Geçerlilik:</span> <span class="value" id="cDuration">24 Ay</span></div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyDKROzPt8ZaQXk_m5sMEY853BCafnZFb4o",
-      authDomain: "trendoptik.firebaseapp.com",
-      projectId: "trendoptik",
-      storageBucket: "trendoptik.firebasestorage.app",
-      messagingSenderId: "645619125341",
-      appId: "1:645619125341:web:a43aad6e213c80fbe351b4"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    // URL'den ID'yi al
-    const urlParams = new URLSearchParams(window.location.search);
-    const certId = urlParams.get('id');
-
-    if (certId) {
-      async function getCert() {
-        const docRef = doc(db, "certificates", certId);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          document.getElementById('cName').innerText = data.customerName;
-          document.getElementById('cProduct').innerText = data.product;
-          document.getElementById('cId').innerText = certId.substring(0, 8).toUpperCase();
-        }
+<script type="module">
+  // ... (Firebase init kısımları aynı) ...
+  if (certId) {
+    async function getCert() {
+      const docRef = doc(db, "certificates", certId);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        document.getElementById('cName').innerText = data.customerName;
+        document.getElementById('cProduct').innerText = data.product;
+        document.getElementById('cId').innerText = data.certNo; // Artık özel numara geliyor
+        document.getElementById('cDiscount').innerText = `%${data.discountRate}`;
+        document.getElementById('cDuration').innerText = `${data.duration} Ay`;
       }
-      getCert();
     }
-  </script>
+    getCert();
+  }
+</script>
+
 </body>
 </html>
