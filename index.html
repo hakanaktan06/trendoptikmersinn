@@ -42,6 +42,22 @@
 
 <body>
 
+<div id="splashScreen" style="position:fixed; top:0; left:0; width:100%; height:100vh; background-color:#0b0b0b; z-index:99999; display:flex; flex-direction:column; justify-content:center; align-items:center; transition: opacity 0.8s ease-out, visibility 0.8s;">
+  <h1 class="accent" style="font-size: 3.5rem; font-weight: 800; letter-spacing: 2px; animation: pulse 1.5s infinite;">Trend Optik</h1>
+  <p class="text-light opacity-50 mt-2">Vitrin Hazırlanıyor...</p>
+</div>
+
+<style>
+  @keyframes pulse {
+    0% { transform: scale(0.95); opacity: 0.8; }
+    50% { transform: scale(1.05); opacity: 1; text-shadow: 0 0 20px rgba(245,166,35,0.6); }
+    100% { transform: scale(0.95); opacity: 0.8; }
+  }
+  /* Splash screen kaybolma class'ı */
+  .splash-fade { opacity: 0 !important; visibility: hidden !important; }
+</style>
+
+
 <!-- NAVBAR -->
 <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
 <div class="container">
