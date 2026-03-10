@@ -98,14 +98,18 @@ document.addEventListener("DOMContentLoaded", function () {
     } catch(e) { console.log("Tıklama kaydedilemedi", e); }
   };
 
-  // YENİ ÜRÜN KARTI OLUŞTURMA (col-10 eklendi ki mobilde kaydırma kusursuz olsun)
-  function createProductCard(product, index) {
+  // YENİ ÜRÜN KARTI OLUŞTURMA (isSlider parametresi ile vitrin ve tüm ürünler ayrıldı)
+  function createProductCard(product, index, isSlider = false) {
     const finalPrice = product.price.toString().includes("₺") ? product.price : `${product.price} ₺`;
     const wpMessage = `Merhaba Trend Optik! Sitenizdeki "${product.name}" modeliyle ilgileniyorum. Fiyatı: ${finalPrice}. Stokta mevcut mu?`;
     const wpLink = `https://wa.me/905312075818?text=${encodeURIComponent(wpMessage)}`;
     
+    // Eğer vitrinse yan yana kayması için özel sınıf, normal sayfaysa grid sınıfı kullan
+    const gridClass = isSlider ? "product-slide-item" : "col-lg-3 col-md-6 mb-4 fade-in";
+    const delayStyle = isSlider ? "" : `transition-delay:${index * 0.1}s`;
+    
     return `
-      <div class="col-10 col-md-6 col-lg-3 fade-in product-slide-item" style="transition-delay:${index * 0.1}s">
+      <div class="${gridClass}" style="${delayStyle}">
         <div class="card h-100 border-0 shadow-sm product-card">
           <div style="height:250px; overflow:hidden; position:relative;">
             <div style="background-image:url('${product.img}'); background-size:cover; background-position:center; filter:blur(20px); position:absolute; width:100%; height:100%; transform:scale(1.2); opacity:0.6;"></div>
@@ -130,69 +134,39 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // ==========================================
-  // ANA SAYFA VİTRİNİ VE OTOMATİK KAYDIRMA (SLIDER)
+  // ANA SAYFA VİTRİNİ - KUSURSUZ AKIŞ (CSS TABANLI)
   // ==========================================
   if (homeProductGrid) {
     async function fetchHomeProducts() {
-      homeProductGrid.innerHTML = `<div class="col-12 text-center my-5"><div class="spinner-border text-warning"></div></div>`;
+      homeProductGrid.innerHTML = `<div class="w-100 text-center my-5"><div class="spinner-border text-warning"></div></div>`;
       try {
-        // En yeni 6 ürünü çekiyoruz ki vitrin dolu dolu kaysın
         const q = query(collection(db, "products"), orderBy("createdAt", "desc"), limit(6));
         const querySnapshot = await getDocs(q);
-        homeProductGrid.innerHTML = "";
         
         if (querySnapshot.empty) {
-          homeProductGrid.innerHTML = `<div class="col-12 text-center"><p>Henüz ürün eklenmedi.</p></div>`;
+          homeProductGrid.innerHTML = `<div class="w-100 text-center"><p>Henüz ürün eklenmedi.</p></div>`;
           return;
         }
         
+        let htmlContent = "";
         let i = 0;
         querySnapshot.forEach((doc) => {
-          homeProductGrid.innerHTML += createProductCard({ id: doc.id, ...doc.data() }, i++);
+          // isSlider parametresini true gönderiyoruz
+          htmlContent += createProductCard({ id: doc.id, ...doc.data() }, i++, true);
         });
         
-        activateFade();
-        startAutoScroll(); // Vitrin yüklendi, kaydırma motorunu başlat!
+        // VAHŞET HİLESİ: Sonsuz döngü hissi vermek için ürünleri YAN YANA İKİ KEZ basıyoruz. 
+        // HTML'deki CSS animasyonu yarıya gelince başa saracak, kullanıcı bunu asla fark etmeyecek!
+        homeProductGrid.innerHTML = htmlContent + htmlContent;
         
       } catch (error) {
-        homeProductGrid.innerHTML = `<p class="text-danger text-center">Ürünler yüklenemedi.</p>`;
+        homeProductGrid.innerHTML = `<p class="text-danger text-center w-100">Ürünler yüklenemedi.</p>`;
       }
     }
     fetchHomeProducts();
-
-    // VAHŞET KAYDIRMA MOTORU
-    function startAutoScroll() {
-      let isHovered = false;
-      
-      // Kullanıcı dokunurken veya üzerine gelince dursun ki rahatça okusun
-      homeProductGrid.addEventListener("mouseenter", () => isHovered = true);
-      homeProductGrid.addEventListener("mouseleave", () => isHovered = false);
-      homeProductGrid.addEventListener("touchstart", () => isHovered = true);
-      homeProductGrid.addEventListener("touchend", () => {
-        setTimeout(() => isHovered = false, 1500); // Dokunmayı bırakınca 1.5 sn sonra tekrar başlar
-      });
-
-      setInterval(() => {
-        if(!isHovered) {
-          const firstCard = homeProductGrid.querySelector('.product-slide-item');
-          if(!firstCard) return;
-          
-          // Bir kartın genişliği (boşluklar dahil)
-          const cardWidth = firstCard.offsetWidth + 24; 
-          
-          // Eğer en sona geldiysek başa sar (smooth efektiyle)
-          if (homeProductGrid.scrollLeft + homeProductGrid.clientWidth >= homeProductGrid.scrollWidth - 10) {
-            homeProductGrid.scrollTo({ left: 0, behavior: 'smooth' });
-          } else {
-            // Sona gelmediysek 1 kart ileri kaydır
-            homeProductGrid.scrollBy({ left: cardWidth, behavior: 'smooth' });
-          }
-        }
-      }, 3500); // Her 3.5 saniyede bir kart kayar
-    }
   }
 
-  // TÜM ÜRÜNLER SAYFASI
+  // TÜM ÜRÜNLER SAYFASI (NORMAL GRID)
   if (allProductGrid) {
     async function fetchAllProducts() {
       allProductGrid.innerHTML = `<div class="col-12 text-center my-5"><div class="spinner-border text-warning"></div></div>`;
@@ -216,7 +190,8 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
       list.forEach((product, index) => {
-        allProductGrid.innerHTML += createProductCard(product, index);
+        // isSlider false gidiyor, normal sayfada kartlar grid gibi alt alta dizelecek
+        allProductGrid.innerHTML += createProductCard(product, index, false);
       });
       activateFade();
     }
