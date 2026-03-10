@@ -620,3 +620,19 @@ body:not(.light-mode) .carousel-control-next-icon {
   color: #f5a623 !important;
 }
 
+/* =========================
+   FORM INPUT FOCUS (Mavi Çizgiyi Yok Etme)
+========================= */
+.form-control:focus {
+  border-color: #f5a623 !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* Koyu modda yazarken arka planın hafif aydınlanması için (isteğe bağlı ama şık durur) */
+body:not(.light-mode) .form-control:focus {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #fff !important;
+}
+
+
