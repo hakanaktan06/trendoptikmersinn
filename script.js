@@ -72,12 +72,34 @@ document.addEventListener("DOMContentLoaded", function () {
   // Sayfa yüklenir yüklenmez statik elementleri (hizmetler, yorumlar vs.) canlandır
   activateFade();
 
-  // ÜRÜN KARTI OLUŞTURMA (₺ Simgesi eklendi)
+    // ==========================================
+  // BURADAN İTİBAREN KOPYALA (Eski createProductCard'ı silip yerine bunu yapıştır)
+  // ==========================================
+
+  // SPLASH SCREEN KAPATICI
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      const splash = document.getElementById('splashScreen');
+      if(splash) splash.classList.add('splash-fade');
+    }, 1500); // 1.5 saniye ekranda kalır
+  });
+
+  // PAYLAŞMA FONKSİYONU
+  window.shareProduct = function(name, price, imgUrl) {
+    const text = `Trend Optik'te şu modele bayıldım!\n\n🕶️ ${name}\n💰 Fiyat: ${price}\n\nSen de incele: https://www.trendoptikmersin.com/urunler.html`;
+    if (navigator.share) {
+      navigator.share({ title: 'Trend Optik', text: text }).catch(console.error);
+    } else {
+      // Telefon paylaşmayı desteklemiyorsa linki kopyala
+      navigator.clipboard.writeText(text);
+      alert("Ürün bilgileri kopyalandı! İstediğin kişiye yapıştırıp gönderebilirsin.");
+    }
+  };
+
+  // YENİ ÜRÜN KARTI OLUŞTURMA (WhatsApp ve Paylaş Butonu Yanyana)
   function createProductCard(product, index) {
-    // Sadece rakam girilmişse sonuna ₺ ekle, zaten ₺ girilmişse elleme
     const finalPrice = product.price.toString().includes("₺") ? product.price : `${product.price} ₺`;
-    
-    const wpMessage = `Merhaba Trend Optik! Sitenizdeki "${product.name}" modeliyle ilgileniyorum. Fiyatı: ${finalPrice}. Bu model şu an stoklarınızda mevcut mu? (Görsel: ${product.img} )`;
+    const wpMessage = `Merhaba Trend Optik! Sitenizdeki "${product.name}" modeliyle ilgileniyorum. Fiyatı: ${finalPrice}. Stokta mevcut mu? (Görsel: ${product.img})`;
     const wpLink = `https://wa.me/905312075818?text=${encodeURIComponent(wpMessage)}`;
     
     return `
@@ -91,14 +113,23 @@ document.addEventListener("DOMContentLoaded", function () {
             <h5 class="fw-bold">${product.name}</h5>
             <p class="opacity-75 small mb-auto">${product.desc}</p>
             <p class="fw-bold accent fs-5 mt-3">${finalPrice}</p>
-            <a href="${wpLink}" target="_blank" class="btn btn-accent rounded-pill px-4 mt-2">
-              <i class="bi bi-whatsapp"></i> WhatsApp'tan Sor
-            </a>
+            <div class="d-flex justify-content-center gap-2 mt-2">
+              <a href="${wpLink}" target="_blank" class="btn btn-accent rounded-pill px-3 flex-grow-1" style="white-space: nowrap;">
+                <i class="bi bi-whatsapp"></i> Sor
+              </a>
+              <button onclick="shareProduct('${product.name}', '${finalPrice}', '${product.img}')" class="btn btn-outline-light rounded-pill px-3 share-btn" style="border-color: rgba(255,255,255,0.2);">
+                <i class="bi bi-share"></i>
+              </button>
+            </div>
           </div>
         </div>
       </div>
     `;
   }
+  // ==========================================
+  // BURAYA KADAR KOPYALA
+  // ==========================================
+
 
   // ANA SAYFA VİTRİNİ (Sadece 4 ürün)
   if (homeProductGrid) {
