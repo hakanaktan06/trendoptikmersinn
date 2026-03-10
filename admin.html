@@ -49,27 +49,33 @@
     </div>
 
     <div class="row g-3 mb-4">
-      <div class="col-md-4">
+      <div class="col-md-3">
         <div class="glass-panel text-center p-3" style="border-bottom: 3px solid #f5a623;">
           <h6 class="opacity-75 mb-1"><i class="bi bi-box-seam me-2"></i>Sistemdeki Ürün</h6>
           <h2 class="fw-bold mb-0" id="totalProductCount">0</h2>
         </div>
       </div>
-      <div class="col-md-4">
+      <div class="col-md-3">
+        <div class="glass-panel text-center p-3" style="border-bottom: 3px solid #0dcaf0;">
+          <h6 class="opacity-75 mb-1"><i class="bi bi-truck me-2"></i>Aktif Siparişler</h6>
+          <h2 class="fw-bold mb-0 text-info" id="activeOrderCount">0</h2>
+        </div>
+      </div>
+      <div class="col-md-3">
         <div class="glass-panel text-center p-3" style="border-bottom: 3px solid #25D366;">
           <h6 class="opacity-75 mb-1"><i class="bi bi-hdd-network me-2"></i>Sunucu Durumu</h6>
           <h2 class="fw-bold mb-0 text-success">Aktif</h2>
         </div>
       </div>
-      <div class="col-md-4">
-        <div class="glass-panel text-center p-3" style="border-bottom: 3px solid #0dcaf0;">
+      <div class="col-md-3">
+        <div class="glass-panel text-center p-3" style="border-bottom: 3px solid #6f42c1;">
           <h6 class="opacity-75 mb-1"><i class="bi bi-activity me-2"></i>Veritabanı Hızı</h6>
-          <h2 class="fw-bold mb-0 text-info">Kusursuz</h2>
+          <h2 class="fw-bold mb-0" style="color: #d63384;">Kusursuz</h2>
         </div>
       </div>
     </div>
 
-    <div class="row g-4">
+    <div class="row g-4 mb-5">
       <div class="col-md-4">
         <div class="glass-panel">
           <h5 class="accent mb-3" id="formTitle"><i class="bi bi-plus-circle me-2"></i>Yeni Ürün Ekle</h5>
@@ -143,6 +149,67 @@
         </div>
       </div>
     </div>
+
+    <hr class="opacity-25 mb-5 mt-5">
+    <div class="text-center mb-4">
+      <h3 class="fw-bold accent"><i class="bi bi-truck me-2"></i>Sipariş & Gözlük Takip Sistemi</h3>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="glass-panel">
+          <h5 class="accent mb-3"><i class="bi bi-person-plus me-2"></i>Yeni Sipariş Gir</h5>
+          
+          <div class="mb-3">
+            <label class="form-label small">Müşteri Adı Soyadı</label>
+            <input type="text" id="oName" class="form-control" placeholder="Örn: Ahmet Yılmaz">
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label small">Müşteri Telefonu (Sorgu İçin)</label>
+            <input type="text" id="oPhone" class="form-control" placeholder="Örn: 05551234567">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small">Hangi Ürün / Gözlük?</label>
+            <input type="text" id="oProduct" class="form-control" placeholder="Örn: Ray-Ban Dereceli Cam">
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label small">Sipariş Durumu</label>
+            <select id="oStatus" class="form-select">
+              <option value="Sipariş Alındı">Sipariş Alındı</option>
+              <option value="Camlar Kesiliyor">Camlar Kesiliyor (Laboratuvar)</option>
+              <option value="Teslimata Hazır">Teslimata Hazır</option>
+            </select>
+          </div>
+
+          <button id="addOrderBtn" class="btn btn-info w-100 rounded-pill py-2 fw-bold text-dark">Siparişi Oluştur</button>
+        </div>
+      </div>
+
+      <div class="col-md-8">
+        <div class="glass-panel h-100">
+          <h5 class="accent mb-3"><i class="bi bi-card-checklist me-2"></i>Müşteri Bekleyen Siparişler</h5>
+          <div class="table-responsive">
+            <table class="table table-hover table-dark text-center align-middle">
+              <thead>
+                <tr>
+                  <th>Müşteri</th>
+                  <th>Telefon</th>
+                  <th>Ürün</th>
+                  <th>Durum</th>
+                  <th>İşlem</th>
+                </tr>
+              </thead>
+              <tbody id="orderTableBody">
+                </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -172,6 +239,7 @@
   
   let editModeId = null;
   let adminProducts = [];
+  let adminOrders = [];
 
   pImgUrl.addEventListener("input", function() {
     if(this.value.trim() !== "") {
@@ -198,12 +266,14 @@
       loginSection.style.display = "none";
       dashboardSection.style.display = "block";
       loadProducts(); 
+      loadOrders(); // Siparişleri de yükle
     } else {
       loginSection.style.display = "flex";
       dashboardSection.style.display = "none";
     }
   });
 
+  // ================== BÖLÜM 1: ÜRÜN VİTRİN MANTIĞI ==================
   document.getElementById("addBtn").addEventListener("click", async () => {
     const name = document.getElementById("pName").value;
     const category = document.getElementById("pCategory").value;
@@ -226,7 +296,6 @@
           name: name, category: category, price: price, desc: desc, img: imgUrl
         });
       } else {
-        // Yeni ürün eklerken tıklanma sayısını 0 olarak başlat
         await addDoc(collection(db, "products"), {
           name: name, category: category, price: price, desc: desc, img: imgUrl, createdAt: serverTimestamp(), clicks: 0 
         });
@@ -276,7 +345,7 @@
         const product = doc.data();
         adminProducts.push({ id: doc.id, ...product });
         const finalPrice = product.price.toString().includes("₺") ? product.price : `${product.price} ₺`;
-        const clicks = product.clicks || 0; // Tıklama sayısını al, yoksa 0 yap
+        const clicks = product.clicks || 0; 
         
         const row = `
           <tr>
@@ -359,6 +428,122 @@
        alert("VIP Mesaj kopyalandı! Müşterinin WhatsApp'ına yapıştırıp gönderebilirsin.");
     }
   });
+
+
+  // ================== BÖLÜM 2: SİPARİŞ VE KARGO TAKİP MANTIĞI ==================
+  document.getElementById("addOrderBtn").addEventListener("click", async () => {
+    const customerName = document.getElementById("oName").value;
+    const phone = document.getElementById("oPhone").value.trim();
+    const product = document.getElementById("oProduct").value;
+    const status = document.getElementById("oStatus").value;
+
+    if(!customerName || !phone) return alert("Müşteri adı ve telefonu girmek zorunludur aga!");
+
+    document.getElementById("addOrderBtn").innerText = "Sipariş Ekleniyor...";
+    document.getElementById("addOrderBtn").disabled = true;
+
+    try {
+      await addDoc(collection(db, "orders"), {
+        customerName: customerName,
+        phone: phone,
+        product: product,
+        status: status,
+        createdAt: serverTimestamp()
+      });
+      
+      document.getElementById("oName").value = "";
+      document.getElementById("oPhone").value = "";
+      document.getElementById("oProduct").value = "";
+      loadOrders();
+
+    } catch (e) {
+      console.error(e);
+      alert("Eklenemedi! Veritabanı kurallarını kontrol et.");
+    } finally {
+      document.getElementById("addOrderBtn").innerText = "Siparişi Oluştur";
+      document.getElementById("addOrderBtn").disabled = false;
+    }
+  });
+
+  async function loadOrders() {
+    const orderTableBody = document.getElementById("orderTableBody");
+    orderTableBody.innerHTML = `<tr><td colspan="5">Siparişler Yükleniyor...</td></tr>`;
+    
+    try {
+      const q = query(collection(db, "orders"), orderBy("createdAt", "desc"));
+      const querySnapshot = await getDocs(q);
+      
+      orderTableBody.innerHTML = ""; 
+      adminOrders = [];
+      
+      if(querySnapshot.empty) {
+        orderTableBody.innerHTML = `<tr><td colspan="5">Şu an bekleyen sipariş yok.</td></tr>`;
+        document.getElementById("activeOrderCount").innerText = "0";
+        return;
+      }
+
+      querySnapshot.forEach((doc) => {
+        const order = doc.data();
+        adminOrders.push({ id: doc.id, ...order });
+        
+        let badgeColor = "bg-info text-dark"; // Sipariş alındı rengi
+        if(order.status === "Camlar Kesiliyor") badgeColor = "bg-primary";
+        if(order.status === "Teslimata Hazır") badgeColor = "bg-success";
+        if(order.status === "Teslim Edildi") badgeColor = "bg-secondary"; // Arşivlenmiş gibi durur
+
+        const row = `
+          <tr>
+            <td class="fw-bold">${order.customerName}</td>
+            <td>${order.phone}</td>
+            <td>${order.product}</td>
+            <td><span class="badge ${badgeColor} p-2">${order.status}</span></td>
+            <td>
+              <select class="form-select form-select-sm d-inline-block w-auto status-change" data-id="${doc.id}">
+                <option value="">Durum Değiştir</option>
+                <option value="Sipariş Alındı">Sipariş Alındı</option>
+                <option value="Camlar Kesiliyor">Camlar Kesiliyor</option>
+                <option value="Teslimata Hazır">Teslimata Hazır</option>
+                <option value="Teslim Edildi">Teslim Edildi (Arşivle)</option>
+              </select>
+              <button class="btn btn-sm btn-danger delete-order-btn ms-1" data-id="${doc.id}"><i class="bi bi-x-lg"></i></button>
+            </td>
+          </tr>
+        `;
+        orderTableBody.innerHTML += row;
+      });
+
+      // Yukarıdaki "Aktif Sipariş" sayacını güncelle (Teslim edilenler hariç sayılır)
+      const activeCount = adminOrders.filter(o => o.status !== "Teslim Edildi").length;
+      document.getElementById("activeOrderCount").innerText = activeCount;
+
+      // Siparişi Silme
+      document.querySelectorAll(".delete-order-btn").forEach(btn => {
+        btn.addEventListener("click", async (e) => {
+          const id = e.target.closest('button').getAttribute("data-id");
+          if(confirm("Bu sipariş kaydını tamamen siliyorum emin misin?")) {
+            await deleteDoc(doc(db, "orders", id));
+            loadOrders(); 
+          }
+        });
+      });
+
+      // Sipariş Durumunu Açılır Menüden Güncelleme
+      document.querySelectorAll(".status-change").forEach(select => {
+        select.addEventListener("change", async (e) => {
+          const newStatus = e.target.value;
+          const id = e.target.dataset.id;
+          if(newStatus !== "") {
+            await updateDoc(doc(db, "orders", id), { status: newStatus });
+            loadOrders(); // Değişince tabloyu yenile ki renkler güncellensin
+          }
+        });
+      });
+
+    } catch (error) {
+      console.error(error);
+      orderTableBody.innerHTML = `<tr><td colspan="5" class="text-danger">Siparişler çekilemedi.</td></tr>`;
+    }
+  }
 
 </script>
 </body>
