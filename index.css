@@ -621,20 +621,17 @@ body:not(.light-mode) .carousel-control-next-icon {
 }
 
 /* =========================
-   IPHONE/SAFARİ LANET MAVİ ÇİZGİYİ YOK ETME
+   IPHONE MAVİ ÇİZGİSİNİ TURUNCUYA ÇEVİRME HACKİ
 ========================= */
-input:focus,
-textarea:focus,
-.form-control:focus,
-#trackPhone:focus {
-  outline: none !important;
-  box-shadow: none !important;
-  -webkit-box-shadow: none !important;
-  -webkit-appearance: none !important;
-  border-color: #f5a623 !important;
+.input-group > .form-control:focus,
+#trackPhone:focus,
+input[type="text"]:focus {
+    border-color: #f5a623 !important;
+    /* Mavi yerine Premium Turuncu parlama veriyoruz */
+    box-shadow: 0 0 0 3px rgba(245, 166, 35, 0.3) !important; 
+    -webkit-box-shadow: 0 0 0 3px rgba(245, 166, 35, 0.3) !important;
+    outline: none !important;
+    /* Yazı yazarken yanıp sönen imleci (çubuğu) bile turuncu yapar! */
+    caret-color: #f5a623 !important; 
 }
 
-body:not(.light-mode) .form-control:focus {
-  background: rgba(255, 255, 255, 0.08) !important;
-  color: #fff !important;
-}
