@@ -467,54 +467,53 @@
     } catch (e) { console.error(e); }
   }
 
-  // ================== BÖLÜM 3: VIP SERTİFİKA MANTIĞI (YENİ) ==================
+    // Sertifika Oluşturma Motoru 3.1
   document.getElementById("createCertBtn").addEventListener("click", async () => {
-    const customerName = document.getElementById("certName").value;
+    const name = document.getElementById("certName").value;
     const product = document.getElementById("certProduct").value;
-    if(!customerName || !product) return alert("Müşteri adı ve ürün modelini gir kanka!");
+    const discount = document.getElementById("certDiscount").value;
+    const duration = document.getElementById("certDuration").value;
     
-    document.getElementById("createCertBtn").innerText = "Oluşturuluyor...";
+    // Kurumsal Garanti No Üretme (Trend-2026-XXXX)
+    const randomHex = Math.floor(Math.random()*16777215).toString(16).toUpperCase().substring(0,4);
+    const generatedNo = `TRND-${new Date().getFullYear()}-${randomHex}`;
+
+    if(!name || !product) return alert("Bilgileri gir kanka!");
+
     try {
       await addDoc(collection(db, "certificates"), {
-        customerName: customerName,
+        customerName: name,
         product: product,
+        discountRate: discount,
+        duration: duration,
+        certNo: generatedNo,
         createdAt: serverTimestamp()
       });
-      document.getElementById("certName").value = "";
-      document.getElementById("certProduct").value = "";
+      alert(`Sertifika ${generatedNo} numarasıyla oluşturuldu!`);
       loadCerts();
-    } catch (e) { alert("Sertifika hatası!"); }
-    finally { document.getElementById("createCertBtn").innerText = "DİJİTAL SERTİFİKAYI OLUŞTUR"; }
+    } catch (e) { alert("Hata!"); }
   });
 
   async function loadCerts() {
-    const certTableBody = document.getElementById("certTableBody");
-    try {
-      const q = query(collection(db, "certificates"), orderBy("createdAt", "desc"));
-      const qs = await getDocs(q);
-      certTableBody.innerHTML = ""; adminCerts = [];
-      
-      qs.forEach((d) => {
-        const cert = d.data(); adminCerts.push({ id: d.id, ...cert });
-        const link = `https://www.trendoptikmersin.com/sertifika?id=${d.id}`;
-
-        certTableBody.innerHTML += `
-          <tr>
-            <td class="fw-bold">${cert.customerName}</td>
-            <td>${cert.product}</td>
-            <td><small class="opacity-50">${link.substring(0, 30)}...</small></td>
-            <td>
-              <button class="btn btn-sm btn-outline-warning" onclick="navigator.clipboard.writeText('${link}'); alert('VIP Sertifika Linki Kopyalandı! Müşteriye WhatsApp\\'tan atabilirsin.')"><i class="bi bi-link-45deg"></i> Linki Kopyala</button>
-              <button class="btn btn-sm btn-danger delete-cert-btn ms-1" data-id="${d.id}"><i class="bi bi-trash"></i></button>
-            </td>
-          </tr>`;
-      });
-      document.getElementById("certCount").innerText = qs.size;
-      document.querySelectorAll(".delete-cert-btn").forEach(btn => btn.onclick = async (e) => { 
-        if(confirm("Sertifikayı siliyorum?")) { await deleteDoc(doc(db, "certificates", e.target.closest('button').dataset.id)); loadCerts(); }
-      });
-    } catch (e) { console.error(e); }
+    const qs = await getDocs(query(collection(db, "certificates"), orderBy("createdAt", "desc")));
+    const tbody = document.getElementById("certTableBody");
+    tbody.innerHTML = "";
+    qs.forEach((d) => {
+      const c = d.data();
+      const link = `https://www.trendoptikmersin.com/sertifika?id=${d.id}`;
+      tbody.innerHTML += `
+        <tr>
+          <td class="accent fw-bold">${c.certNo}</td>
+          <td>${c.customerName}</td>
+          <td>%${c.discountRate}</td>
+          <td>
+            <button class="btn btn-sm btn-outline-warning" onclick="navigator.clipboard.writeText('${link}'); alert('Link Kopyalandı!')"><i class="bi bi-link"></i></button>
+            <button class="btn btn-sm btn-danger delete-cert-btn" data-id="${d.id}"><i class="bi bi-trash"></i></button>
+          </td>
+        </tr>`;
+    });
   }
+
 </script>
 </body>
 </html>
