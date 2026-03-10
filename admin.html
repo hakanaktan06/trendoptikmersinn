@@ -491,7 +491,8 @@
       
       qs.forEach((d) => {
         const cert = d.data(); adminCerts.push({ id: d.id, ...cert });
-        const link = `https://www.trendoptikmersin.com/sertifika.html?id=${d.id}`;
+        const link = `https://www.trendoptikmersin.com/sertifika?id=${d.id}`;
+
         certTableBody.innerHTML += `
           <tr>
             <td class="fw-bold">${cert.customerName}</td>
