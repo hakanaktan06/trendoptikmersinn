@@ -293,6 +293,12 @@
         productTableBody.innerHTML += row;
       });
 
+
+// Tabloyu doldurma işlemi bittikten sonra sayacı güncelle:
+document.getElementById("totalProductCount").innerText = adminProducts.length;
+
+
+
       // DÜZENLE BUTONLARI
       document.querySelectorAll(".edit-btn").forEach(btn => {
         btn.addEventListener("click", (e) => {
