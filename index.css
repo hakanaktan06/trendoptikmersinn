@@ -621,18 +621,20 @@ body:not(.light-mode) .carousel-control-next-icon {
 }
 
 /* =========================
-   FORM INPUT FOCUS (Mavi Çizgiyi Yok Etme)
+   IPHONE/SAFARİ LANET MAVİ ÇİZGİYİ YOK ETME
 ========================= */
-.form-control:focus {
-  border-color: #f5a623 !important;
-  box-shadow: none !important;
+input:focus,
+textarea:focus,
+.form-control:focus,
+#trackPhone:focus {
   outline: none !important;
+  box-shadow: none !important;
+  -webkit-box-shadow: none !important;
+  -webkit-appearance: none !important;
+  border-color: #f5a623 !important;
 }
 
-/* Koyu modda yazarken arka planın hafif aydınlanması için (isteğe bağlı ama şık durur) */
 body:not(.light-mode) .form-control:focus {
   background: rgba(255, 255, 255, 0.08) !important;
   color: #fff !important;
 }
-
-
