@@ -108,17 +108,16 @@ if (themeToggle) {
   /* =========================
      ÜRÜNLER ÜRÜN EKLENEBİLİR
   ========================== */
-  const products = [
-    { name: "Ray-Ban Aviator Classic", category: "gunes", price: "2.500 - 3.500 ₺", img: "rayban-aviator-classic.jpg", desc: "Klasik pilot modeli, polarize cam seçenekli" },
-    { name: "Prada Rectangular Black", category: "klasik", price: "4.000 - 5.500 ₺", img: "prada-rectangular-black.jpg", desc: "Şık dikdörtgen çerçeve, hafif titanyum malzeme" },
-    { name: "Dolce & Gabbana Cat Eye", category: "kadin", price: "3.000 - 4.200 ₺", img: "dolce-gabbana-cat-eye.jpg", desc: "Kadınlara özel zarif kedi gözü tasarımı" },
-    { name: "Oakley Sport Polarized", category: "spor", price: "1.800 - 2.800 ₺", img: "oakley-sport-polarized.jpg", desc: "Sporcular için yüksek dayanıklılık ve polarize lens" },
-    { name: "Ray-Ban Junior Çocuk", category: "cocuk", price: "1.200 - 1.800 ₺", img: "rayban-junior-kids.jpg", desc: "Çocuklar için güvenli modeller" },
+  // Firebase'den verileri çekip ekrana basan fonksiyon (Temsili)
+async function getProductsFromFirebase() {
+    const querySnapshot = await getDocs(collection(db, "products"));
+    const firebaseProducts = [];
+    querySnapshot.forEach((doc) => {
+        firebaseProducts.push({ id: doc.id, ...doc.data() });
+    });
+    displayProducts(firebaseProducts); // Senin mevcut fonksiyonun bunu kullanacak
+}
 
-
-
-
-  ];
 
   function displayProducts(list) {
   if (!productGrid) return;
