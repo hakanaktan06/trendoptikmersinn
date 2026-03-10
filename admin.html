@@ -494,24 +494,47 @@
     } catch (e) { alert("Hata!"); }
   });
 
-  async function loadCerts() {
-    const qs = await getDocs(query(collection(db, "certificates"), orderBy("createdAt", "desc")));
-    const tbody = document.getElementById("certTableBody");
-    tbody.innerHTML = "";
-    qs.forEach((d) => {
-      const c = d.data();
-      const link = `https://www.trendoptikmersin.com/sertifika?id=${d.id}`;
-      tbody.innerHTML += `
-        <tr>
-          <td class="accent fw-bold">${c.certNo}</td>
-          <td>${c.customerName}</td>
-          <td>%${c.discountRate}</td>
-          <td>
-            <button class="btn btn-sm btn-outline-warning" onclick="navigator.clipboard.writeText('${link}'); alert('Link Kopyalandı!')"><i class="bi bi-link"></i></button>
-            <button class="btn btn-sm btn-danger delete-cert-btn" data-id="${d.id}"><i class="bi bi-trash"></i></button>
-          </td>
-        </tr>`;
-    });
+    async function loadCerts() {
+    const certTableBody = document.getElementById("certTableBody");
+    try {
+      const q = query(collection(db, "certificates"), orderBy("createdAt", "desc"));
+      const qs = await getDocs(q);
+      certTableBody.innerHTML = "";
+      
+      qs.forEach((d) => {
+        const cert = d.data();
+        const link = `https://www.trendoptikmersin.com/sertifika?id=${d.id}`;
+        
+        // Tabloya Ürün sütununu ekledik
+        certTableBody.innerHTML += `
+          <tr>
+            <td class="accent fw-bold small">${cert.certNo}</td>
+            <td>${cert.customerName}</td>
+            <td>${cert.product}</td>
+            <td>%${cert.discountRate}</td>
+            <td>
+              <button class="btn btn-sm btn-outline-warning" onclick="navigator.clipboard.writeText('${link}'); alert('VIP Sertifika Linki Kopyalandı!')"><i class="bi bi-link"></i></button>
+              <button class="btn btn-sm btn-danger delete-cert-btn" data-id="${d.id}"><i class="bi bi-trash"></i></button>
+            </td>
+          </tr>`;
+      });
+
+      document.getElementById("certCount").innerText = qs.size;
+
+      // SİLME BUTONU DÜZELTME:
+      document.querySelectorAll(".delete-cert-btn").forEach(btn => {
+        btn.onclick = async (e) => {
+          const id = e.target.closest('button').dataset.id;
+          if(confirm("Bu sertifikayı siliyorum patron, emin misin?")) {
+            await deleteDoc(doc(db, "certificates", id));
+            loadCerts(); // Listeyi yenile
+          }
+        };
+      });
+
+    } catch (e) { console.error(e); }
+  }
+
   }
 
 </script>
