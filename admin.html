@@ -10,11 +10,12 @@
     body { background-color: #0f0f0f; color: #fff; font-family: 'Poppins', sans-serif; }
     .glass-panel { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 2rem; }
     .accent { color: #f5a623; }
-    .btn-accent { background: #f5a623; color: #000; font-weight: bold; border: none; }
-    .btn-accent:hover { background: #ffbb33; }
+    .btn-accent { background: #f5a623; color: #000; font-weight: bold; border: none; transition: 0.3s; }
+    .btn-accent:hover { background: #ffbb33; transform: translateY(-2px); }
     .form-control, .form-select { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: #fff; }
     .form-control:focus, .form-select:focus { background: rgba(255, 255, 255, 0.15); border-color: #f5a623; color: #fff; box-shadow: none; }
-    #imagePreview { width: 100%; height: 200px; object-fit: contain; border: 2px dashed rgba(255, 255, 255, 0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: rgba(255, 255, 255, 0.5); }
+    .form-control::placeholder { color: rgba(255, 255, 255, 0.5); }
+    #imagePreview { width: 100%; height: 200px; object-fit: contain; border: 2px dashed rgba(255, 255, 255, 0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: rgba(255, 255, 255, 0.5); overflow: hidden;}
     .table { color: #fff; }
     .table th { border-bottom: 2px solid #f5a623; }
     .table td { border-bottom: 1px solid rgba(255, 255, 255, 0.1); vertical-align: middle; }
@@ -37,7 +38,7 @@
         <h4 class="mb-4">Yetkili Girişi</h4>
         <input type="email" id="emailInput" class="form-control mb-3" placeholder="E-posta Adresi">
         <input type="password" id="passwordInput" class="form-control mb-4" placeholder="Şifre">
-        <button id="loginBtn" class="btn btn-accent w-100 rounded-pill">Giriş Yap</button>
+        <button id="loginBtn" class="btn btn-accent w-100 rounded-pill py-2">Giriş Yap</button>
         <p id="loginError" class="text-danger mt-3" style="display: none;">Hatalı giriş yaptınız!</p>
       </div>
     </div>
@@ -45,7 +46,7 @@
 
   <div id="dashboardSection">
     <div class="d-flex justify-content-between align-items-center mb-4">
-      <h4 class="m-0">Hoş Geldiniz, <span class="accent">Admin</span></h4>
+      <h4 class="m-0">Hoş Geldiniz, <span class="accent">Patron</span></h4>
       <button id="logoutBtn" class="btn btn-outline-danger rounded-pill px-4">Çıkış Yap</button>
     </div>
 
@@ -55,34 +56,35 @@
           <h5 class="accent mb-3"><i class="bi bi-plus-circle me-2"></i>Yeni Ürün Ekle</h5>
           
           <div class="mb-3">
-            <label class="form-label small">Ürün Adı (Örn: Ray-Ban Aviator)</label>
-            <input type="text" id="pName" class="form-control">
+            <label class="form-label small">Ürün Adı</label>
+            <input type="text" id="pName" class="form-control" placeholder="Örn: Ray-Ban Aviator">
           </div>
           
           <div class="mb-3">
             <label class="form-label small">Kategori</label>
             <select id="pCategory" class="form-select">
-              <option value="gunes">Güneş Gözlüğü</option>
-              <option value="klasik">Klasik Çerçeve</option>
-              <option value="kadin">Kadın Modelleri</option>
-              <option value="cocuk">Çocuk Modelleri</option>
+              <option value="all">Tüm</option>
+              <option value="gunes">Güneş</option>
+              <option value="klasik">Klasik</option>
+              <option value="kadin">Kadın</option>
+              <option value="cocuk">Çocuk</option>
             </select>
           </div>
 
           <div class="mb-3">
-            <label class="form-label small">Fiyat (₺)</label>
+            <label class="form-label small">Fiyat</label>
             <input type="text" id="pPrice" class="form-control" placeholder="Örn: 2.500 ₺">
           </div>
 
           <div class="mb-3">
             <label class="form-label small">Kısa Açıklama</label>
-            <input type="text" id="pDesc" class="form-control" placeholder="Örn: Polarize cam, hafif metal çerçeve">
+            <input type="text" id="pDesc" class="form-control" placeholder="Örn: Polarize cam, hafif çerçeve">
           </div>
 
           <div class="mb-3">
             <label class="form-label small d-flex justify-content-between">
-              <span>ImgBB Resim URL'si</span>
-              <a href="https://imgbb.com/" target="_blank" class="accent text-decoration-none">Siteye Git <i class="bi bi-box-arrow-up-right"></i></a>
+              <span>Resim URL (ImgBB)</span>
+              <a href="https://imgbb.com/" target="_blank" class="accent text-decoration-none">Yükle <i class="bi bi-box-arrow-up-right"></i></a>
             </label>
             <input type="text" id="pImgUrl" class="form-control" placeholder="https://i.ibb.co/.../resim.jpg">
           </div>
@@ -98,7 +100,7 @@
 
       <div class="col-md-8">
         <div class="glass-panel h-100">
-          <h5 class="accent mb-3"><i class="bi bi-list-ul me-2"></i>Mevcut Ürünler</h5>
+          <h5 class="accent mb-3"><i class="bi bi-list-ul me-2"></i>Vitrin (Mevcut Ürünler)</h5>
           <div class="table-responsive">
             <table class="table table-hover table-dark text-center align-middle">
               <thead>
@@ -121,37 +123,40 @@
 </div>
 
 <script type="module">
-  // Firebase v10 CDN Importları
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-  import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+  // Senin verdiğin sürüme (v12.10.0) uygun importlar
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
+  import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-analytics.js";
 
-  // !!!!!!!! KANKA BURAYA KENDİ FİREBASE CONFİG KODUNU YAPIŞTIR !!!!!!!!
+  // Senin Firebase Config Ayarların
   const firebaseConfig = {
-    apiKey: "BURAYA_API_KEY",
-    authDomain: "BURAYA_AUTH_DOMAIN",
-    projectId: "BURAYA_PROJECT_ID",
-    storageBucket: "BURAYA_STORAGE_BUCKET",
-    messagingSenderId: "BURAYA_SENDER_ID",
-    appId: "BURAYA_APP_ID"
+    apiKey: "AIzaSyDKROzPt8ZaQXk_m5sMEY853BCafnZFb4o",
+    authDomain: "trendoptik.firebaseapp.com",
+    projectId: "trendoptik",
+    storageBucket: "trendoptik.firebasestorage.app",
+    messagingSenderId: "645619125341",
+    appId: "1:645619125341:web:a43aad6e213c80fbe351b4",
+    measurementId: "G-PVZTDX1VJR"
   };
 
-  // Başlatma
+  // Firebase'i Başlat
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getFirestore(app);
+  const analytics = getAnalytics(app); // İsteğe bağlı, kalsın zararı yok
 
-  // Elementler
+  // HTML Elementleri
   const loginSection = document.getElementById("loginSection");
   const dashboardSection = document.getElementById("dashboardSection");
   const imagePreview = document.getElementById("imagePreview");
   const pImgUrl = document.getElementById("pImgUrl");
   const productTableBody = document.getElementById("productTableBody");
 
-  // GÖRSEL ÖNİZLEME MANTIĞI (URL yapıştırıldığı an çalışır)
+  // GÖRSEL ÖNİZLEME 
   pImgUrl.addEventListener("input", function() {
     if(this.value.trim() !== "") {
-      imagePreview.innerHTML = `<img src="${this.value}" style="max-width:100%; max-height:100%; object-fit:contain;">`;
+      imagePreview.innerHTML = `<img src="${this.value}" style="width:100%; height:100%; object-fit:cover;">`;
       imagePreview.style.border = "none";
     } else {
       imagePreview.innerHTML = "URL girince resim burada görünecek";
@@ -179,19 +184,19 @@
     signOut(auth);
   });
 
-  // OTURUM KONTROLÜ (Giriş yaptıysa paneli göster)
+  // OTURUM KONTROLÜ
   onAuthStateChanged(auth, (user) => {
     if (user) {
       loginSection.style.display = "none";
       dashboardSection.style.display = "block";
-      loadProducts(); // Giriş başarılıysa ürünleri çek
+      loadProducts(); 
     } else {
       loginSection.style.display = "flex";
       dashboardSection.style.display = "none";
     }
   });
 
-  // ÜRÜN EKLEME (Firestore'a Yazma)
+  // ÜRÜN EKLE
   document.getElementById("addBtn").addEventListener("click", async () => {
     const name = document.getElementById("pName").value;
     const category = document.getElementById("pCategory").value;
@@ -200,9 +205,14 @@
     const imgUrl = document.getElementById("pImgUrl").value;
 
     if(!name || !price || !imgUrl) {
-      alert("Lütfen Ad, Fiyat ve Resim URL alanlarını doldurun kanka!");
+      alert("Lütfen Ad, Fiyat ve Resim URL alanlarını doldur agatım!");
       return;
     }
+
+    // Butonu pasif yap ki iki kere tıklanmasın
+    const addBtn = document.getElementById("addBtn");
+    addBtn.disabled = true;
+    addBtn.innerText = "Yükleniyor...";
 
     try {
       await addDoc(collection(db, "products"), {
@@ -211,10 +221,8 @@
         price: price,
         desc: desc,
         img: imgUrl,
-        createdAt: serverTimestamp() // Sıralama için zaman damgası
+        createdAt: serverTimestamp() 
       });
-      
-      alert("Ürün başarıyla eklendi! Şov başlasın.");
       
       // Formu temizle
       document.getElementById("pName").value = "";
@@ -222,28 +230,31 @@
       document.getElementById("pDesc").value = "";
       document.getElementById("pImgUrl").value = "";
       imagePreview.innerHTML = "URL girince resim burada görünecek";
+      imagePreview.style.border = "2px dashed rgba(255, 255, 255, 0.2)";
       
-      // Tabloyu yenile
       loadProducts();
 
     } catch (e) {
-      console.error("Eklenirken hata oldu: ", e);
-      alert("Hata oluştu: " + e.message);
+      console.error("Hata: ", e);
+      alert("Eklenemedi! Veritabanı kurallarını (Rules) kontrol et.");
+    } finally {
+      addBtn.disabled = false;
+      addBtn.innerText = "Ürünü Kaydet";
     }
   });
 
-  // ÜRÜNLERİ ÇEKME VE TABLOYA YAZDIRMA
+  // ÜRÜNLERİ TABLOYA ÇEK
   async function loadProducts() {
-    productTableBody.innerHTML = `<tr><td colspan="5">Yükleniyor...</td></tr>`;
+    productTableBody.innerHTML = `<tr><td colspan="5">Ürünler Yükleniyor...</td></tr>`;
     
     try {
       const q = query(collection(db, "products"), orderBy("createdAt", "desc"));
       const querySnapshot = await getDocs(q);
       
-      productTableBody.innerHTML = ""; // Yükleniyoru temizle
+      productTableBody.innerHTML = ""; 
       
       if(querySnapshot.empty) {
-        productTableBody.innerHTML = `<tr><td colspan="5">Henüz ürün eklenmemiş.</td></tr>`;
+        productTableBody.innerHTML = `<tr><td colspan="5">Henüz ürün eklenmemiş. Hadi ilk ürünü ekle!</td></tr>`;
         return;
       }
 
@@ -256,27 +267,27 @@
             <td><span class="badge bg-secondary">${product.category}</span></td>
             <td class="accent fw-bold">${product.price}</td>
             <td>
-              <button class="btn btn-sm btn-danger delete-btn" data-id="${doc.id}">Sil</button>
+              <button class="btn btn-sm btn-danger delete-btn" data-id="${doc.id}"><i class="bi bi-trash"></i> Sil</button>
             </td>
           </tr>
         `;
         productTableBody.innerHTML += row;
       });
 
-      // Silme Butonlarına Olay Ekleme
+      // Silme İşlemi
       document.querySelectorAll(".delete-btn").forEach(btn => {
         btn.addEventListener("click", async (e) => {
-          const id = e.target.getAttribute("data-id");
-          if(confirm("Bu ürünü silmek istediğine emin misin?")) {
+          const id = e.target.closest('button').getAttribute("data-id");
+          if(confirm("Dayı bu ürünü siliyorum emin misin?")) {
             await deleteDoc(doc(db, "products", id));
-            loadProducts(); // Tabloyu güncelle
+            loadProducts(); 
           }
         });
       });
 
     } catch (error) {
-      console.error("Veriler çekilirken hata:", error);
-      productTableBody.innerHTML = `<tr><td colspan="5" class="text-danger">Veriler yüklenemedi. Yetkileri kontrol et!</td></tr>`;
+      console.error("Veriler çekilemedi:", error);
+      productTableBody.innerHTML = `<tr><td colspan="5" class="text-danger">Firestore kurallarını test moduna aldığından emin ol kanka!</td></tr>`;
     }
   }
 </script>
