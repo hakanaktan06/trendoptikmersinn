@@ -520,7 +520,7 @@
     finally { document.getElementById("addLensBtn").innerText = "LENS TAKİBİNİ BAŞLAT"; }
   });
 
-  async function loadLenses() {
+    async function loadLenses() {
     const tbody = document.getElementById("lensTableBody");
     try {
       const qs = await getDocs(query(collection(db, "lenses"), orderBy("createdAt", "desc")));
@@ -530,7 +530,7 @@
       
       qs.forEach((d) => {
         const lens = d.data();
-        if(!lens.createdAt) return; // Sunucu saati henüz eşleşmediyse atla
+        if(!lens.createdAt) return; // Sunucu saati eşleşmediyse bekle
         totalLenses++;
         
         // Kalan gün hesaplama
@@ -551,34 +551,52 @@
           statusHtml = `<span class="badge bg-success opacity-75">${diffDays} Gün</span>`;
         }
 
-        // WhatsApp numarasını +90 formatına çevir
+        // WhatsApp numarasını jilet gibi +90 formatına çevir
         let phoneStr = lens.phone.replace(/[^0-9]/g, '');
         if(!phoneStr.startsWith('90')) phoneStr = '90' + phoneStr;
 
-        // Patronun tek tıkla satışı kapatacağı WhatsApp Mesajı
-        const wpMsg = encodeURIComponent(`Merhaba ${lens.customerName} Bey/Hanım, Trend Optik'ten yazıyoruz. Sistemimize göre ${lens.product} model lenslerinizin kullanım süresi bitmek üzere. Gözünüzün numarasız kalmaması için yeni siparişinizi hemen hazırlayalım mı?`);
+        // Patronun atacağı VIP WhatsApp Mesajı
+        const wpMsg = encodeURIComponent(`Merhaba ${lens.customerName}, Trend Optik'ten yazıyoruz. Sistemimize göre ${lens.product} model lenslerinizin kullanım süresi bitmek üzere. Gözünüzün numarasız kalmaması için yeni siparişinizi hemen hazırlayalım mı?`);
         const wpLink = `https://wa.me/${phoneStr}?text=${wpMsg}`;
 
+        // onclick yerine data-link kullandık ki kesme işaretleri ( ' ) kodu bozmasın
         tbody.innerHTML += `
           <tr style="${rowStyle}">
             <td class="fw-bold">${lens.customerName}</td>
             <td>${lens.product}</td>
             <td>${statusHtml}</td>
             <td>
-              <button class="btn btn-sm btn-success fw-bold" onclick="window.open('${wpLink}', '_blank')"><i class="bi bi-whatsapp"></i> Hatırlat</button>
-              <button class="btn btn-sm btn-outline-danger delete-lens-btn ms-1" data-id="${d.id}"><i class="bi bi-x"></i></button>
+              <button class="btn btn-sm btn-success fw-bold remind-lens-btn" data-link="${wpLink}">
+                <i class="bi bi-whatsapp"></i> Hatırlat
+              </button>
+              <button class="btn btn-sm btn-outline-danger delete-lens-btn ms-1" data-id="${d.id}">
+                <i class="bi bi-x"></i>
+              </button>
             </td>
           </tr>`;
       });
       
       document.getElementById("lensCount").innerText = totalLenses;
 
+      // SİLME BUTONU TETİKLEYİCİSİ
       document.querySelectorAll(".delete-lens-btn").forEach(btn => btn.onclick = async (e) => { 
-        if(confirm("Takibi bitiriyorum?")) { await deleteDoc(doc(db, "lenses", e.target.closest('button').dataset.id)); loadLenses(); }
+        if(confirm("Bu müşterinin takibini bitiriyorum patron?")) { 
+          await deleteDoc(doc(db, "lenses", e.target.closest('button').dataset.id)); 
+          loadLenses(); 
+        }
+      });
+
+      // HATIRLAT (WHATSAPP) BUTONU TETİKLEYİCİSİ (Sorunu Kökten Çözen Kısım)
+      document.querySelectorAll(".remind-lens-btn").forEach(btn => {
+        btn.onclick = (e) => {
+          const link = e.target.closest('button').getAttribute('data-link');
+          window.open(link, '_blank');
+        };
       });
       
     } catch (e) { console.error("Lens yükleme hatası", e); }
   }
+
 
 </script>
 </body>
