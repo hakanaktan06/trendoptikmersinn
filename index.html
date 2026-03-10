@@ -179,31 +179,58 @@
 <section class="container py-5" id="kargotakip">
   
   <style>
-    /* Ortak ebeveyn kutusu (input-group) için sapsarı ve bütünleşik bir parlama efekti */
-    .input-group.input-group-focused {
-        border-color: #f5a623 !important;
-        box-shadow: 0 0 0 3px rgba(245, 166, 35, 0.3) !important;
-        -webkit-box-shadow: 0 0 0 3px rgba(245, 166, 35, 0.3) !important;
-        border-radius: 8px; /* Parlamanın köşelerini kutuya göre yumuşat */
+    /* Bütünleşik kapsül şekli */
+    .track-search-bar {
+        display: flex;
+        align-items: center;
+        background: rgba(255, 255, 255, 0.04);
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        border-radius: 50px; /* Tam yuvarlak köşeler */
+        padding: 6px 6px 6px 20px; /* İç boşluklar */
+        transition: all 0.3s ease;
     }
     
-    /* Ebeveyn parladığında, hem ikonun hem de inputun kenarlarını sapsarı yap */
-    .input-group.input-group-focused .input-group-text,
-    .input-group.input-group-focused .form-control {
+    /* Dokunulduğunda tüm kapsülün sapsarı elit parlaması */
+    .track-search-bar.is-focused {
         border-color: #f5a623 !important;
+        box-shadow: 0 0 20px rgba(245, 166, 35, 0.3) !important;
+        background: rgba(255, 255, 255, 0.08);
     }
 
-    /* Mavi inatçı çizgileri temizle ve elit bir geçiş efekti (0.2s) ekle */
-    #trackPhone, .input-group-text, .input-group {
+    /* Numara yazılan yerin sınırlarını tamamen sildik */
+    .track-input {
+        flex: 1;
+        background: transparent !important;
+        border: none !important;
+        color: #fff !important;
         outline: none !important;
         box-shadow: none !important;
         -webkit-box-shadow: none !important;
-        transition: all 0.2s ease; /* Yumuşak geçiş, sitenin elitliğini artırır */
+        caret-color: #f5a623 !important;
+        font-size: 1rem;
+        padding: 10px 10px;
     }
 
-    /* Giriş imlecini sapsarı yap (devam ediyor) */
-    #trackPhone:focus {
-        caret-color: #f5a623 !important;
+    .track-input::placeholder {
+        color: rgba(255, 255, 255, 0.4) !important;
+    }
+
+    /* Sorgula butonunu kapsülün içine hapsettik */
+    .track-btn-custom {
+        background: #f5a623;
+        color: #000;
+        border: none;
+        border-radius: 40px;
+        padding: 12px 30px;
+        font-weight: 700;
+        transition: 0.3s;
+        cursor: pointer;
+    }
+
+    .track-btn-custom:hover {
+        background: #ffbb33;
+        transform: scale(1.03);
+        box-shadow: 0 5px 15px rgba(245, 166, 35, 0.4);
     }
   </style>
 
@@ -214,12 +241,10 @@
         <h3 class="fw-bold mb-3">Gözlüğüm Nerede?</h3>
         <p class="opacity-75 mb-4" style="font-size: 0.9rem;">Gözlüğünüzün veya lensinizin durumunu öğrenmek için sipariş verirken kullandığınız telefon numarasını girin.</p>
         
-        <div class="input-group mb-3 rounded" style="overflow: hidden;">
-          <span class="input-group-text bg-transparent border-end-0" style="border-color: rgba(255,255,255,0.2); color: #f5a623;"><i class="bi bi-telephone"></i></span>
-          
-          <input type="tel" inputmode="numeric" pattern="[0-9]*" id="trackPhone" autocomplete="off" class="form-control border-start-0" placeholder="Örn: 05551234567" style="background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.2); color:#fff;">
-          
-          <button class="btn btn-accent px-4 fw-bold" id="trackBtn">Sorgula</button>
+        <div class="track-search-bar" id="trackSearchBar">
+          <i class="bi bi-telephone accent fs-5"></i>
+          <input type="tel" inputmode="numeric" pattern="[0-9]*" id="trackPhone" class="track-input" placeholder="Örn: 05551234567" autocomplete="off">
+          <button class="track-btn-custom" id="trackBtn">Sorgula</button>
         </div>
         
         <div id="trackResult" class="mt-4 p-3 rounded" style="display:none; background: rgba(0,0,0,0.5); border: 1px dashed rgba(255,255,255,0.1);">
@@ -229,6 +254,7 @@
     </div>
   </div>
 </section>
+
 
 
 
