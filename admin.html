@@ -22,21 +22,14 @@
     #dashboardSection { display: none; }
     .cert-panel { border: 2px solid #d4af37 !important; box-shadow: 0 0 20px rgba(212, 175, 55, 0.1); }
     .lens-panel { border: 2px solid #0dcaf0 !important; box-shadow: 0 0 20px rgba(13, 202, 240, 0.1); }
-    .theme-panel { border: 2px solid #ff3366 !important; box-shadow: 0 0 20px rgba(255, 51, 102, 0.15); }
     
+    /* VAHŞET ALARM EFEKTİ */
     @keyframes pulse-red {
       0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
       70% { box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); }
       100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
     }
     .pulse-anim { animation: pulse-red 2s infinite; border-radius: 5px; }
-
-    .stat-card { transition: all 0.4s ease; position: relative; overflow: hidden; cursor: default; }
-    .stat-card:hover { transform: translateY(-5px) scale(1.02); }
-    .stat-card.product-stat:hover { box-shadow: 0 10px 30px rgba(245, 166, 35, 0.25); border-color: #f5a623; }
-    .stat-card.order-stat:hover { box-shadow: 0 10px 30px rgba(240, 173, 78, 0.25); border-color: #f0ad4e; }
-    .stat-card.cert-stat:hover { box-shadow: 0 10px 30px rgba(212, 175, 55, 0.25); border-color: #d4af37; }
-    .stat-card.lens-stat:hover { box-shadow: 0 10px 30px rgba(13, 202, 240, 0.25); border-color: #0dcaf0; }
   </style>
 </head>
 <body>
@@ -61,27 +54,47 @@
 
   <div id="dashboardSection">
     <div class="d-flex justify-content-between align-items-center mb-4">
-      <h4 class="m-0" id="greetingText">Hoş Geldiniz, <span class="accent">Patron</span></h4>
+      <h4 class="m-0">Hoş Geldiniz, <span class="accent">Patron</span></h4>
       <button id="logoutBtn" class="btn btn-outline-danger rounded-pill px-4">Çıkış Yap</button>
     </div>
 
     <div class="row g-3 mb-4">
-      <div class="col-md-3"><div class="glass-panel stat-card product-stat text-center p-3" style="border-bottom: 3px solid #f5a623;"><h6 class="opacity-75 mb-1"><i class="bi bi-box-seam me-2"></i>Sistemdeki Ürün</h6><h2 class="fw-bold mb-0" id="totalProductCount">0</h2></div></div>
-      <div class="col-md-3"><div class="glass-panel stat-card order-stat text-center p-3" style="border-bottom: 3px solid #f0ad4e;"><h6 class="opacity-75 mb-1"><i class="bi bi-truck me-2"></i>Aktif Siparişler</h6><h2 class="fw-bold mb-0 text-warning" id="activeOrderCount">0</h2></div></div>
-      <div class="col-md-3"><div class="glass-panel stat-card cert-stat text-center p-3" style="border-bottom: 3px solid #d4af37;"><h6 class="opacity-75 mb-1"><i class="bi bi-award-fill me-2"></i>VIP Sertifikalar</h6><h2 class="fw-bold mb-0" style="color: #d4af37;" id="certCount">0</h2></div></div>
-      <div class="col-md-3"><div class="glass-panel stat-card lens-stat text-center p-3" style="border-bottom: 3px solid #0dcaf0;"><h6 class="opacity-75 mb-1"><i class="bi bi-eye-fill me-2"></i>Lens Takipleri</h6><h2 class="fw-bold mb-0 text-info" id="lensCount">0</h2></div></div>
+      <div class="col-md-3">
+        <div class="glass-panel text-center p-3" style="border-bottom: 3px solid #f5a623;">
+          <h6 class="opacity-75 mb-1"><i class="bi bi-box-seam me-2"></i>Sistemdeki Ürün</h6>
+          <h2 class="fw-bold mb-0" id="totalProductCount">0</h2>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="glass-panel text-center p-3" style="border-bottom: 3px solid #f0ad4e;">
+          <h6 class="opacity-75 mb-1"><i class="bi bi-truck me-2"></i>Aktif Siparişler</h6>
+          <h2 class="fw-bold mb-0 text-warning" id="activeOrderCount">0</h2>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="glass-panel text-center p-3" style="border-bottom: 3px solid #d4af37;">
+          <h6 class="opacity-75 mb-1"><i class="bi bi-award-fill me-2"></i>VIP Sertifikalar</h6>
+          <h2 class="fw-bold mb-0" style="color: #d4af37;" id="certCount">0</h2>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="glass-panel text-center p-3" style="border-bottom: 3px solid #0dcaf0;">
+          <h6 class="opacity-75 mb-1"><i class="bi bi-eye-fill me-2"></i>Lens Takipleri</h6>
+          <h2 class="fw-bold mb-0 text-info" id="lensCount">0</h2>
+        </div>
+      </div>
     </div>
 
     <div class="row g-4 mb-5 mt-2 justify-content-center">
       <div class="col-md-6">
-        <div class="glass-panel theme-panel text-center">
+        <div class="glass-panel text-center" style="border: 2px solid #ff3366 !important; box-shadow: 0 0 20px rgba(255, 51, 102, 0.15);">
           <h5 style="color: #ff3366;" class="mb-2"><i class="bi bi-magic me-2"></i>Global Tema Şovu</h5>
-          <p class="opacity-75 small mb-3">Tüm siteyi tek tıkla günün anlam ve önemine göre süsle.</p>
+          <p class="opacity-75 small mb-3">Tüm siteyi tek tıkla günün anlam ve önemine göre profesyonelce süsle.</p>
           <select id="siteThemeSelect" class="form-select mb-4 text-center fw-bold fs-5">
             <option value="standart">⚫ Standart (Sade & Asil)</option>
-            <option value="yilbasi">❄️ Yılbaşı (Ürünlerde Kar Birikintisi)</option>
-            <option value="sevgililer">❤️ Sevgililer Günü (İpli Kalp Balonları)</option>
-            <option value="kadinlar">💜 Kadınlar Günü (Zarif Çiçekler)</option>
+            <option value="yilbasi">❄️ Yılbaşı (Kusursuz Kar Efekti)</option>
+            <option value="sevgililer">❤️ Sevgililer Günü (Zarif Kalpler)</option>
+            <option value="kadinlar">💜 Kadınlar Günü (Mor Taç Yapraklar)</option>
             <option value="bayram">🏮 Ramazan Bayramı (Sarkan Kandiller)</option>
           </select>
           <button id="saveThemeBtn" class="btn w-100 rounded-pill py-2 fw-bold" style="background:#ff3366; color:#fff; box-shadow: 0 4px 15px rgba(255, 51, 102, 0.4);">SİTE TEMASINI GÜNCELLE</button>
@@ -93,83 +106,221 @@
       <div class="col-md-4">
         <div class="glass-panel">
           <h5 class="accent mb-3" id="formTitle"><i class="bi bi-plus-circle me-2"></i>Yeni Ürün Ekle</h5>
-          <div class="mb-3"><label class="form-label small">Ürün Adı</label><input type="text" id="pName" class="form-control" placeholder="Örn: Ray-Ban Aviator"></div>
-          <div class="mb-3"><label class="form-label small">Kategori</label><select id="pCategory" class="form-select"><option value="gunes">Güneş</option><option value="klasik">Klasik</option><option value="kadin">Kadın</option><option value="cocuk">Çocuk</option></select></div>
-          <div class="mb-3"><label class="form-label small">Fiyat</label><input type="number" id="pPrice" class="form-control" placeholder="Örn: 2500"></div>
-          <div class="mb-3"><label class="form-label small">Kısa Açıklama</label><input type="text" id="pDesc" class="form-control" placeholder="Örn: Polarize cam"></div>
-          <div class="mb-3"><label class="form-label small d-flex justify-content-between"><span>Resim URL</span><a href="https://imgbb.com/" target="_blank" class="accent text-decoration-none">Yükle <i class="bi bi-box-arrow-up-right"></i></a></label><input type="text" id="pImgUrl" class="form-control" placeholder="https://i.ibb.co/..."></div>
-          <div class="mb-4"><label class="form-label small">Görsel Önizleme</label><div id="imagePreview">URL girince resim burada görünecek</div></div>
+          
+          <div class="mb-3">
+            <label class="form-label small">Ürün Adı</label>
+            <input type="text" id="pName" class="form-control" placeholder="Örn: Ray-Ban Aviator">
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label small">Kategori</label>
+            <select id="pCategory" class="form-select">
+              <option value="gunes">Güneş</option>
+              <option value="klasik">Klasik</option>
+              <option value="kadin">Kadın</option>
+              <option value="cocuk">Çocuk</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small">Fiyat (₺ Simgesi Otomatik Eklenecek)</label>
+            <input type="number" id="pPrice" class="form-control" placeholder="Örn: 2500">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small">Kısa Açıklama</label>
+            <input type="text" id="pDesc" class="form-control" placeholder="Örn: Polarize cam, hafif çerçeve">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small d-flex justify-content-between">
+              <span>Resim URL (ImgBB)</span>
+              <a href="https://imgbb.com/" target="_blank" class="accent text-decoration-none">Yükle <i class="bi bi-box-arrow-up-right"></i></a>
+            </label>
+            <input type="text" id="pImgUrl" class="form-control" placeholder="https://i.ibb.co/.../resim.jpg">
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label small">Görsel Önizleme</label>
+            <div id="imagePreview">URL girince resim burada görünecek</div>
+          </div>
+
           <button id="addBtn" class="btn btn-accent w-100 rounded-pill py-2">Ürünü Kaydet</button>
           <button id="cancelEditBtn" class="btn btn-outline-light w-100 rounded-pill py-2 mt-2" style="display:none;">İptal Et</button>
         </div>
       </div>
+
       <div class="col-md-8">
         <div class="glass-panel h-100">
-          <div class="d-flex justify-content-between align-items-center mb-3"><h5 class="accent m-0"><i class="bi bi-list-ul me-2"></i>Vitrin (Mevcut Ürünler)</h5><button id="vipBtn" class="btn btn-warning rounded-pill px-3 fw-bold text-dark"><i class="bi bi-stars"></i> VIP Teklif</button></div>
-          <div class="table-responsive"><table class="table table-hover table-dark text-center align-middle"><thead><tr><th>Seç</th><th>Görsel</th><th>Ürün Adı</th><th>Kategori</th><th>Fiyat</th><th>🔥</th><th>İşlem</th></tr></thead><tbody id="productTableBody"></tbody></table></div>
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="accent m-0"><i class="bi bi-list-ul me-2"></i>Vitrin (Mevcut Ürünler)</h5>
+            <button id="vipBtn" class="btn btn-warning rounded-pill px-3 fw-bold text-dark"><i class="bi bi-stars"></i> VIP Teklif Oluştur</button>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-hover table-dark text-center align-middle">
+              <thead>
+                <tr>
+                  <th>Seç</th>
+                  <th>Görsel</th>
+                  <th>Ürün Adı</th>
+                  <th>Kategori</th>
+                  <th>Fiyat</th>
+                  <th>🔥 İlgi</th>
+                  <th>İşlemler</th>
+                </tr>
+              </thead>
+              <tbody id="productTableBody">
+                </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
 
     <hr class="opacity-25 mb-5 mt-5">
-    <div class="text-center mb-4"><h3 class="fw-bold accent"><i class="bi bi-truck me-2"></i>Sipariş & Gözlük Takip Sistemi</h3></div>
+    <div class="text-center mb-4">
+      <h3 class="fw-bold accent"><i class="bi bi-truck me-2"></i>Sipariş & Gözlük Takip Sistemi</h3>
+    </div>
+
     <div class="row g-4 mb-5">
       <div class="col-md-4">
         <div class="glass-panel">
           <h5 class="accent mb-3"><i class="bi bi-person-plus me-2"></i>Yeni Sipariş Gir</h5>
-          <div class="mb-3"><label class="form-label small">Müşteri Adı Soyadı</label><input type="text" id="oName" class="form-control" placeholder="Örn: Ahmet Yılmaz"></div>
-          <div class="mb-3"><label class="form-label small">Müşteri Telefonu</label><input type="text" id="oPhone" class="form-control" placeholder="Örn: 05551234567"></div>
-          <div class="mb-3"><label class="form-label small">Hangi Ürün?</label><input type="text" id="oProduct" class="form-control" placeholder="Örn: Ray-Ban Dereceli Cam"></div>
-          <div class="mb-4"><label class="form-label small">Durum</label><select id="oStatus" class="form-select"><option value="Sipariş Alındı">Sipariş Alındı</option><option value="Camlar Kesiliyor">Camlar Kesiliyor</option><option value="Teslimata Hazır">Teslimata Hazır</option></select></div>
+          
+          <div class="mb-3">
+            <label class="form-label small">Müşteri Adı Soyadı</label>
+            <input type="text" id="oName" class="form-control" placeholder="Örn: Ahmet Yılmaz">
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label small">Müşteri Telefonu (Sorgu İçin)</label>
+            <input type="text" id="oPhone" class="form-control" placeholder="Örn: 05551234567">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small">Hangi Ürün / Gözlük?</label>
+            <input type="text" id="oProduct" class="form-control" placeholder="Örn: Ray-Ban Dereceli Cam">
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label small">Sipariş Durumu</label>
+            <select id="oStatus" class="form-select">
+              <option value="Sipariş Alındı">Sipariş Alındı</option>
+              <option value="Camlar Kesiliyor">Camlar Kesiliyor (Laboratuvar)</option>
+              <option value="Teslimata Hazır">Teslimata Hazır</option>
+            </select>
+          </div>
+
           <button id="addOrderBtn" class="btn btn-info w-100 rounded-pill py-2 fw-bold text-dark">Siparişi Oluştur</button>
         </div>
       </div>
+
       <div class="col-md-8">
         <div class="glass-panel h-100">
           <h5 class="accent mb-3"><i class="bi bi-card-checklist me-2"></i>Müşteri Bekleyen Siparişler</h5>
-          <div class="table-responsive"><table class="table table-hover table-dark text-center align-middle"><thead><tr><th>Müşteri</th><th>Telefon</th><th>Ürün</th><th>Durum</th><th>İşlem</th></tr></thead><tbody id="orderTableBody"></tbody></table></div>
+          <div class="table-responsive">
+            <table class="table table-hover table-dark text-center align-middle">
+              <thead>
+                <tr>
+                  <th>Müşteri</th>
+                  <th>Telefon</th>
+                  <th>Ürün</th>
+                  <th>Durum</th>
+                  <th>İşlem</th>
+                </tr>
+              </thead>
+              <tbody id="orderTableBody">
+                </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
 
     <hr class="opacity-25 mb-5 mt-5">
-    <div class="text-center mb-4"><h3 style="color: #d4af37;"><i class="bi bi-award-fill me-2"></i>VIP Dijital Garanti & Sadakat Sistemi</h3></div>
+    <div class="text-center mb-4">
+      <h3 style="color: #d4af37;"><i class="bi bi-award-fill me-2"></i>VIP Dijital Garanti & Sadakat Sistemi</h3>
+    </div>
+
     <div class="row g-4">
       <div class="col-md-5">
         <div class="glass-panel cert-panel">
           <h5 style="color: #d4af37;" class="mb-3"><i class="bi bi-patch-check me-2"></i>Sertifika Oluştur</h5>
           <input type="text" id="certName" class="form-control mb-3" placeholder="Müşteri Ad Soyad">
           <input type="text" id="certProduct" class="form-control mb-3" placeholder="Gözlük / Lens Modeli">
-          <div class="row g-2 mb-4"><div class="col-6"><label class="small opacity-75">İndirim %</label><input type="number" id="certDiscount" class="form-control" value="15"></div><div class="col-6"><label class="small opacity-75">Süre (Ay)</label><input type="number" id="certDuration" class="form-control" value="24"></div></div>
+          <div class="row g-2 mb-4">
+            <div class="col-6">
+              <label class="small opacity-75">İndirim %</label>
+              <input type="number" id="certDiscount" class="form-control" value="15">
+            </div>
+            <div class="col-6">
+              <label class="small opacity-75">Süre (Ay)</label>
+              <input type="number" id="certDuration" class="form-control" value="24">
+            </div>
+          </div>
           <button id="createCertBtn" class="btn w-100 rounded-pill py-2 fw-bold" style="background:#d4af37; color:#000;">DİJİTAL SERTİFİKAYI OLUŞTUR</button>
         </div>
       </div>
       <div class="col-md-7">
         <div class="glass-panel h-100 cert-panel">
           <h5 style="color: #d4af37;" class="mb-3">Kayıtlı VIP Sertifikalar</h5>
-          <div class="table-responsive"><table class="table table-hover table-dark text-center align-middle" style="font-size: 0.85rem;"><thead><tr><th>Garanti No</th><th>Müşteri</th><th>Ürün</th><th>İndirim</th><th>İşlem</th></tr></thead><tbody id="certTableBody"></tbody></table></div>
+          <div class="table-responsive">
+            <table class="table table-hover table-dark text-center align-middle" style="font-size: 0.85rem;">
+              <thead>
+                <tr>
+                  <th>Garanti No</th>
+                  <th>Müşteri</th>
+                  <th>Ürün</th>
+                  <th>İndirim</th>
+                  <th>İşlem</th>
+                </tr>
+              </thead>
+              <tbody id="certTableBody"></tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
 
     <hr class="opacity-25 mb-5 mt-5">
-    <div class="text-center mb-4"><h3 style="color: #0dcaf0;"><i class="bi bi-eye-fill me-2"></i>Akıllı Lens Takip & Yenileme Radarı</h3></div>
+    <div class="text-center mb-4">
+      <h3 style="color: #0dcaf0;"><i class="bi bi-eye-fill me-2"></i>Akıllı Lens Takip & Yenileme Radarı</h3>
+      <p class="opacity-75 small">Lens sattığın müşterileri buraya gir, süresi bitince sistem sana kırmızı alarm versin!</p>
+    </div>
+
     <div class="row g-4">
       <div class="col-md-4">
         <div class="glass-panel lens-panel">
           <h5 style="color: #0dcaf0;" class="mb-3"><i class="bi bi-person-lines-fill me-2"></i>Lens Müşterisi Ekle</h5>
           <input type="text" id="lName" class="form-control mb-3" placeholder="Müşteri Ad Soyad">
           <input type="text" id="lPhone" class="form-control mb-3" placeholder="Telefon (Örn: 5551234567)">
-          <input type="text" id="lProduct" class="form-control mb-3" placeholder="Lens Markası">
+          <input type="text" id="lProduct" class="form-control mb-3" placeholder="Lens Markası (Acuvue vs.)">
           <label class="small opacity-75">Kaç Aylık Kutu Aldı?</label>
-          <select id="lDuration" class="form-select mb-4"><option value="30">1 Aylık Kutu (30 Gün)</option><option value="90">3 Aylık Kutu (90 Gün)</option><option value="180">6 Aylık Kutu (180 Gün)</option><option value="365">Yıllık Kutu (365 Gün)</option></select>
+          <select id="lDuration" class="form-select mb-4">
+            <option value="30">1 Aylık Kutu (30 Gün)</option>
+            <option value="90">3 Aylık Kutu (90 Gün)</option>
+            <option value="180">6 Aylık Kutu (180 Gün)</option>
+            <option value="365">Yıllık Kutu (365 Gün)</option>
+          </select>
           <button id="addLensBtn" class="btn w-100 rounded-pill py-2 fw-bold" style="background:#0dcaf0; color:#000;">LENS TAKİBİNİ BAŞLAT</button>
         </div>
       </div>
       <div class="col-md-8">
         <div class="glass-panel h-100 lens-panel">
           <h5 style="color: #0dcaf0;" class="mb-3"><i class="bi bi-radar me-2"></i>Aktif Müşteri Radarı</h5>
-          <div class="table-responsive"><table class="table table-hover table-dark text-center align-middle" style="font-size: 0.85rem;"><thead><tr><th>Müşteri</th><th>Lens Modeli</th><th>Kalan Süre</th><th>Satış / İşlem</th></tr></thead><tbody id="lensTableBody"></tbody></table></div>
+          <div class="table-responsive">
+            <table class="table table-hover table-dark text-center align-middle" style="font-size: 0.85rem;">
+              <thead>
+                <tr>
+                  <th>Müşteri</th>
+                  <th>Lens Modeli</th>
+                  <th>Kalan Süre</th>
+                  <th>Satış / İşlem</th>
+                </tr>
+              </thead>
+              <tbody id="lensTableBody"></tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
@@ -178,6 +329,7 @@
 </div>
 
 <script type="module">
+  // setDoc ve getDoc import edildi (Tema sistemi için)
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
   import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
   import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, setDoc, getDoc, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
@@ -201,58 +353,50 @@
   const pImgUrl = document.getElementById("pImgUrl");
   const productTableBody = document.getElementById("productTableBody");
   
-  let editModeId = null; let adminProducts = []; let adminOrders = [];
+  let editModeId = null;
+  let adminProducts = [];
+  let adminOrders = [];
+  let adminCerts = [];
 
-  function animateValue(id, newValue) {
-    const obj = document.getElementById(id);
-    const startValue = parseInt(obj.innerText) || 0;
-    if (startValue === newValue) return;
-    const duration = 1000; let startTimestamp = null;
-    const step = (timestamp) => {
-      if (!startTimestamp) startTimestamp = timestamp;
-      const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-      obj.innerText = Math.floor(progress * (newValue - startValue) + startValue);
-      if (progress < 1) window.requestAnimationFrame(step); else obj.innerText = newValue;
-    };
-    window.requestAnimationFrame(step);
-  }
-
-  function updateGreeting() {
-    const hour = new Date().getHours();
-    let greetingMsg = "Hoş Geldin";
-    if (hour >= 5 && hour < 12) greetingMsg = "Günaydın";
-    else if (hour >= 12 && hour < 18) greetingMsg = "İyi Günler";
-    else if (hour >= 18 && hour < 22) greetingMsg = "İyi Akşamlar";
-    else greetingMsg = "İyi Geceler";
-    document.getElementById("greetingText").innerHTML = `${greetingMsg}, <span class="accent">Patron</span>`;
-  }
-
-  // SİHİRLİ TEMA SİSTEMİ YÜKLEME VE KAYDETME
+  // SİHİRLİ TEMA SİSTEMİ YÜKLEME VE KAYDETME (Yeni Eklendi)
   async function loadThemeConfig() {
     try {
       const snap = await getDoc(doc(db, "settings", "theme"));
-      if (snap.exists()) document.getElementById("siteThemeSelect").value = snap.data().activeTheme;
+      if (snap.exists()) {
+        document.getElementById("siteThemeSelect").value = snap.data().activeTheme;
+      }
     } catch(e) { console.log("Tema yüklenemedi"); }
   }
 
   document.getElementById("saveThemeBtn").addEventListener("click", async () => {
     const btn = document.getElementById("saveThemeBtn");
     const selectedTheme = document.getElementById("siteThemeSelect").value;
-    btn.innerText = "SİTEYE YANSITILIYOR...";
+    btn.innerText = "YAYINLANIYOR...";
     try {
       await setDoc(doc(db, "settings", "theme"), { activeTheme: selectedTheme });
-      alert("Vahşet! Müşterilerin ekranına tema anında yansıdı.");
-    } catch (e) { alert("Hata!"); }
-    finally { btn.innerText = "SİTE TEMASINI GÜNCELLE"; }
+      alert("Vahşet! Site teması profesyonel şekilde güncellendi.");
+    } catch (e) { 
+      alert("Tema güncellenirken hata oluştu!"); 
+    }
+    finally { 
+      btn.innerText = "SİTE TEMASINI GÜNCELLE"; 
+    }
   });
 
   pImgUrl.addEventListener("input", function() {
-    if(this.value.trim() !== "") { imagePreview.innerHTML = `<img src="${this.value}" style="width:100%; height:100%; object-fit:cover;">`; imagePreview.style.border = "none"; } 
-    else { imagePreview.innerHTML = "URL girince resim burada görünecek"; imagePreview.style.border = "2px dashed rgba(255, 255, 255, 0.2)"; }
+    if(this.value.trim() !== "") {
+      imagePreview.innerHTML = `<img src="${this.value}" style="width:100%; height:100%; object-fit:cover;">`;
+      imagePreview.style.border = "none";
+    } else {
+      imagePreview.innerHTML = "URL girince resim burada görünecek";
+      imagePreview.style.border = "2px dashed rgba(255, 255, 255, 0.2)";
+    }
   });
 
   document.getElementById("loginBtn").addEventListener("click", () => {
-    signInWithEmailAndPassword(auth, document.getElementById("emailInput").value, document.getElementById("passwordInput").value)
+    const email = document.getElementById("emailInput").value;
+    const password = document.getElementById("passwordInput").value;
+    signInWithEmailAndPassword(auth, email, password)
       .then(() => { document.getElementById("loginError").style.display = "none"; })
       .catch((error) => { document.getElementById("loginError").style.display = "block"; });
   });
@@ -261,145 +405,427 @@
 
   onAuthStateChanged(auth, (user) => {
     if (user) {
-      loginSection.style.display = "none"; dashboardSection.style.display = "block";
-      updateGreeting(); loadThemeConfig(); loadProducts(); loadOrders(); loadCerts(); loadLenses(); 
+      loginSection.style.display = "none";
+      dashboardSection.style.display = "block";
+      loadThemeConfig(); // Tema verisini yükle
+      loadProducts(); 
+      loadOrders(); 
+      loadCerts(); 
+      loadLenses(); 
     } else {
-      loginSection.style.display = "flex"; dashboardSection.style.display = "none";
+      loginSection.style.display = "flex";
+      dashboardSection.style.display = "none";
     }
   });
 
-  // ÜRÜN VİTRİN MANTIĞI...
+  // ================== BÖLÜM 1: ÜRÜN VİTRİN MANTIĞI ==================
   document.getElementById("addBtn").addEventListener("click", async () => {
-    const name = document.getElementById("pName").value; const category = document.getElementById("pCategory").value;
-    const price = document.getElementById("pPrice").value; const desc = document.getElementById("pDesc").value; const imgUrl = document.getElementById("pImgUrl").value;
-    if(!name || !price || !imgUrl) return alert("Bilgileri gir!"); const addBtn = document.getElementById("addBtn"); addBtn.disabled = true; addBtn.innerText = "İşleniyor...";
+    const name = document.getElementById("pName").value;
+    const category = document.getElementById("pCategory").value;
+    const price = document.getElementById("pPrice").value;
+    const desc = document.getElementById("pDesc").value;
+    const imgUrl = document.getElementById("pImgUrl").value;
+
+    if(!name || !price || !imgUrl) {
+      alert("Lütfen Ad, Fiyat ve Resim alanlarını doldur kanka!");
+      return;
+    }
+
+    const addBtn = document.getElementById("addBtn");
+    addBtn.disabled = true;
+    addBtn.innerText = "İşleniyor...";
+
     try {
-      if (editModeId) { await updateDoc(doc(db, "products", editModeId), { name, category, price, desc, img: imgUrl }); } 
-      else { await addDoc(collection(db, "products"), { name, category, price, desc, img: imgUrl, createdAt: serverTimestamp(), clicks: 0 }); }
-      resetForm(); loadProducts();
-    } catch (e) { alert("Hata!"); } finally { addBtn.disabled = false; }
+      if (editModeId) {
+        await updateDoc(doc(db, "products", editModeId), {
+          name: name, category: category, price: price, desc: desc, img: imgUrl
+        });
+      } else {
+        await addDoc(collection(db, "products"), {
+          name: name, category: category, price: price, desc: desc, img: imgUrl, createdAt: serverTimestamp(), clicks: 0 
+        });
+      }
+      resetForm();
+      loadProducts();
+    } catch (e) {
+      alert("Hata oluştu kanka: " + e.message);
+    } finally {
+      addBtn.disabled = false;
+    }
   });
 
   function resetForm() {
-    editModeId = null; document.getElementById("pName").value = ""; document.getElementById("pPrice").value = ""; document.getElementById("pDesc").value = ""; document.getElementById("pImgUrl").value = "";
-    imagePreview.innerHTML = "Görsel"; imagePreview.style.border = "2px dashed rgba(255,255,255,0.2)";
+    editModeId = null;
+    document.getElementById("pName").value = "";
+    document.getElementById("pPrice").value = "";
+    document.getElementById("pDesc").value = "";
+    document.getElementById("pImgUrl").value = "";
+    imagePreview.innerHTML = "URL girince resim burada görünecek";
+    imagePreview.style.border = "2px dashed rgba(255, 255, 255, 0.2)";
+    
     document.getElementById("formTitle").innerHTML = `<i class="bi bi-plus-circle me-2"></i>Yeni Ürün Ekle`;
-    document.getElementById("addBtn").innerText = "Ürünü Kaydet"; document.getElementById("addBtn").classList.replace("btn-success", "btn-accent"); document.getElementById("cancelEditBtn").style.display = "none";
+    document.getElementById("addBtn").innerText = "Ürünü Kaydet";
+    document.getElementById("addBtn").classList.replace("btn-success", "btn-accent");
+    document.getElementById("cancelEditBtn").style.display = "none";
   }
+
   document.getElementById("cancelEditBtn").addEventListener("click", resetForm);
 
   async function loadProducts() {
-    const tbody = document.getElementById("productTableBody"); tbody.innerHTML = `<tr><td colspan="7">Yükleniyor...</td></tr>`;
+    productTableBody.innerHTML = `<tr><td colspan="7">Ürünler Yükleniyor...</td></tr>`;
     try {
-      const qs = await getDocs(query(collection(db, "products"), orderBy("createdAt", "desc")));
-      tbody.innerHTML = ""; adminProducts = []; 
-      if(qs.empty) { animateValue("totalProductCount", 0); return; }
-      qs.forEach((d) => {
-        const p = d.data(); adminProducts.push({ id: d.id, ...p }); const finalPrice = p.price.toString().includes("₺") ? p.price : `${p.price} ₺`;
-        tbody.innerHTML += `<tr><td><input type="checkbox" class="form-check-input vip-check" data-id="${d.id}"></td><td><img src="${p.img}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;"></td><td class="fw-bold">${p.name}</td><td><span class="badge bg-secondary">${p.category}</span></td><td class="accent fw-bold">${finalPrice}</td><td class="text-warning fw-bold"><i class="bi bi-fire"></i> ${p.clicks || 0}</td><td><button class="btn btn-sm btn-primary edit-btn me-1" data-id="${d.id}"><i class="bi bi-pencil"></i></button><button class="btn btn-sm btn-danger delete-btn" data-id="${d.id}"><i class="bi bi-trash"></i></button></td></tr>`;
+      const q = query(collection(db, "products"), orderBy("createdAt", "desc"));
+      const querySnapshot = await getDocs(q);
+      
+      productTableBody.innerHTML = ""; 
+      adminProducts = []; 
+      
+      if(querySnapshot.empty) {
+        productTableBody.innerHTML = `<tr><td colspan="7">Henüz ürün eklenmemiş.</td></tr>`;
+        document.getElementById("totalProductCount").innerText = "0"; 
+        return;
+      }
+
+      querySnapshot.forEach((doc) => {
+        const product = doc.data();
+        adminProducts.push({ id: doc.id, ...product });
+        const finalPrice = product.price.toString().includes("₺") ? product.price : `${product.price} ₺`;
+        const clicks = product.clicks || 0; 
+        
+        const row = `
+          <tr>
+            <td><input type="checkbox" class="form-check-input vip-check" data-id="${doc.id}"></td>
+            <td><img src="${product.img}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;"></td>
+            <td class="fw-bold">${product.name}</td>
+            <td><span class="badge bg-secondary">${product.category}</span></td>
+            <td class="accent fw-bold">${finalPrice}</td>
+            <td class="text-warning fw-bold"><i class="bi bi-fire"></i> ${clicks}</td>
+            <td>
+              <button class="btn btn-sm btn-primary edit-btn me-1" data-id="${doc.id}"><i class="bi bi-pencil"></i></button>
+              <button class="btn btn-sm btn-danger delete-btn" data-id="${doc.id}"><i class="bi bi-trash"></i></button>
+            </td>
+          </tr>
+        `;
+        productTableBody.innerHTML += row;
       });
-      animateValue("totalProductCount", adminProducts.length);
-      document.querySelectorAll(".edit-btn").forEach(btn => btn.onclick = (e) => {
-        const id = e.target.closest('button').dataset.id; const p = adminProducts.find(x => x.id === id);
-        document.getElementById("pName").value = p.name; document.getElementById("pCategory").value = p.category; document.getElementById("pPrice").value = p.price.toString().replace(/[^0-9]/g, ''); document.getElementById("pDesc").value = p.desc; document.getElementById("pImgUrl").value = p.img;
-        imagePreview.innerHTML = `<img src="${p.img}" style="width:100%; height:100%; object-fit:cover;">`; imagePreview.style.border = "none"; editModeId = id;
-        document.getElementById("formTitle").innerHTML = `<i class="bi bi-pencil-square me-2"></i>Ürünü Düzenle`; document.getElementById("addBtn").innerText = "Kaydet"; document.getElementById("addBtn").classList.replace("btn-accent", "btn-success"); document.getElementById("cancelEditBtn").style.display = "block"; window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      document.getElementById("totalProductCount").innerText = adminProducts.length;
+
+      document.querySelectorAll(".edit-btn").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+          const id = e.target.closest('button').getAttribute("data-id");
+          const product = adminProducts.find(p => p.id === id);
+          
+          document.getElementById("pName").value = product.name;
+          document.getElementById("pCategory").value = product.category;
+          document.getElementById("pPrice").value = product.price.toString().replace(/[^0-9]/g, ''); 
+          document.getElementById("pDesc").value = product.desc;
+          document.getElementById("pImgUrl").value = product.img;
+          
+          imagePreview.innerHTML = `<img src="${product.img}" style="width:100%; height:100%; object-fit:cover;">`;
+          imagePreview.style.border = "none";
+          
+          editModeId = id;
+          document.getElementById("formTitle").innerHTML = `<i class="bi bi-pencil-square me-2"></i>Ürünü Düzenle`;
+          document.getElementById("addBtn").innerText = "Değişiklikleri Kaydet";
+          document.getElementById("addBtn").classList.replace("btn-accent", "btn-success");
+          document.getElementById("cancelEditBtn").style.display = "block";
+          
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
       });
-      document.querySelectorAll(".delete-btn").forEach(btn => btn.onclick = async (e) => { if(confirm("Siliyorum emin misin?")) { await deleteDoc(doc(db, "products", e.target.closest('button').dataset.id)); loadProducts(); }});
-    } catch (e) { console.error(e); }
+
+      document.querySelectorAll(".delete-btn").forEach(btn => {
+        btn.addEventListener("click", async (e) => {
+          const id = e.target.closest('button').getAttribute("data-id");
+          if(confirm("Dayı bu ürünü kalıcı olarak siliyorum emin misin?")) {
+            await deleteDoc(doc(db, "products", id));
+            loadProducts(); 
+          }
+        });
+      });
+
+    } catch (error) {
+      productTableBody.innerHTML = `<tr><td colspan="7" class="text-danger">Bağlantı hatası!</td></tr>`;
+      console.error(error);
+    }
   }
 
   document.getElementById("vipBtn").addEventListener("click", () => {
-    const checks = document.querySelectorAll(".vip-check:checked"); if(checks.length === 0) return alert("Ürün seç kanka!");
-    let total = 0; let msg = "Trend Optik VIP Modeller:\n\n";
-    checks.forEach((box, i) => { const p = adminProducts.find(x => x.id === box.dataset.id); total += parseInt(p.price.toString().replace(/[^0-9]/g, '')) || 0; msg += `${i+1}) ${p.name} - ${p.price} ₺\n`; });
-    const discount = prompt(`Toplam: ${total} ₺. Yeni fiyat?`);
-    if(discount) { msg += `🎁 SİZE ÖZEL: ${discount} ₺ 🎁\n\nhttps://www.trendoptikmersin.com`; navigator.clipboard.writeText(msg); alert("Kopyalandı!"); }
+    const checks = document.querySelectorAll(".vip-check:checked");
+    if(checks.length === 0) return alert("Dayı VIP teklif oluşturmak için tablodan en az 1 ürün seçmelisin!");
+    
+    let total = 0; 
+    let msg = "Merhaba! Sizin için seçtiğimiz VIP Modeller:\n\n";
+    
+    checks.forEach((box, i) => {
+       const p = adminProducts.find(x => x.id === box.dataset.id);
+       total += parseInt(p.price.toString().replace(/[^0-9]/g, '')) || 0;
+       msg += `${i+1}) ${p.name} - ${p.price} ₺\n`;
+    });
+    msg += `\nNormal Toplam: ${total} ₺\n`;
+    
+    const discount = prompt(`Seçilen ürünlerin normal toplamı: ${total} ₺.\nDayı sen kaça bırakacaksın? (Sadece rakam yaz)`);
+    if(discount) {
+       msg += `🎁 SİZE ÖZEL FİYAT: ${discount} ₺ 🎁\n\nİncelemek için sitemize bekleriz: https://www.trendoptikmersin.com`;
+       navigator.clipboard.writeText(msg); 
+       alert("VIP Mesaj kopyalandı! Müşterinin WhatsApp'ına yapıştırıp gönderebilirsin.");
+    }
   });
 
-  // SİPARİŞ MANTIĞI...
+
+  // ================== BÖLÜM 2: SİPARİŞ VE KARGO TAKİP MANTIĞI ==================
   document.getElementById("addOrderBtn").addEventListener("click", async () => {
-    const customerName = document.getElementById("oName").value; const phone = document.getElementById("oPhone").value.trim();
-    const product = document.getElementById("oProduct").value; const status = document.getElementById("oStatus").value;
-    if(!customerName || !phone) return alert("Eksik bilgi!");
-    await addDoc(collection(db, "orders"), { customerName, phone, product, status, createdAt: serverTimestamp() });
-    document.getElementById("oName").value = ""; document.getElementById("oPhone").value = ""; document.getElementById("oProduct").value = ""; loadOrders();
+    const customerName = document.getElementById("oName").value;
+    const phone = document.getElementById("oPhone").value.trim();
+    const product = document.getElementById("oProduct").value;
+    const status = document.getElementById("oStatus").value;
+
+    if(!customerName || !phone) return alert("Müşteri adı ve telefonu girmek zorunludur aga!");
+
+    document.getElementById("addOrderBtn").innerText = "Sipariş Ekleniyor...";
+    document.getElementById("addOrderBtn").disabled = true;
+
+    try {
+      await addDoc(collection(db, "orders"), {
+        customerName: customerName,
+        phone: phone,
+        product: product,
+        status: status,
+        createdAt: serverTimestamp()
+      });
+      
+      document.getElementById("oName").value = "";
+      document.getElementById("oPhone").value = "";
+      document.getElementById("oProduct").value = "";
+      loadOrders();
+
+    } catch (e) {
+      console.error(e);
+      alert("Eklenemedi! Veritabanı kurallarını kontrol et.");
+    } finally {
+      document.getElementById("addOrderBtn").innerText = "Siparişi Oluştur";
+      document.getElementById("addOrderBtn").disabled = false;
+    }
   });
 
   async function loadOrders() {
-    const tbody = document.getElementById("orderTableBody");
+    const orderTableBody = document.getElementById("orderTableBody");
+    orderTableBody.innerHTML = `<tr><td colspan="5">Siparişler Yükleniyor...</td></tr>`;
+    
     try {
-      const qs = await getDocs(query(collection(db, "orders"), orderBy("createdAt", "desc")));
-      tbody.innerHTML = ""; adminOrders = [];
-      qs.forEach((d) => {
-        const order = d.data(); adminOrders.push({ id: d.id, ...order });
-        let badge = order.status === "Teslimata Hazır" ? "bg-success" : (order.status === "Camlar Kesiliyor" ? "bg-primary" : "bg-info text-dark");
-        tbody.innerHTML += `<tr><td class="fw-bold">${order.customerName}</td><td>${order.phone}</td><td>${order.product}</td><td><span class="badge ${badge} p-2">${order.status}</span></td><td><select class="form-select form-select-sm d-inline-block w-auto status-change" data-id="${d.id}"><option value="">Durum</option><option value="Camlar Kesiliyor">Kesiliyor</option><option value="Teslimata Hazır">Hazır</option><option value="Teslim Edildi">Arşivle</option></select><button class="btn btn-sm btn-danger delete-order-btn ms-1" data-id="${d.id}"><i class="bi bi-x-lg"></i></button></td></tr>`;
+      const q = query(collection(db, "orders"), orderBy("createdAt", "desc"));
+      const querySnapshot = await getDocs(q);
+      
+      orderTableBody.innerHTML = ""; 
+      adminOrders = [];
+      
+      if(querySnapshot.empty) {
+        orderTableBody.innerHTML = `<tr><td colspan="5">Şu an bekleyen sipariş yok.</td></tr>`;
+        document.getElementById("activeOrderCount").innerText = "0";
+        return;
+      }
+
+      querySnapshot.forEach((doc) => {
+        const order = doc.data();
+        adminOrders.push({ id: doc.id, ...order });
+        
+        let badgeColor = "bg-info text-dark"; // Sipariş alındı rengi
+        if(order.status === "Camlar Kesiliyor") badgeColor = "bg-primary";
+        if(order.status === "Teslimata Hazır") badgeColor = "bg-success";
+        if(order.status === "Teslim Edildi") badgeColor = "bg-secondary"; // Arşivlenmiş gibi durur
+
+        const row = `
+          <tr>
+            <td class="fw-bold">${order.customerName}</td>
+            <td>${order.phone}</td>
+            <td>${order.product}</td>
+            <td><span class="badge ${badgeColor} p-2">${order.status}</span></td>
+            <td>
+              <select class="form-select form-select-sm d-inline-block w-auto status-change" data-id="${doc.id}">
+                <option value="">Durum Değiştir</option>
+                <option value="Sipariş Alındı">Sipariş Alındı</option>
+                <option value="Camlar Kesiliyor">Camlar Kesiliyor</option>
+                <option value="Teslimata Hazır">Teslimata Hazır</option>
+                <option value="Teslim Edildi">Teslim Edildi (Arşivle)</option>
+              </select>
+              <button class="btn btn-sm btn-danger delete-order-btn ms-1" data-id="${doc.id}"><i class="bi bi-x-lg"></i></button>
+            </td>
+          </tr>
+        `;
+        orderTableBody.innerHTML += row;
       });
-      animateValue("activeOrderCount", adminOrders.filter(o => o.status !== "Teslim Edildi").length);
-      document.querySelectorAll(".delete-order-btn").forEach(btn => btn.onclick = async (e) => { await deleteDoc(doc(db, "orders", e.target.closest('button').dataset.id)); loadOrders(); });
-      document.querySelectorAll(".status-change").forEach(sel => sel.onchange = async (e) => { if(e.target.value) { await updateDoc(doc(db, "orders", e.target.dataset.id), { status: e.target.value }); loadOrders(); } });
-    } catch (e) { console.error(e); }
+
+      const activeCount = adminOrders.filter(o => o.status !== "Teslim Edildi").length;
+      document.getElementById("activeOrderCount").innerText = activeCount;
+
+      document.querySelectorAll(".delete-order-btn").forEach(btn => {
+        btn.addEventListener("click", async (e) => {
+          const id = e.target.closest('button').getAttribute("data-id");
+          if(confirm("Bu sipariş kaydını tamamen siliyorum emin misin?")) {
+            await deleteDoc(doc(db, "orders", id));
+            loadOrders(); 
+          }
+        });
+      });
+
+      document.querySelectorAll(".status-change").forEach(select => {
+        select.addEventListener("change", async (e) => {
+          const newStatus = e.target.value;
+          const id = e.target.dataset.id;
+          if(newStatus !== "") {
+            await updateDoc(doc(db, "orders", id), { status: newStatus });
+            loadOrders(); 
+          }
+        });
+      });
+
+    } catch (error) {
+      console.error(error);
+      orderTableBody.innerHTML = `<tr><td colspan="5" class="text-danger">Siparişler çekilemedi.</td></tr>`;
+    }
   }
 
-  // VIP SERTİFİKA MANTIĞI...
+  // ================== BÖLÜM 3: VIP SERTİFİKA MANTIĞI ==================
   document.getElementById("createCertBtn").addEventListener("click", async () => {
-    const name = document.getElementById("certName").value; const product = document.getElementById("certProduct").value;
-    const discount = document.getElementById("certDiscount").value; const duration = document.getElementById("certDuration").value;
-    const generatedNo = `TRND-${new Date().getFullYear()}-${Math.floor(Math.random()*16777215).toString(16).toUpperCase().substring(0,4)}`;
-    if(!name || !product) return alert("Bilgileri gir!");
-    try { await addDoc(collection(db, "certificates"), { customerName: name, product, discountRate: discount, duration, certNo: generatedNo, createdAt: serverTimestamp() });
-      document.getElementById("certName").value = ""; document.getElementById("certProduct").value = ""; loadCerts();
+    const name = document.getElementById("certName").value;
+    const product = document.getElementById("certProduct").value;
+    const discount = document.getElementById("certDiscount").value;
+    const duration = document.getElementById("certDuration").value;
+    
+    const randomHex = Math.floor(Math.random()*16777215).toString(16).toUpperCase().substring(0,4);
+    const generatedNo = `TRND-${new Date().getFullYear()}-${randomHex}`;
+
+    if(!name || !product) return alert("Bilgileri gir kanka!");
+
+    try {
+      await addDoc(collection(db, "certificates"), {
+        customerName: name,
+        product: product,
+        discountRate: discount,
+        duration: duration,
+        certNo: generatedNo,
+        createdAt: serverTimestamp()
+      });
+      alert(`Sertifika ${generatedNo} numarasıyla oluşturuldu!`);
+      document.getElementById("certName").value = "";
+      document.getElementById("certProduct").value = "";
+      loadCerts();
     } catch (e) { alert("Hata!"); }
   });
 
   async function loadCerts() {
+    const qs = await getDocs(query(collection(db, "certificates"), orderBy("createdAt", "desc")));
     const tbody = document.getElementById("certTableBody");
-    try {
-      const qs = await getDocs(query(collection(db, "certificates"), orderBy("createdAt", "desc")));
-      tbody.innerHTML = "";
-      qs.forEach((d) => {
-        const c = d.data(); const link = `https://www.trendoptikmersin.com/sertifika?id=${d.id}`;
-        tbody.innerHTML += `<tr><td class="accent fw-bold small">${c.certNo}</td><td>${c.customerName}</td><td>${c.product}</td><td>%${c.discountRate}</td><td><button class="btn btn-sm btn-outline-warning" onclick="navigator.clipboard.writeText('${link}'); alert('Link Kopyalandı!')"><i class="bi bi-link"></i></button><button class="btn btn-sm btn-danger delete-cert-btn ms-1" data-id="${d.id}"><i class="bi bi-trash"></i></button></td></tr>`;
-      });
-      animateValue("certCount", qs.size);
-      document.querySelectorAll(".delete-cert-btn").forEach(btn => btn.onclick = async (e) => { if(confirm("Siliyorum?")) { await deleteDoc(doc(db, "certificates", e.target.closest('button').dataset.id)); loadCerts(); } });
-    } catch (e) { console.error(e); }
+    tbody.innerHTML = "";
+    qs.forEach((d) => {
+      const c = d.data();
+      const link = `https://www.trendoptikmersin.com/sertifika?id=${d.id}`;
+      tbody.innerHTML += `
+        <tr>
+          <td class="accent fw-bold">${c.certNo}</td>
+          <td>${c.customerName}</td>
+          <td>${c.product}</td>
+          <td>%${c.discountRate}</td>
+          <td>
+            <button class="btn btn-sm btn-outline-warning" onclick="navigator.clipboard.writeText('${link}'); alert('Link Kopyalandı!')"><i class="bi bi-link"></i></button>
+            <button class="btn btn-sm btn-danger delete-cert-btn" data-id="${d.id}"><i class="bi bi-trash"></i></button>
+          </td>
+        </tr>`;
+    });
   }
 
-  // LENS TAKİP MANTIĞI...
+  // ================== BÖLÜM 4: LENS TAKİP MANTIĞI ==================
   document.getElementById("addLensBtn").addEventListener("click", async () => {
-    const name = document.getElementById("lName").value; const phone = document.getElementById("lPhone").value;
-    const product = document.getElementById("lProduct").value; const duration = parseInt(document.getElementById("lDuration").value);
-    if(!name || !phone || !product) return alert("Eksiksiz gir!"); document.getElementById("addLensBtn").innerText = "Ekleniyor...";
-    try { await addDoc(collection(db, "lenses"), { customerName: name, phone, product, duration, createdAt: serverTimestamp() });
-      document.getElementById("lName").value = ""; document.getElementById("lPhone").value = ""; document.getElementById("lProduct").value = ""; loadLenses();
-    } catch (e) { alert("Hata!"); } finally { document.getElementById("addLensBtn").innerText = "LENS TAKİBİNİ BAŞLAT"; }
+    const name = document.getElementById("lName").value;
+    const phone = document.getElementById("lPhone").value;
+    const product = document.getElementById("lProduct").value;
+    const duration = parseInt(document.getElementById("lDuration").value);
+
+    if(!name || !phone || !product) return alert("Lens bilgilerini eksiksiz gir kanka!");
+
+    document.getElementById("addLensBtn").innerText = "Ekleniyor...";
+    try {
+      await addDoc(collection(db, "lenses"), {
+        customerName: name, phone: phone, product: product, duration: duration, createdAt: serverTimestamp()
+      });
+      document.getElementById("lName").value = ""; document.getElementById("lPhone").value = ""; document.getElementById("lProduct").value = "";
+      loadLenses();
+    } catch (e) { alert("Hata oluştu!"); }
+    finally { document.getElementById("addLensBtn").innerText = "LENS TAKİBİNİ BAŞLAT"; }
   });
 
   async function loadLenses() {
     const tbody = document.getElementById("lensTableBody");
     try {
       const qs = await getDocs(query(collection(db, "lenses"), orderBy("createdAt", "desc")));
-      tbody.innerHTML = ""; let totalLenses = 0;
+      tbody.innerHTML = "";
+      
+      let totalLenses = 0;
+      
       qs.forEach((d) => {
-        const lens = d.data(); if(!lens.createdAt) return; totalLenses++;
-        const createdDate = lens.createdAt.toDate(); const expireDate = new Date(createdDate.getTime() + (lens.duration * 24 * 60 * 60 * 1000));
+        const lens = d.data();
+        if(!lens.createdAt) return; 
+        totalLenses++;
+        
+        const createdDate = lens.createdAt.toDate();
+        const expireDate = new Date(createdDate.getTime() + (lens.duration * 24 * 60 * 60 * 1000));
         const diffDays = Math.ceil((expireDate - new Date()) / (1000 * 60 * 60 * 24));
-        let statusHtml = ""; let rowStyle = "";
-        if (diffDays <= 5 && diffDays >= 0) { statusHtml = `<span class="badge bg-danger pulse-anim px-3 py-2 fs-6">⏳ ${diffDays} Gün Kaldı!</span>`; rowStyle = `background: rgba(220, 53, 69, 0.1); border-left: 4px solid #dc3545;`; } 
-        else if (diffDays < 0) { statusHtml = `<span class="badge bg-dark text-danger">⚠️ Bitti</span>`; } 
-        else { statusHtml = `<span class="badge bg-success opacity-75">${diffDays} Gün</span>`; }
-        let phoneStr = lens.phone.replace(/[^0-9]/g, ''); if(!phoneStr.startsWith('90')) phoneStr = '90' + phoneStr;
-        const wpMsg = encodeURIComponent(`Merhaba ${lens.customerName}, Trend Optik'ten yazıyoruz. Sistemimize göre ${lens.product} model lenslerinizin süresi bitmek üzere. Yeni siparişinizi hazırlayalım mı?`);
+        
+        let statusHtml = "";
+        let rowStyle = "";
+        
+        if (diffDays <= 5 && diffDays >= 0) {
+          statusHtml = `<span class="badge bg-danger pulse-anim px-3 py-2 fs-6">⏳ ${diffDays} Gün Kaldı!</span>`;
+          rowStyle = `background: rgba(220, 53, 69, 0.1); border-left: 4px solid #dc3545;`;
+        } else if (diffDays < 0) {
+          statusHtml = `<span class="badge bg-dark text-danger">⚠️ Bitti (${Math.abs(diffDays)} gün gecikti)</span>`;
+        } else {
+          statusHtml = `<span class="badge bg-success opacity-75">${diffDays} Gün</span>`;
+        }
+
+        let phoneStr = lens.phone.replace(/[^0-9]/g, '');
+        if(!phoneStr.startsWith('90')) phoneStr = '90' + phoneStr;
+
+        const wpMsg = encodeURIComponent(`Merhaba ${lens.customerName}, Trend Optik'ten yazıyoruz. Sistemimize göre ${lens.product} model lenslerinizin kullanım süresi bitmek üzere. Gözünüzün numarasız kalmaması için yeni siparişinizi hemen hazırlayalım mı?`);
         const wpLink = `https://wa.me/${phoneStr}?text=${wpMsg}`;
-        tbody.innerHTML += `<tr style="${rowStyle}"><td class="fw-bold">${lens.customerName}</td><td>${lens.product}</td><td>${statusHtml}</td><td><button class="btn btn-sm btn-success fw-bold remind-lens-btn" data-link="${wpLink}"><i class="bi bi-whatsapp"></i> Hatırlat</button><button class="btn btn-sm btn-outline-danger delete-lens-btn ms-1" data-id="${d.id}"><i class="bi bi-x"></i></button></td></tr>`;
+
+        tbody.innerHTML += `
+          <tr style="${rowStyle}">
+            <td class="fw-bold">${lens.customerName}</td>
+            <td>${lens.product}</td>
+            <td>${statusHtml}</td>
+            <td>
+              <button class="btn btn-sm btn-success fw-bold remind-lens-btn" data-link="${wpLink}">
+                <i class="bi bi-whatsapp"></i> Hatırlat
+              </button>
+              <button class="btn btn-sm btn-outline-danger delete-lens-btn ms-1" data-id="${d.id}">
+                <i class="bi bi-x"></i>
+              </button>
+            </td>
+          </tr>`;
       });
-      animateValue("lensCount", totalLenses);
-      document.querySelectorAll(".delete-lens-btn").forEach(btn => btn.onclick = async (e) => { if(confirm("Bitiriyorum?")) { await deleteDoc(doc(db, "lenses", e.target.closest('button').dataset.id)); loadLenses(); }});
-      document.querySelectorAll(".remind-lens-btn").forEach(btn => { btn.onclick = (e) => { window.open(e.target.closest('button').getAttribute('data-link'), '_blank'); }; });
-    } catch (e) { console.error(e); }
+      
+      document.getElementById("lensCount").innerText = totalLenses;
+
+      document.querySelectorAll(".delete-lens-btn").forEach(btn => btn.onclick = async (e) => { 
+        if(confirm("Bu müşterinin takibini bitiriyorum patron?")) { 
+          await deleteDoc(doc(db, "lenses", e.target.closest('button').dataset.id)); 
+          loadLenses(); 
+        }
+      });
+
+      document.querySelectorAll(".remind-lens-btn").forEach(btn => {
+        btn.onclick = (e) => {
+          const link = e.target.closest('button').getAttribute('data-link');
+          window.open(link, '_blank');
+        };
+      });
+      
+    } catch (e) { console.error("Lens yükleme hatası", e); }
   }
+
+
 </script>
 </body>
 </html>
