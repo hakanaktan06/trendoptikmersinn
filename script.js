@@ -17,7 +17,7 @@ const db = getFirestore(app);
 document.addEventListener("DOMContentLoaded", async function () {
 
   // ==========================================
-  // BUKALEMUN TEMA MOTORU
+  // BUKALEMUN TEMA MOTORU VE CANLI ARAMA
   // ==========================================
   let currentTheme = 'standart';
   
@@ -101,20 +101,19 @@ document.addEventListener("DOMContentLoaded", async function () {
           border-left: 10px solid transparent; 
       }
 
-      /* YENİ: CANLI ARAMA DROPDOWN STİLLERİ */
+      /* DÜZELTİLMİŞ CANLI ARAMA DROPDOWN STİLLERİ (Filtreleri ezer geçer) */
       .live-search-dropdown {
           position: absolute;
-          top: calc(100% + 5px);
+          top: calc(100% + 10px);
           left: 0;
           width: 100%;
-          background: rgba(15, 15, 15, 0.95);
-          backdrop-filter: blur(15px);
-          border: 1px solid rgba(255, 255, 255, 0.1);
+          background: #111; /* Karmaşayı önlemek için daha koyu/katı arkaplan */
+          border: 1px solid var(--theme-color);
           border-radius: 12px;
-          box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+          box-shadow: 0 20px 50px rgba(0,0,0,0.9);
           max-height: 350px;
           overflow-y: auto;
-          z-index: 1050;
+          z-index: 99999 !important; /* Her şeyin üstünde çıkması için eklendi */
           display: none;
           flex-direction: column;
       }
@@ -134,7 +133,7 @@ document.addEventListener("DOMContentLoaded", async function () {
           text-decoration: none;
       }
       .live-search-item:last-child { border-bottom: none; }
-      .live-search-item:hover { background: rgba(255,255,255,0.03); padding-left: 20px; }
+      .live-search-item:hover { background: rgba(255,255,255,0.05); padding-left: 20px; }
       .live-search-img { width: 50px; height: 50px; object-fit: cover; border-radius: 8px; }
       .live-search-info { flex-grow: 1; }
       .live-search-title { font-weight: 700; font-size: 0.95rem; margin: 0; }
@@ -206,7 +205,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     document.body.appendChild(container);
   }
 
-  // 3. SİSTEM BAŞLATICI
   async function initializeSystem() {
     try {
       const snap = await getDoc(doc(db, "settings", "theme"));
@@ -346,7 +344,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     `;
   }
 
-  // YILDIZLI ÜRÜNLERİ ANA SAYFAYA ÇEKME
   async function fetchHomeProducts() {
     homeProductGrid.innerHTML = `<div class="w-100 text-center my-5"><div class="spinner-border text-warning"></div></div>`;
     try {
@@ -402,32 +399,30 @@ document.addEventListener("DOMContentLoaded", async function () {
   }
 
   // ==========================================
-  // YENİ: VAHŞET CANLI AKILLI ARAMA MOTORU 
+  // CANLI AKILLI ARAMA MOTORU (FİLTRELERİ EZER GEÇER!)
   // ==========================================
   if (searchInput) {
-    // Arama kutusunu saran div'i bul ve relative yap (Dropdown altına düşsün diye)
+    // 1. Arama kutusunun bulunduğu genel alanı (parent) bul ve zırh giydir (z-index)
     const searchContainer = searchInput.parentElement;
     searchContainer.style.position = 'relative';
+    searchContainer.style.zIndex = '99999'; // KATMAN ÇATIŞMASI BURADA ÇÖZÜLDÜ!
     
-    // Dropdown kutusunu yarat
     const dropdown = document.createElement('div');
     dropdown.className = 'live-search-dropdown';
     searchContainer.appendChild(dropdown);
 
     searchInput.addEventListener("input", function () {
       const value = this.value.toLowerCase().trim();
-      dropdown.innerHTML = ''; // İçini temizle
+      dropdown.innerHTML = ''; 
       
-      // Eğer kutu boşsa veya silindiyse
       if (value.length === 0) {
           dropdown.classList.remove('show');
-          displayAllProducts(allProducts); // Sayfadaki ürünleri de eski haline getir
+          displayAllProducts(allProducts); 
           return;
       }
 
-      // Kelimeye göre filtrele
       const filtered = allProducts.filter(p => p.name.toLowerCase().includes(value) || p.desc.toLowerCase().includes(value));
-      displayAllProducts(filtered); // Alt sayfada grid'i de eşzamanlı filtrele
+      displayAllProducts(filtered); 
 
       if (filtered.length > 0) {
           filtered.forEach(product => {
@@ -459,14 +454,12 @@ document.addEventListener("DOMContentLoaded", async function () {
       }
     });
 
-    // Dışarı tıklayınca dropdown kapansın
     document.addEventListener('click', (e) => {
         if (!searchContainer.contains(e.target)) {
             dropdown.classList.remove('show');
         }
     });
 
-    // Arama kutusuna tekrar basınca içi doluysa açılsın
     searchInput.addEventListener('focus', () => {
         if(searchInput.value.trim().length > 0) {
             dropdown.classList.add('show');
