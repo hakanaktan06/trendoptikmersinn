@@ -1208,6 +1208,39 @@
     } catch (e) { console.error("Lens hatası", e); }
   }
 
+// QR ÜRETME VE MODALI AÇMA FONKSİYONU
+window.generateQR = function(id) {
+    // Ürünü bul
+    const product = adminProducts.find(p => p.id === id);
+    if(!product) return;
+
+    // QR kabını temizle
+    const qrContainer = document.getElementById("qrcode");
+    qrContainer.innerHTML = ""; 
+    
+    // Ürün detay linkini oluştur (Site domainini buraya yazmalısın)
+    const detailUrl = `https://www.trendoptikmersin.com/urun-detay.html?id=${id}`;
+
+    // QR Kodunu Çiz
+    new QRCode(qrContainer, {
+        text: detailUrl,
+        width: 180,
+        height: 180,
+        colorDark : "#000000",
+        colorLight : "#ffffff",
+        correctLevel : QRCode.CorrectLevel.H
+    });
+
+    // Modal Bilgilerini Doldur
+    document.getElementById('qrProductName').innerText = product.name;
+    document.getElementById('qrProductPrice').innerText = product.price.toString().includes("₺") ? product.price : `${product.price} ₺`;
+    
+    // Modalı Aç
+    const myModal = new bootstrap.Modal(document.getElementById('qrModal'));
+    myModal.show();
+};
+
+
 </script>
 
 <div class="modal fade" id="qrModal" tabindex="-1" aria-hidden="true">
