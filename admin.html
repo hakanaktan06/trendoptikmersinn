@@ -60,11 +60,11 @@
       body * { visibility: hidden; }
       #qrPrintArea, #qrPrintArea * { visibility: visible; }
       #qrPrintArea { position: fixed; left: 0; top: 0; width: 100%; text-align: center; padding-top: 50px; }
+      .modal-footer, .btn, .btn-close { display: none !important; }
     }
 
     @media (max-width: 992px) {
         .sidebar { width: 100%; height: auto; position: sticky; top: 0; z-index: 1050; padding: 15px 10px; border-right: none; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; flex-direction: row; flex-wrap: nowrap; overflow-x: auto; align-items: center; justify-content: flex-start; gap: 10px; background: rgba(10, 10, 10, 0.98); backdrop-filter: blur(15px); -webkit-overflow-scrolling: touch; }
-        .sidebar::-webkit-scrollbar { display: none; } 
         .sidebar-brand { display: none; } 
         .sidebar-link { margin-bottom: 0; padding: 10px 20px; font-size: 0.9rem; flex-shrink: 0; border-radius: 30px; background: rgba(255,255,255,0.05); }
         .sidebar-link i { margin-right: 8px; }
@@ -83,8 +83,6 @@
   </style>
 </head>
 <body>
-
-
 
 <div id="customModalOverlay" class="trend-modal-overlay">
   <div class="trend-modal-box">
@@ -124,7 +122,8 @@
     <div class="sidebar-brand"><span class="accent">Trend</span> Optik.</div>
     <a class="sidebar-link active" onclick="switchTab('sec-home', this)"><i class="bi bi-grid-1x2-fill"></i> Ana Ekran</a>
     <a class="sidebar-link" onclick="switchTab('sec-products', this)"><i class="bi bi-sunglasses"></i> Ürün Vitrini</a>
-    <a class="sidebar-link" onclick="switchTab('sec-radar', this)"><i class="bi bi-radar"></i> Akıllı Radar</a> <a class="sidebar-link" onclick="switchTab('sec-orders', this)"><i class="bi bi-box-seam-fill"></i> Siparişler</a>
+    <a class="sidebar-link" onclick="switchTab('sec-radar', this)"><i class="bi bi-radar"></i> Akıllı Radar</a> 
+    <a class="sidebar-link" onclick="switchTab('sec-orders', this)"><i class="bi bi-box-seam-fill"></i> Siparişler</a>
     <a class="sidebar-link" onclick="switchTab('sec-certs', this)"><i class="bi bi-award-fill"></i> Sertifikalar</a>
     <a class="sidebar-link" onclick="switchTab('sec-lenses', this)"><i class="bi bi-eye-fill"></i> Lens Radarı</a>
     
@@ -141,27 +140,33 @@
       </div>
 
       <div class="row g-3 mb-4">
-        <div class="col-md-3">
+        <div class="col-md-3 col-lg-2">
           <div class="glass-panel text-center p-3" style="border-bottom: 3px solid #f5a623;">
-            <h6 class="opacity-75 mb-1"><i class="bi bi-box-seam me-2"></i>Sistemdeki Ürün</h6>
+            <h6 class="opacity-75 mb-1 small"><i class="bi bi-box-seam me-2"></i>Ürün</h6>
             <h2 class="fw-bold mb-0" id="totalProductCount">0</h2>
           </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-3 col-lg-2">
           <div class="glass-panel text-center p-3" style="border-bottom: 3px solid #f0ad4e;">
-            <h6 class="opacity-75 mb-1"><i class="bi bi-truck me-2"></i>Aktif Siparişler</h6>
+            <h6 class="opacity-75 mb-1 small"><i class="bi bi-truck me-2"></i>Sipariş</h6>
             <h2 class="fw-bold mb-0 text-warning" id="activeOrderCount">0</h2>
           </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-3 col-lg-2">
+            <div class="glass-panel text-center p-3" style="border-bottom: 3px solid #ffc107; cursor:pointer;" onclick="switchTab('sec-radar', document.querySelector('[onclick*=\'sec-radar\']'))">
+              <h6 class="opacity-75 mb-1 small"><i class="bi bi-radar me-2"></i>Radar</h6>
+              <h2 class="fw-bold mb-0 text-warning" id="criticalRadarCount">0</h2>
+            </div>
+        </div>
+        <div class="col-md-3 col-lg-2">
           <div class="glass-panel text-center p-3" style="border-bottom: 3px solid #d4af37;">
-            <h6 class="opacity-75 mb-1"><i class="bi bi-award-fill me-2"></i>VIP Sertifikalar</h6>
+            <h6 class="opacity-75 mb-1 small"><i class="bi bi-award-fill me-2"></i>VIP</h6>
             <h2 class="fw-bold mb-0" style="color: #d4af37;" id="certCount">0</h2>
           </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-3 col-lg-2">
           <div class="glass-panel text-center p-3" style="border-bottom: 3px solid #0dcaf0;">
-            <h6 class="opacity-75 mb-1"><i class="bi bi-eye-fill me-2"></i>Lens Takipleri</h6>
+            <h6 class="opacity-75 mb-1 small"><i class="bi bi-eye-fill me-2"></i>Lens</h6>
             <h2 class="fw-bold mb-0 text-info" id="lensCount">0</h2>
           </div>
         </div>
@@ -494,7 +499,10 @@
 
   // ================== YENİ: QR KOD ÜRETME MOTORU ==================
   window.generateQR = function(id) {
+    console.log("QR Tetiklendi ID:", id);
     const product = adminProducts.find(p => p.id === id);
+    if(!product) return alert("Ürün bulunamadı!");
+
     const qrContainer = document.getElementById("qrcode");
     qrContainer.innerHTML = ""; 
     
@@ -513,14 +521,15 @@
     document.getElementById('qrProductName').innerText = product.name;
     document.getElementById('qrProductPrice').innerText = product.price.toString().includes("₺") ? product.price : `${product.price} ₺`;
     
-    const qrModal = new bootstrap.Modal(document.getElementById('qrModal'));
-    qrModal.show();
+    const qrModalEl = document.getElementById('qrModal');
+    const myModal = new bootstrap.Modal(qrModalEl);
+    myModal.show();
   };
 
   // ================== YENİ: AKILLI RADAR (MUAYENE TAKİBİ) ==================
   async function loadRadar() {
       const radarTableBody = document.getElementById("radarTableBody");
-      const radarBadge = document.getElementById("criticalRadarCount"); // Ana sayfadaki sayaç
+      const radarBadge = document.getElementById("criticalRadarCount"); 
       
       if(!radarTableBody) return;
       radarTableBody.innerHTML = "<tr><td colspan='4'>Analiz ediliyor...</td></tr>";
@@ -541,7 +550,6 @@
               const farkZaman = Math.abs(bugun - islemTarihi);
               const farkGun = Math.ceil(farkZaman / (1000 * 60 * 60 * 24));
 
-              // 360 günü (yaklaşık 1 yıl) geçenleri listele
               if (farkGun >= 360) {
                   counter++;
                   const row = `
@@ -560,12 +568,8 @@
               }
           });
 
-          // SAYAÇ GÜNCELLEME (ANA SAYFA İÇİN)
           if(radarBadge) radarBadge.innerText = counter;
-
-          if(counter === 0) {
-              radarTableBody.innerHTML = "<tr><td colspan='4' class='opacity-50'>Şu an muayene zamanı gelen kimse yok.</td></tr>";
-          }
+          if(counter === 0) radarTableBody.innerHTML = "<tr><td colspan='4' class='opacity-50'>Günü geçen muayene yok.</td></tr>";
 
       } catch (e) { console.error("Radar Hatası:", e); }
   }
@@ -648,7 +652,6 @@
     document.querySelectorAll('.sidebar-link').forEach(el => el.classList.remove('active'));
     element.classList.add('active');
     
-    // Radar sekmesi açılınca yükle
     if(sectionId === 'sec-radar') loadRadar();
     
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -732,7 +735,7 @@
       loadOrders(); 
       loadCerts(); 
       loadLenses(); 
-      loadRadar(); // Radar başlangıçta yüklensin
+      loadRadar(); 
     } else {
       loginSectionWrapper.style.display = "block";
       dashboardSection.style.display = "none";
@@ -760,7 +763,6 @@
         await updateDoc(doc(db, "products", editModeId), { name, category, price, desc, img: imgUrl });
         trendAlert("Başarılı", "Ürün başarıyla güncellendi.", "success");
       } else {
-        // isFeatured: false olarak default ekliyoruz
         await addDoc(collection(db, "products"), { name, category, price, desc, img: imgUrl, createdAt: serverTimestamp(), clicks: 0, isFeatured: false });
         trendAlert("Başarılı", "Yeni ürün vitrine eklendi.", "success");
       }
@@ -828,8 +830,6 @@
 
     filteredProducts.forEach((product) => {
       const finalPrice = product.price.toString().includes("₺") ? product.price : `${product.price} ₺`;
-      
-      // ANA SAYFA YILDIZI MANTIĞI
       const isFeatured = product.isFeatured ? true : false;
       const starClass = isFeatured ? "btn-warning text-dark shadow" : "btn-outline-light opacity-50";
       const starIcon = isFeatured ? "bi-star-fill" : "bi-star";
@@ -849,7 +849,7 @@
           <td><span class="badge bg-secondary">${product.category}</span></td>
           <td class="accent fw-bold">${finalPrice}</td>
           <td>
-            <button class="btn btn-sm btn-outline-warning qr-trigger-btn me-1" data-id="${product.id}" title="QR Etiket"><i class="bi bi-qr-code"></i></button>
+            <button class="btn btn-sm btn-outline-warning me-1" onclick="generateQR('${product.id}')" title="QR Etiket"><i class="bi bi-qr-code"></i></button>
             <button class="btn btn-sm btn-primary edit-btn me-1" data-id="${product.id}"><i class="bi bi-pencil"></i></button>
             <button class="btn btn-sm btn-danger delete-btn" data-id="${product.id}"><i class="bi bi-trash"></i></button>
           </td>
@@ -858,64 +858,40 @@
       productTableBody.innerHTML += row;
     });
 
-    // QR Buton Olayı
-    document.querySelectorAll(".qr-trigger-btn").forEach(btn => {
-        btn.onclick = (e) => {
-            const id = e.currentTarget.getAttribute("data-id");
-            window.generateQR(id);
-        };
-    });
-
-    // Ana Sayfa Yıldızına Tıklama Olayı
+    // Ana Sayfa Yıldızı Olayı
     document.querySelectorAll(".feature-toggle-btn").forEach(btn => {
       btn.addEventListener("click", async (e) => {
         const id = e.currentTarget.getAttribute("data-id");
         const currentStatus = e.currentTarget.getAttribute("data-featured") === "true";
-        const newStatus = !currentStatus; // Tersine çevir
-
-        try {
-          await updateDoc(doc(db, "products", id), { isFeatured: newStatus });
-          if(newStatus) {
-             trendAlert("Vitrinde!", "Ürün, ana sayfa kayan vitrinine eklendi.", "success");
-          } else {
-             trendAlert("Vitrinden Alındı", "Ürün ana sayfa vitrininden kaldırıldı.", "info");
-          }
-          loadProducts(); // Tabloyu yenile
-        } catch (err) {
-          trendAlert("Hata", "Yıldız durumu güncellenemedi.", "error");
-        }
+        await updateDoc(doc(db, "products", id), { isFeatured: !currentStatus });
+        loadProducts();
       });
     });
 
-    // Buton Tetikleyicilerini Yeniden Bağla
+    // Düzenle Butonu Olayı
     document.querySelectorAll(".edit-btn").forEach(btn => {
       btn.addEventListener("click", (e) => {
         const id = e.currentTarget.getAttribute("data-id");
         const product = adminProducts.find(p => p.id === id);
-        
         document.getElementById("pName").value = product.name;
         document.getElementById("pCategory").value = product.category;
         document.getElementById("pPrice").value = product.price.toString().replace(/[^0-9]/g, ''); 
         document.getElementById("pDesc").value = product.desc;
         document.getElementById("pImgUrl").value = product.img;
-        
         imagePreview.innerHTML = `<img src="${product.img}" style="width:100%; height:100%; object-fit:cover;">`;
-        imagePreview.style.border = "none";
-        
         editModeId = id;
         document.getElementById("formTitle").innerHTML = `<i class="bi bi-pencil-square me-2"></i>Ürünü Düzenle`;
         document.getElementById("addBtn").innerText = "Değişiklikleri Kaydet";
-        document.getElementById("addBtn").classList.replace("btn-accent", "btn-success");
         document.getElementById("cancelEditBtn").style.display = "block";
-        
         window.scrollTo({ top: 0, behavior: 'smooth' });
       });
     });
 
+    // Sil Butonu Olayı
     document.querySelectorAll(".delete-btn").forEach(btn => {
       btn.addEventListener("click", async (e) => {
         const id = e.currentTarget.getAttribute("data-id");
-        trendConfirm("Emin misin?", "Dayı bu ürünü veritabanından kalıcı olarak siliyorum. Onaylıyor musun?", async () => {
+        trendConfirm("Emin misin?", "Kalıcı olarak siliyorum. Onaylıyor musun?", async () => {
           await deleteDoc(doc(db, "products", id));
           loadProducts(); 
         });
@@ -925,325 +901,126 @@
 
   document.getElementById("vipBtn").addEventListener("click", () => {
     const checks = document.querySelectorAll(".vip-check:checked");
-    if(checks.length === 0) {
-      trendAlert("Ürün Seçmedin!", "VIP teklif oluşturmak için tablodan en az 1 ürün seçmelisin.", "error");
-      return;
-    }
-    
-    let total = 0; 
-    let msg = "Merhaba! Sizin için seçtiğimiz VIP Modeller:\n\n";
-    
+    if(checks.length === 0) return trendAlert("Hata", "Ürün seçmelisin.", "error");
+    let total = 0; let msg = "Sizin için VIP Modeller:\n";
     checks.forEach((box, i) => {
        const p = adminProducts.find(x => x.id === box.dataset.id);
        total += parseInt(p.price.toString().replace(/[^0-9]/g, '')) || 0;
        msg += `${i+1}) ${p.name} - ${p.price} ₺\n`;
     });
-    
-    trendPrompt("VIP Fiyat Belirle", `Seçilen ürünlerin normal toplamı: ${total} ₺.\nDayı sen kaça bırakacaksın?`, (discount) => {
-       msg += `\n🎁 SİZE ÖZEL FİYAT: ${discount} ₺ 🎁\n\nİncelemek için sitemize bekleriz: https://www.trendoptikmersin.com`;
+    trendPrompt("VIP Fiyat", `Toplam: ${total} ₺. Sen kaça bırakacaksın?`, (discount) => {
+       msg += `🎁 ÖZEL FİYAT: ${discount} ₺ 🎁`;
        navigator.clipboard.writeText(msg); 
-       trendAlert("Kopyalandı!", "VIP Mesaj panoya kopyalandı. Müşterinin WhatsApp'ına yapıştırıp gönderebilirsin.", "success");
+       trendAlert("Kopyalandı!", "WhatsApp'a yapıştırabilirsin.", "success");
     });
   });
 
-
-  // ================== BÖLÜM 2: SİPARİŞ VE KARGO TAKİP MANTIĞI ==================
   document.getElementById("addOrderBtn").addEventListener("click", async () => {
     const customerName = document.getElementById("oName").value;
     const phone = document.getElementById("oPhone").value.trim();
-    const product = document.getElementById("oProduct").value;
-    const status = document.getElementById("oStatus").value;
-
-    if(!customerName || !phone) {
-      trendAlert("Eksik Bilgi", "Müşteri adı ve telefonu girmek zorunludur!", "error");
-      return;
-    }
-
-    document.getElementById("addOrderBtn").innerText = "Sipariş Ekleniyor...";
-    document.getElementById("addOrderBtn").disabled = true;
-
+    if(!customerName || !phone) return trendAlert("Hata", "Ad ve Telefon zorunlu.", "error");
     try {
       await addDoc(collection(db, "orders"), {
-        customerName: customerName, phone: phone, product: product, status: status, createdAt: serverTimestamp()
+        customerName, phone, product: document.getElementById("oProduct").value, status: document.getElementById("oStatus").value, createdAt: serverTimestamp()
       });
-      document.getElementById("oName").value = ""; document.getElementById("oPhone").value = ""; document.getElementById("oProduct").value = "";
-      trendAlert("Başarılı", "Sipariş sisteme işlendi.", "success");
-      loadOrders();
-    } catch (e) {
-      trendAlert("Hata!", "Sipariş eklenemedi.", "error");
-    } finally {
-      document.getElementById("addOrderBtn").innerText = "Siparişi Oluştur";
-      document.getElementById("addOrderBtn").disabled = false;
-    }
+      trendAlert("Başarılı", "Sipariş işlendi.", "success");
+      loadOrders(); loadRadar();
+    } catch (e) { }
   });
 
   async function loadOrders() {
     const orderTableBody = document.getElementById("orderTableBody");
-    orderTableBody.innerHTML = `<tr><td colspan="5">Siparişler Yükleniyor...</td></tr>`;
-    
     try {
       const q = query(collection(db, "orders"), orderBy("createdAt", "desc"));
-      const querySnapshot = await getDocs(q);
-      
+      const qs = await getDocs(q);
       orderTableBody.innerHTML = ""; adminOrders = [];
-      
-      if(querySnapshot.empty) {
-        orderTableBody.innerHTML = `<tr><td colspan="5">Şu an bekleyen sipariş yok.</td></tr>`;
-        document.getElementById("activeOrderCount").innerText = "0"; return;
-      }
-
-      querySnapshot.forEach((doc) => {
-        const order = doc.data();
-        adminOrders.push({ id: doc.id, ...order });
-        
-        let badgeColor = "bg-info text-dark"; 
-        if(order.status === "İşlem Yapılıyor") badgeColor = "bg-primary";
-        if(order.status === "Teslimata Hazır") badgeColor = "bg-warning text-dark";
-        if(order.status === "Teslim Edildi") badgeColor = "bg-success"; 
-        if(order.status === "Arşivlendi") badgeColor = "bg-secondary"; 
-
-        const row = `
+      qs.forEach((doc) => {
+        const order = doc.data(); adminOrders.push({ id: doc.id, ...order });
+        let badgeColor = order.status === "Teslimata Hazır" ? "bg-warning" : (order.status === "Teslim Edildi" ? "bg-success" : "bg-primary");
+        orderTableBody.innerHTML += `
           <tr>
             <td class="fw-bold">${order.customerName}</td>
             <td>${order.phone}</td>
             <td>${order.product}</td>
-            <td><span class="badge ${badgeColor} p-2">${order.status}</span></td>
+            <td><span class="badge ${badgeColor}">${order.status}</span></td>
             <td>
               <select class="form-select form-select-sm d-inline-block w-auto status-change" data-id="${doc.id}">
                 <option value="">Değiştir</option>
-                <option value="Sipariş Alındı">Sipariş Alındı</option>
-                <option value="İşlem Yapılıyor">İşlem Yapılıyor</option>
-                <option value="Teslimata Hazır">Teslimata Hazır</option>
+                <option value="Sipariş Alındı">Alındı</option>
+                <option value="Teslimata Hazır">Hazır</option>
                 <option value="Teslim Edildi">Teslim Edildi</option>
-                <option value="Arşivlendi">Arşivle (Gizle)</option>
               </select>
               <button class="btn btn-sm btn-danger delete-order-btn ms-1" data-id="${doc.id}"><i class="bi bi-x-lg"></i></button>
             </td>
-          </tr>
-        `;
-        orderTableBody.innerHTML += row;
+          </tr>`;
       });
-
-      const activeCount = adminOrders.filter(o => o.status !== "Teslim Edildi" && o.status !== "Arşivlendi").length;
-      document.getElementById("activeOrderCount").innerText = activeCount;
-
+      document.getElementById("activeOrderCount").innerText = adminOrders.filter(o => o.status !== "Teslim Edildi").length;
       document.querySelectorAll(".delete-order-btn").forEach(btn => {
-        btn.addEventListener("click", async (e) => {
-          const id = e.currentTarget.getAttribute("data-id"); 
-          trendConfirm("Siparişi Sil", "Bu sipariş kaydını tamamen siliyorum emin misin?", async () => {
-            await deleteDoc(doc(db, "orders", id));
-            loadOrders(); 
-          });
-        });
+        btn.onclick = async (e) => {
+          trendConfirm("Sil", "Emin misin?", async () => { await deleteDoc(doc(db, "orders", e.currentTarget.dataset.id)); loadOrders(); loadRadar(); });
+        };
       });
-
-      document.querySelectorAll(".status-change").forEach(select => {
-        select.addEventListener("change", async (e) => {
-          const newStatus = e.target.value; const id = e.target.dataset.id;
-          if(newStatus !== "") {
-            await updateDoc(doc(db, "orders", id), { status: newStatus });
-            loadOrders(); 
-          }
-        });
+      document.querySelectorAll(".status-change").forEach(sel => {
+        sel.onchange = async (e) => { if(e.target.value) { await updateDoc(doc(db, "orders", e.target.dataset.id), { status: e.target.value }); loadOrders(); } };
       });
-
-    } catch (error) {
-      orderTableBody.innerHTML = `<tr><td colspan="5" class="text-danger">Siparişler çekilemedi.</td></tr>`;
-    }
+    } catch (e) { }
   }
 
-  // ================== BÖLÜM 3: VIP SERTİFİKA MANTIĞI ==================
   document.getElementById("createCertBtn").addEventListener("click", async () => {
     const name = document.getElementById("certName").value;
-    const product = document.getElementById("certProduct").value;
-    const discount = document.getElementById("certDiscount").value;
-    const duration = document.getElementById("certDuration").value;
-    
-    const randomHex = Math.floor(Math.random()*16777215).toString(16).toUpperCase().substring(0,4);
-    const generatedNo = `TRND-${new Date().getFullYear()}-${randomHex}`;
-
-    if(!name || !product) return trendAlert("Hata", "Bilgileri tam gir patron!", "error");
-
-    try {
-      await addDoc(collection(db, "certificates"), {
-        customerName: name, product: product, discountRate: discount, duration: duration, certNo: generatedNo, createdAt: serverTimestamp()
-      });
-      trendAlert("Oluşturuldu", `Sertifika ${generatedNo} numarasıyla başarıyla üretildi!`, "success");
-      document.getElementById("certName").value = ""; document.getElementById("certProduct").value = "";
-      loadCerts();
-    } catch (e) { trendAlert("Hata", "Sertifika üretilemedi.", "error"); }
+    if(!name) return;
+    const genNo = `TRND-${new Date().getFullYear()}-${Math.random().toString(16).substring(2,6).toUpperCase()}`;
+    await addDoc(collection(db, "certificates"), {
+      customerName: name, product: document.getElementById("certProduct").value, discountRate: document.getElementById("certDiscount").value, duration: document.getElementById("certDuration").value, certNo: genNo, createdAt: serverTimestamp()
+    });
+    loadCerts();
   });
 
   async function loadCerts() {
     const tbody = document.getElementById("certTableBody");
-    try {
-      const qs = await getDocs(query(collection(db, "certificates"), orderBy("createdAt", "desc")));
-      tbody.innerHTML = "";
-      qs.forEach((d) => {
-        const c = d.data(); 
-        const link = `https://www.trendoptikmersin.com/sertifika?id=${d.id}`;
-        tbody.innerHTML += `
-          <tr>
-            <td class="accent fw-bold small">${c.certNo}</td>
-            <td>${c.customerName}</td>
-            <td>${c.product}</td>
-            <td>%${c.discountRate}</td>
-            <td>
-              <button class="btn btn-sm btn-outline-warning copy-cert-link" data-link="${link}"><i class="bi bi-link"></i></button>
-              <button class="btn btn-sm btn-danger delete-cert-btn ms-1" data-id="${d.id}"><i class="bi bi-trash"></i></button>
-            </td>
-          </tr>`;
-      });
-      
-      document.getElementById("certCount").innerText = qs.size;
-
-      document.querySelectorAll(".copy-cert-link").forEach(btn => {
-        btn.onclick = (e) => {
-          navigator.clipboard.writeText(e.currentTarget.getAttribute('data-link'));
-          trendAlert("Kopyalandı", "Sertifika linki müşteriye atmak için kopyalandı.", "success");
-        };
-      });
-
-      document.querySelectorAll(".delete-cert-btn").forEach(btn => {
-        btn.onclick = async (e) => {
-          const certId = e.currentTarget.getAttribute('data-id');
-          trendConfirm("Sertifikayı Sil", "Bu VIP sertifikayı siliyorum patron, emin misin?", async () => {
-            await deleteDoc(doc(db, "certificates", certId)); 
-            loadCerts(); 
-          });
-        };
-      });
-
-    } catch (e) { console.error("Sertifika hatası:", e); }
+    const qs = await getDocs(query(collection(db, "certificates"), orderBy("createdAt", "desc")));
+    tbody.innerHTML = "";
+    qs.forEach((d) => {
+      const c = d.data(); const link = `https://www.trendoptikmersin.com/sertifika?id=${d.id}`;
+      tbody.innerHTML += `<tr><td>${c.certNo}</td><td>${c.customerName}</td><td>${c.product}</td><td>
+        <button class="btn btn-sm btn-outline-warning" onclick="navigator.clipboard.writeText('${link}'); trendAlert('Tamam','Kopyalandı','success')"><i class="bi bi-link"></i></button>
+        <button class="btn btn-sm btn-danger ms-1" onclick="trendConfirm('Sil','Emin misin?', async () => { await deleteDoc(doc(db,'certificates','${d.id}')); loadCerts(); })"><i class="bi bi-trash"></i></button>
+      </td></tr>`;
+    });
+    document.getElementById("certCount").innerText = qs.size;
   }
 
-
-  // ================== BÖLÜM 4: LENS TAKİP MANTIĞI ==================
   document.getElementById("addLensBtn").addEventListener("click", async () => {
-    const name = document.getElementById("lName").value;
-    const phone = document.getElementById("lPhone").value;
-    const product = document.getElementById("lProduct").value;
-    const duration = parseInt(document.getElementById("lDuration").value);
-
-    if(!name || !phone || !product) return trendAlert("Hata", "Lens bilgilerini eksiksiz gir!", "error");
-
-    document.getElementById("addLensBtn").innerText = "Ekleniyor...";
-    try {
-      await addDoc(collection(db, "lenses"), {
-        customerName: name, phone: phone, product: product, duration: duration, createdAt: serverTimestamp()
-      });
-      document.getElementById("lName").value = ""; document.getElementById("lPhone").value = ""; document.getElementById("lProduct").value = "";
-      trendAlert("Sisteme İşlendi", "Müşteri radara eklendi.", "success");
-      loadLenses();
-    } catch (e) { trendAlert("Hata", "Eklenemedi.", "error"); }
-    finally { document.getElementById("addLensBtn").innerText = "LENS TAKİBİNİ BAŞLAT"; }
+    await addDoc(collection(db, "lenses"), {
+      customerName: document.getElementById("lName").value, phone: document.getElementById("lPhone").value, product: document.getElementById("lProduct").value, duration: parseInt(document.getElementById("lDuration").value), createdAt: serverTimestamp()
+    });
+    loadLenses();
   });
 
   async function loadLenses() {
     const tbody = document.getElementById("lensTableBody");
-    try {
-      const qs = await getDocs(query(collection(db, "lenses"), orderBy("createdAt", "desc")));
-      tbody.innerHTML = ""; let totalLenses = 0;
-      
-      qs.forEach((d) => {
-        const lens = d.data();
-        if(!lens.createdAt) return; 
-        totalLenses++;
-        
-        const createdDate = lens.createdAt.toDate();
-        const expireDate = new Date(createdDate.getTime() + (lens.duration * 24 * 60 * 60 * 1000));
-        const diffDays = Math.ceil((expireDate - new Date()) / (1000 * 60 * 60 * 24));
-        
-        let statusHtml = ""; let rowStyle = "";
-        
-        if (diffDays <= 5 && diffDays >= 0) {
-          statusHtml = `<span class="badge bg-danger pulse-anim px-3 py-2 fs-6">⏳ ${diffDays} Gün Kaldı!</span>`;
-          rowStyle = `background: rgba(220, 53, 69, 0.1); border-left: 4px solid #dc3545;`;
-        } else if (diffDays < 0) {
-          statusHtml = `<span class="badge bg-dark text-danger">⚠️ Bitti (${Math.abs(diffDays)} gün gecikti)</span>`;
-        } else {
-          statusHtml = `<span class="badge bg-success opacity-75">${diffDays} Gün</span>`;
-        }
-
-        let phoneStr = lens.phone.replace(/[^0-9]/g, '');
-        if(!phoneStr.startsWith('90')) phoneStr = '90' + phoneStr;
-
-        const wpMsg = encodeURIComponent(`Merhaba ${lens.customerName}, Trend Optik'ten yazıyoruz. Sistemimize göre ${lens.product} model lenslerinizin kullanım süresi bitmek üzere. Gözünüzün numarasız kalmaması için yeni siparişinizi hemen hazırlayalım mı?`);
-        const wpLink = `https://wa.me/${phoneStr}?text=${wpMsg}`;
-
-        tbody.innerHTML += `
-          <tr style="${rowStyle}">
-            <td class="fw-bold">${lens.customerName}</td>
-            <td>${lens.product}</td>
-            <td>${statusHtml}</td>
-            <td>
-              <button class="btn btn-sm btn-success fw-bold remind-lens-btn" data-link="${wpLink}"><i class="bi bi-whatsapp"></i> Hatırlat</button>
-              <button class="btn btn-sm btn-outline-danger delete-lens-btn ms-1" data-id="${d.id}"><i class="bi bi-x"></i></button>
-            </td>
-          </tr>`;
-      });
-      
-      document.getElementById("lensCount").innerText = totalLenses;
-
-      document.querySelectorAll(".delete-lens-btn").forEach(btn => {
-        btn.onclick = async (e) => { 
-          const id = e.currentTarget.getAttribute("data-id"); 
-          trendConfirm("Takipten Çıkar", "Bu müşterinin lens takibini bitiriyorum patron?", async () => {
-            await deleteDoc(doc(db, "lenses", id)); 
-            loadLenses(); 
-          });
-        };
-      });
-
-      document.querySelectorAll(".remind-lens-btn").forEach(btn => {
-        btn.onclick = (e) => { window.open(e.currentTarget.getAttribute('data-link'), '_blank'); };
-      });
-      
-    } catch (e) { console.error("Lens hatası", e); }
-  }
-
-// QR ÜRETME VE MODALI AÇMA FONKSİYONU
-window.generateQR = function(id) {
-    // Ürünü bul
-    const product = adminProducts.find(p => p.id === id);
-    if(!product) return;
-
-    // QR kabını temizle
-    const qrContainer = document.getElementById("qrcode");
-    qrContainer.innerHTML = ""; 
-    
-    // Ürün detay linkini oluştur (Site domainini buraya yazmalısın)
-    const detailUrl = `https://www.trendoptikmersin.com/urun-detay.html?id=${id}`;
-
-    // QR Kodunu Çiz
-    new QRCode(qrContainer, {
-        text: detailUrl,
-        width: 180,
-        height: 180,
-        colorDark : "#000000",
-        colorLight : "#ffffff",
-        correctLevel : QRCode.CorrectLevel.H
+    const qs = await getDocs(query(collection(db, "lenses"), orderBy("createdAt", "desc")));
+    tbody.innerHTML = "";
+    qs.forEach((d) => {
+      const lens = d.data(); if(!lens.createdAt) return;
+      const diff = Math.ceil((new Date(lens.createdAt.toDate().getTime() + (lens.duration * 86400000)) - new Date()) / 86400000);
+      tbody.innerHTML += `<tr><td>${lens.customerName}</td><td>${lens.product}</td><td>${diff} Gün</td><td>
+        <button class="btn btn-sm btn-danger" onclick="trendConfirm('Sil','Emin misin?', async () => { await deleteDoc(doc(db,'lenses','${d.id}')); loadLenses(); })"><i class="bi bi-x"></i></button>
+      </td></tr>`;
     });
-
-    // Modal Bilgilerini Doldur
-    document.getElementById('qrProductName').innerText = product.name;
-    document.getElementById('qrProductPrice').innerText = product.price.toString().includes("₺") ? product.price : `${product.price} ₺`;
-    
-    // Modalı Aç
-    const myModal = new bootstrap.Modal(document.getElementById('qrModal'));
-    myModal.show();
-};
-
-
+    document.getElementById("lensCount").innerText = qs.size;
+  }
 </script>
 
 <div class="modal fade" id="qrModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content bg-white text-dark border-0 rounded-4 shadow-lg">
+    <div class="modal-content bg-white text-dark border-0 rounded-4 shadow-lg overflow-hidden">
       <div id="qrPrintArea" class="p-5 text-center">
         <h4 id="qrProductName" class="fw-bold mb-1 text-dark">Ürün Adı</h4>
         <p id="qrProductPrice" class="text-secondary fw-bold mb-4">0 ₺</p>
-        <center><div id="qrcode" class="d-inline-block p-3 border rounded-3 mb-3 bg-white"></div></center>
+        <div class="d-flex justify-content-center">
+            <div id="qrcode" class="d-inline-block p-3 border rounded-3 mb-3 bg-white"></div>
+        </div>
         <p class="small text-muted px-4">Okutunca ürün detay sayfasına gider.</p>
       </div>
       <div class="p-3 bg-light d-flex gap-2">
@@ -1253,7 +1030,6 @@ window.generateQR = function(id) {
     </div>
   </div>
 </div>
-
 
 </body>
 </html>
