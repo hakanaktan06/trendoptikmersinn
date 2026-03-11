@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <title>Ürün Detayı | Trend Optik</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="index.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="pt-5">
+
+<nav class="navbar navbar-expand-lg navbar-dark fixed-top scrolled">
+  <div class="container">
+    <a href="index.html" class="navbar-brand logo-letters">
+      <span>T</span><span>r</span><span>e</span><span>n</span><span>d</span>
+      <span> </span>
+      <span>O</span><span>p</span><span>t</span><span>i</span><span>k</span>
+    </a>
+    <div class="collapse navbar-collapse justify-content-end" id="menu">
+      <ul class="navbar-nav gap-3">
+        <li class="nav-item"><a class="nav-link" href="urunler.html"><i class="bi bi-arrow-left me-1"></i> Tüm Modellere Dön</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<section class="container py-5 mt-5 fade-in show">
+  <div id="loadingDetail" class="text-center my-5">
+    <div class="spinner-border text-warning" style="width: 3rem; height: 3rem;" role="status"></div>
+    <h5 class="mt-3 opacity-75">Ürün Hazırlanıyor...</h5>
+  </div>
+
+  <div id="productDetailContent" class="row align-items-center" style="display: none;">
+    <div class="col-md-6 mb-4 mb-md-0 text-center">
+      <div class="p-3 rounded-4" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(10px);">
+        <img id="detailImg" src="" class="img-fluid rounded-3 shadow-lg" style="max-height: 450px; object-fit: contain;" alt="Ürün Görseli">
+      </div>
+    </div>
+    
+    <div class="col-md-6">
+      <span id="detailCategory" class="badge bg-secondary mb-2 fs-6 px-3 py-2 rounded-pill">Kategori</span>
+      <h1 id="detailName" class="display-5 fw-bold mb-3">Ürün Adı</h1>
+      <h2 id="detailPrice" class="accent fw-bold mb-4">0 ₺</h2>
+      
+      <p class="opacity-75 mb-4" id="detailDesc" style="font-size: 1.1rem; line-height: 1.6;">
+        Ürün açıklaması burada yer alacak.
+      </p>
+
+      <div class="d-flex gap-3 flex-wrap">
+        <button id="detailWpBtn" class="btn btn-accent rounded-pill px-4 py-3 fw-bold flex-grow-1" style="font-size: 1.1rem;">
+          <i class="bi bi-whatsapp me-2"></i> WhatsApp'tan Sipariş Ver
+        </button>
+        <button id="detailShareBtn" class="btn btn-outline-light rounded-pill px-4 py-3 fw-bold">
+          <i class="bi bi-share me-2"></i> Paylaş
+        </button>
+      </div>
+
+      <div class="mt-5 p-4 rounded-4" style="background: rgba(245, 166, 35, 0.05); border: 1px dashed rgba(245, 166, 35, 0.3);">
+        <h6 class="accent fw-bold"><i class="bi bi-shield-check me-2"></i>Trend Optik Güvencesi</h6>
+        <p class="small opacity-75 mb-0">Satın aldığınız tüm ürünler 2 yıl garantili ve %100 orijinaldir. Ücretsiz kargo ve mağazada teslimat seçeneklerimiz mevcuttur.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+  import { getFirestore, doc, getDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDKROzPt8ZaQXk_m5sMEY853BCafnZFb4o",
+    authDomain: "trendoptik.firebaseapp.com",
+    projectId: "trendoptik",
+    storageBucket: "trendoptik.firebasestorage.app",
+    messagingSenderId: "645619125341",
+    appId: "1:645619125341:web:a43aad6e213c80fbe351b4"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // URL'den ID'yi al
+  const urlParams = new URLSearchParams(window.location.search);
+  const productId = urlParams.get('id');
+
+  if (productId) {
+    async function loadProduct() {
+      try {
+        const docRef = doc(db, "products", productId);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+          const product = docSnap.data();
+          const finalPrice = product.price.toString().includes("₺") ? product.price : `${product.price} ₺`;
+
+          document.getElementById('detailName').innerText = product.name;
+          document.getElementById('detailCategory').innerText = product.category.toUpperCase();
+          document.getElementById('detailPrice').innerText = finalPrice;
+          document.getElementById('detailDesc').innerText = product.desc;
+          document.getElementById('detailImg').src = product.img;
+
+          // WhatsApp Butonu Ayarları
+          const wpMessage = `Merhaba Trend Optik! Sitenizdeki "${product.name}" modeliyle ilgileniyorum. Fiyatı: ${finalPrice}. Stokta mevcut mu?`;
+          const wpLink = `https://wa.me/905312075818?text=${encodeURIComponent(wpMessage)}`;
+          
+          document.getElementById('detailWpBtn').onclick = async () => {
+            window.open(wpLink, '_blank');
+            await updateDoc(docRef, { clicks: increment(1) });
+          };
+
+          // Paylaş Butonu
+          document.getElementById('detailShareBtn').onclick = () => {
+            const text = `Trend Optik'te şu modele bayıldım!\n\n🕶️ ${product.name}\n💰 ${finalPrice}\n\nSen de incele: ${window.location.href}`;
+            if (navigator.share) {
+              navigator.share({ title: 'Trend Optik', text: text }).catch(console.error);
+            } else {
+              navigator.clipboard.writeText(text);
+              alert("Link kopyalandı! İstediğin yere yapıştırabilirsin.");
+            }
+          };
+
+          // Yükleme ekranını gizle, içeriği göster
+          document.getElementById('loadingDetail').style.display = 'none';
+          document.getElementById('productDetailContent').style.display = 'flex';
+
+        } else {
+          document.getElementById('loadingDetail').innerHTML = '<h3 class="text-danger mt-3">Ürün bulunamadı veya kaldırılmış.</h3>';
+        }
+      } catch (error) {
+        document.getElementById('loadingDetail').innerHTML = '<h3 class="text-danger mt-3">Bağlantı hatası oluştu.</h3>';
+      }
+    }
+    loadProduct();
+  } else {
+    document.getElementById('loadingDetail').innerHTML = '<h3 class="text-warning mt-3">Geçersiz ürün bağlantısı.</h3>';
+  }
+</script>
+</body>
+</html>
