@@ -101,19 +101,23 @@ document.addEventListener("DOMContentLoaded", async function () {
           border-left: 10px solid transparent; 
       }
 
-      /* KUSURSUZLAŞTIRILMIŞ CANLI ARAMA MENÜSÜ */
+      /* YENİ: KUSURSUZ CANLI ARAMA STİLLERİ (FİLTRELERİ EZER GEÇER) */
+      #search-spotlight-overlay { 
+          position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
+          background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); 
+          z-index: 99990; opacity: 0; pointer-events: none; transition: 0.3s; 
+      }
+      #search-spotlight-overlay.active { opacity: 1; pointer-events: all; }
+      
       .live-search-dropdown {
-          position: absolute;
-          top: calc(100% + 10px);
-          left: 0;
-          width: 100%;
-          background: #0a0a0c !important; 
-          border: 2px solid var(--theme-color); 
+          position: absolute; /* BODY'E BAĞLI, HER ŞEYİN ÜSTÜNDE! */
+          background: #0a0a0c; 
+          border: 2px solid var(--theme-color);
           border-radius: 12px;
-          box-shadow: 0 25px 60px rgba(0,0,0,1); 
-          max-height: 350px;
+          box-shadow: 0 25px 60px rgba(0,0,0,1);
+          max-height: 400px;
           overflow-y: auto;
-          z-index: 10 !important; /* Wrapper 999999 olacağı için bunun 10 olması yeterli */
+          z-index: 999999 !important; 
           display: none;
           flex-direction: column;
       }
@@ -123,23 +127,17 @@ document.addEventListener("DOMContentLoaded", async function () {
       @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
       
       .live-search-item {
-          display: flex;
-          align-items: center;
-          padding: 12px 15px;
-          border-bottom: 1px solid rgba(255,255,255,0.1);
-          transition: 0.3s;
-          gap: 15px;
-          color: #fff;
-          text-decoration: none;
-          cursor: pointer;
+          display: flex; align-items: center; padding: 15px; 
+          border-bottom: 1px solid rgba(255,255,255,0.05); 
+          transition: 0.3s; gap: 15px; color: #fff; text-decoration: none; cursor: pointer;
       }
       .live-search-item:last-child { border-bottom: none; }
-      .live-search-item:hover { background: rgba(255,255,255,0.05); padding-left: 20px; }
-      .live-search-img { width: 50px; height: 50px; object-fit: cover; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); }
+      .live-search-item:hover { background: rgba(255,255,255,0.08); padding-left: 20px; }
+      .live-search-img { width: 60px; height: 60px; object-fit: cover; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background:#111; }
       .live-search-info { flex-grow: 1; }
-      .live-search-title { font-weight: 700; font-size: 0.95rem; margin: 0; }
-      .live-search-price { color: var(--theme-color); font-weight: 700; font-size: 0.85rem; margin: 0; }
-      .live-search-action .btn { font-size: 0.8rem; padding: 6px 12px; border-radius: 20px; }
+      .live-search-title { font-weight: 700; font-size: 1rem; margin: 0 0 5px 0; }
+      .live-search-price { color: var(--theme-color); font-weight: 800; font-size: 0.9rem; margin: 0; }
+      .live-search-action .btn { font-size: 0.85rem; padding: 8px 16px; border-radius: 30px; pointer-events: none; }
     `;
     document.head.appendChild(style);
   }
@@ -206,7 +204,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     document.body.appendChild(container);
   }
 
-  // 3. SİSTEM BAŞLATICI
   async function initializeSystem() {
     try {
       const snap = await getDoc(doc(db, "settings", "theme"));
@@ -346,9 +343,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     `;
   }
 
-  // ==========================================
   // YILDIZLI ÜRÜNLERİ ANA SAYFAYA ÇEKME
-  // ==========================================
   async function fetchHomeProducts() {
     homeProductGrid.innerHTML = `<div class="w-100 text-center my-5"><div class="spinner-border text-warning"></div></div>`;
     try {
@@ -403,59 +398,86 @@ document.addEventListener("DOMContentLoaded", async function () {
     activateFade();
   }
 
+
   // ==========================================
-  // YENİ: VAHŞET CANLI AKILLI ARAMA (SİNEMATİK & KATMAN ÇÖZÜMLÜ)
+  // YENİ: VAHŞET CANLI AKILLI ARAMA (KÖRLÜK SORUNU ÇÖZÜLDÜ!)
   // ==========================================
   if (searchInput) {
-    const searchContainer = searchInput.parentElement;
     
-    // 1. Karartma Perdesini direkt arama kutusunun parent'ına ekliyoruz. 
-    // z-index: -1 sayesinde inputun ARKASINDA duracak ama ekranı kaplayacak!
+    // 1. Karartma Perdesini direkt BODY'e bağlıyoruz ki her şeyi kapatsın
     const overlay = document.createElement('div');
-    overlay.style.cssText = 'position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); z-index: -1; opacity: 0; pointer-events: none; transition: 0.3s;';
-    searchContainer.appendChild(overlay);
+    overlay.id = 'search-spotlight-overlay';
+    document.body.appendChild(overlay);
 
-    // 2. Dropdown (Arama menüsü) de parent'a bağlanıyor.
+    // 2. Dropdown Menüyü de BODY'e bağlıyoruz ki Filtreleri Ezip Geçsin
     const dropdown = document.createElement('div');
     dropdown.className = 'live-search-dropdown';
-    searchContainer.appendChild(dropdown);
+    document.body.appendChild(dropdown);
 
-    function openSpotlight() {
-        // Arama kutusunu arşa çıkar, geri kalan her şeyi altına al
-        searchContainer.style.position = 'relative';
-        searchContainer.style.zIndex = '999999'; 
-        overlay.style.opacity = '1';
-        overlay.style.pointerEvents = 'all';
+    const searchContainer = searchInput.parentElement;
+
+    // Menünün yerini arama kutusuna göre hesaplayan motor
+    function positionDropdown() {
+      const rect = searchInput.getBoundingClientRect();
+      dropdown.style.top = (rect.bottom + window.scrollY + 10) + 'px';
+      dropdown.style.left = (rect.left + window.scrollX) + 'px';
+      dropdown.style.width = rect.width + 'px';
     }
 
+    // Arama Odaklanınca Çalışacak Şov
+    function openSpotlight() {
+        overlay.classList.add('active');
+        
+        // Arama Kutusunu Karartmanın Üstüne Çıkar! (Z-Index: 999995)
+        searchInput.style.position = 'relative';
+        searchInput.style.zIndex = '999995';
+        
+        // Gece modunda yazılar kaybolmasın diye arkaplanı belirginleştir
+        searchInput.style.backgroundColor = '#fff';
+        searchInput.style.color = '#000';
+
+        // Kutusunu (Parent) da üste çek ki kırpılmasın
+        if(searchContainer) {
+            searchContainer.style.position = 'relative';
+            searchContainer.style.zIndex = '999995';
+        }
+    }
+
+    // Aramadan Çıkınca Her Şeyi Eski Haline Döndür
     function closeSearch() {
         dropdown.classList.remove('show');
-        overlay.style.opacity = '0';
-        overlay.style.pointerEvents = 'none';
+        overlay.classList.remove('active');
+        
+        // Zırhları Çıkar
+        searchInput.style.zIndex = '';
+        searchInput.style.position = '';
+        searchInput.style.backgroundColor = '';
+        searchInput.style.color = '';
+        
+        if(searchContainer) {
+            searchContainer.style.zIndex = '';
+            searchContainer.style.position = '';
+        }
+        
         searchInput.value = ''; 
-        displayAllProducts(allProducts); // Filtreyi sıfırla, arka plan eski haline dönsün
-        setTimeout(() => {
-            if(overlay.style.opacity === '0') {
-                searchContainer.style.zIndex = '';
-            }
-        }, 300);
+        displayAllProducts(allProducts); 
     }
 
     searchInput.addEventListener("input", function () {
+      positionDropdown();
       const value = this.value.toLowerCase().trim();
       dropdown.innerHTML = ''; 
       
+      // Kutu boşsa menüyü kapat ama arkaplanı geri getirme, adam hala yazabilir
       if (value.length === 0) {
           dropdown.classList.remove('show');
-          displayAllProducts(allProducts);
           return;
       }
 
       openSpotlight();
 
-      // SADECE dropdown içinde arama yapar, arkadaki grid yerinden oynamaz
+      // SADECE dropdown içinde filtrele. Arka plandaki grid DEĞİŞMEZ!
       const filtered = allProducts.filter(p => p.name.toLowerCase().includes(value) || p.desc.toLowerCase().includes(value));
-      displayAllProducts(filtered); 
 
       if (filtered.length > 0) {
           filtered.forEach(product => {
@@ -488,17 +510,21 @@ document.addEventListener("DOMContentLoaded", async function () {
     });
 
     searchInput.addEventListener('focus', () => {
+        openSpotlight();
         if(searchInput.value.trim().length > 0) {
-            openSpotlight();
             dropdown.classList.add('show');
         }
     });
 
+    window.addEventListener('resize', () => { if(dropdown.classList.contains('show')) positionDropdown(); });
+    window.addEventListener('scroll', () => { if(dropdown.classList.contains('show')) positionDropdown(); });
+
+    // Boşluğa (Perdeye) Tıklayınca Aramayı Kapat
     overlay.addEventListener('click', closeSearch);
   }
 
   // ==========================================
-  // DİĞER FONKSİYONLAR
+  // FİLTRELER VE DİĞER FONKSİYONLAR
   // ==========================================
   document.querySelectorAll(".filter-btn").forEach(btn => {
     btn.addEventListener("click", () => {
@@ -518,87 +544,35 @@ document.addEventListener("DOMContentLoaded", async function () {
     heroImages[(current - 1 + heroImages.length) % heroImages.length].classList.add("left");
     heroImages[(current + 1) % heroImages.length].classList.add("right");
   }
-  updateSlider(); 
-  setInterval(() => { 
-      current = (current + 1) % heroImages.length; 
-      updateSlider(); 
-  }, 4000);
+  updateSlider(); setInterval(() => { current = (current + 1) % heroImages.length; updateSlider(); }, 4000);
 
   if (statsSection && counters.length > 0) {
     let started = false;
     const observer = new IntersectionObserver(entries => {
       if (entries[0].isIntersecting && !started) {
         counters.forEach(counter => {
-          const target = +counter.getAttribute("data-target"); 
-          let count = 0; 
-          const speed = target / 120;
-          function update() { 
-              count += speed; 
-              if (count < target) { 
-                  counter.innerText = Math.ceil(count); 
-                  requestAnimationFrame(update); 
-              } else { 
-                  counter.innerText = target; 
-              } 
-          } 
-          update();
-        }); 
-        started = true;
+          const target = +counter.getAttribute("data-target"); let count = 0; const speed = target / 120;
+          function update() { count += speed; if (count < target) { counter.innerText = Math.ceil(count); requestAnimationFrame(update); } else { counter.innerText = target; } } update();
+        }); started = true;
       }
-    }, { threshold: 0.5 }); 
-    observer.observe(statsSection);
+    }, { threshold: 0.5 }); observer.observe(statsSection);
   }
   
-  const trackBtn = document.getElementById("trackBtn"); 
-  const trackPhone = document.getElementById("trackPhone"); 
-  const trackResult = document.getElementById("trackResult");
-  
+  const trackBtn = document.getElementById("trackBtn"); const trackPhone = document.getElementById("trackPhone"); const trackResult = document.getElementById("trackResult");
   if(trackBtn && trackPhone && trackResult) {
     trackBtn.addEventListener("click", async () => {
-      let phoneVal = trackPhone.value.trim(); 
-      if(!phoneVal) return alert("Telefon girin!");
-      
-      trackBtn.innerHTML = `<span class="spinner-border spinner-border-sm"></span>`; 
-      trackBtn.disabled = true;
-      
+      let phoneVal = trackPhone.value.trim(); if(!phoneVal) return alert("Telefon girin!");
+      trackBtn.innerHTML = `<span class="spinner-border spinner-border-sm"></span>`; trackBtn.disabled = true;
       try {
-        const qs = await getDocs(query(collection(db, "orders"))); 
-        let foundOrder = null;
-        qs.forEach((doc) => { 
-            if(doc.data().phone === phoneVal) foundOrder = doc.data(); 
-        });
-        
+        const qs = await getDocs(query(collection(db, "orders"))); let foundOrder = null;
+        qs.forEach((doc) => { if(doc.data().phone === phoneVal) foundOrder = doc.data(); });
         trackResult.style.display = "block";
         if(foundOrder) {
-          let statusColor = "#0dcaf0"; 
-          let icon = "bi-gear-wide-connected";
-          
-          if(foundOrder.status === "Teslimata Hazır") { 
-              statusColor = "#25D366"; 
-              icon = "bi-check-circle-fill"; 
-          } else if(foundOrder.status === "Teslim Edildi") { 
-              statusColor = "#6c757d"; 
-              icon = "bi-bag-check"; 
-          } 
-          
-          trackResult.innerHTML = `
-            <h6 class="mb-2 opacity-75">Sipariş Sahibi: <span class="text-white fw-bold">${foundOrder.customerName}</span></h6>
-            <h6 class="mb-3 opacity-75">Ürün: <span class="text-white">${foundOrder.product}</span></h6>
-            <div class="p-2 rounded d-flex align-items-center justify-content-center gap-2" style="background: rgba(255,255,255,0.05); border: 1px solid ${statusColor}; color: ${statusColor};">
-              <i class="bi ${icon} fs-5"></i>
-              <h5 class="m-0 fw-bold">${foundOrder.status}</h5>
-            </div>
-            <p class="mt-3 mb-0 small opacity-50">Son Güncelleme: Yakın zamanda</p>
-          `;
-        } else { 
-            trackResult.innerHTML = `<div class="text-danger fw-bold"><i class="bi bi-exclamation-triangle"></i> Sipariş bulunamadı.</div>`; 
-        }
-      } catch (error) { 
-          trackResult.innerHTML = `<div class="text-danger fw-bold">Hata!</div>`; 
-      } finally { 
-          trackBtn.innerHTML = `Sorgula`; 
-          trackBtn.disabled = false; 
-      }
+          let statusColor = "#0dcaf0"; let icon = "bi-gear-wide-connected";
+          if(foundOrder.status === "Teslimata Hazır") { statusColor = "#25D366"; icon = "bi-check-circle-fill"; } else if(foundOrder.status === "Teslim Edildi") { statusColor = "#6c757d"; icon = "bi-bag-check"; } 
+          trackResult.innerHTML = `<h6 class="mb-2 opacity-75">Sipariş Sahibi: <span class="text-white fw-bold">${foundOrder.customerName}</span></h6><h6 class="mb-3 opacity-75">Ürün: <span class="text-white">${foundOrder.product}</span></h6><div class="p-2 rounded d-flex align-items-center justify-content-center gap-2" style="background: rgba(255,255,255,0.05); border: 1px solid ${statusColor}; color: ${statusColor};"><i class="bi ${icon} fs-5"></i><h5 class="m-0 fw-bold">${foundOrder.status}</h5></div><p class="mt-3 mb-0 small opacity-50">Son Güncelleme: Yakın zamanda</p>`;
+        } else { trackResult.innerHTML = `<div class="text-danger fw-bold"><i class="bi bi-exclamation-triangle"></i> Sipariş bulunamadı.</div>`; }
+      } catch (error) { trackResult.innerHTML = `<div class="text-danger fw-bold">Hata!</div>`; } finally { trackBtn.innerHTML = `Sorgula`; trackBtn.disabled = false; }
     });
   }
 
