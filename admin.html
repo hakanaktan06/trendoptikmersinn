@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -360,7 +358,7 @@
   let adminOrders = [];
   let adminCerts = [];
 
-  // SİHİRLİ TEMA SİSTEMİ YÜKLEME VE KAYDETME (Yeni Eklendi)
+  // SİHİRLİ TEMA SİSTEMİ YÜKLEME VE KAYDETME
   async function loadThemeConfig() {
     try {
       const snap = await getDoc(doc(db, "settings", "theme"));
@@ -409,7 +407,7 @@
     if (user) {
       loginSection.style.display = "none";
       dashboardSection.style.display = "block";
-      loadThemeConfig(); // Tema verisini yükle
+      loadThemeConfig(); 
       loadProducts(); 
       loadOrders(); 
       loadCerts(); 
@@ -539,7 +537,7 @@
 
       document.querySelectorAll(".delete-btn").forEach(btn => {
         btn.addEventListener("click", async (e) => {
-          const id = e.target.closest('button').getAttribute("data-id");
+          const id = e.currentTarget.getAttribute("data-id"); // currentTarget ile garantilendi!
           if(confirm("Dayı bu ürünü kalıcı olarak siliyorum emin misin?")) {
             await deleteDoc(doc(db, "products", id));
             loadProducts(); 
@@ -632,10 +630,10 @@
         const order = doc.data();
         adminOrders.push({ id: doc.id, ...order });
         
-        let badgeColor = "bg-info text-dark"; // Sipariş alındı rengi
+        let badgeColor = "bg-info text-dark"; 
         if(order.status === "Camlar Kesiliyor") badgeColor = "bg-primary";
         if(order.status === "Teslimata Hazır") badgeColor = "bg-success";
-        if(order.status === "Teslim Edildi") badgeColor = "bg-secondary"; // Arşivlenmiş gibi durur
+        if(order.status === "Teslim Edildi") badgeColor = "bg-secondary"; 
 
         const row = `
           <tr>
@@ -663,7 +661,7 @@
 
       document.querySelectorAll(".delete-order-btn").forEach(btn => {
         btn.addEventListener("click", async (e) => {
-          const id = e.target.closest('button').getAttribute("data-id");
+          const id = e.currentTarget.getAttribute("data-id"); // currentTarget eklendi
           if(confirm("Bu sipariş kaydını tamamen siliyorum emin misin?")) {
             await deleteDoc(doc(db, "orders", id));
             loadOrders(); 
@@ -716,7 +714,7 @@
     } catch (e) { alert("Hata!"); }
   });
 
-    async function loadCerts() {
+  async function loadCerts() {
     const tbody = document.getElementById("certTableBody");
     try {
       const qs = await getDocs(query(collection(db, "certificates"), orderBy("createdAt", "desc")));
@@ -741,20 +739,19 @@
           </tr>`;
       });
       
-      // Sayacı güncelle
-      animateValue("certCount", qs.size);
+      document.getElementById("certCount").innerText = qs.size;
 
-      // KUSURSUZ SİLME MOTORU (İkona da tıklasan, kenarına da tıklasan anlar)
+      // KUSURSUZ SİLME MOTORU (currentTarget ile Garantilendi)
       document.querySelectorAll(".delete-cert-btn").forEach(btn => {
-        btn.addEventListener("click", async (e) => {
-          const btnElement = e.target.closest('button');
-          const certId = btnElement.getAttribute('data-id');
+        btn.onclick = async (e) => {
+          // currentTarget, tıklanan ikonun değil, direkt olarak butonun kendisinin verisini çeker!
+          const certId = e.currentTarget.getAttribute('data-id');
           
           if(confirm("Bu VIP sertifikayı siliyorum patron, emin misin?")) { 
             await deleteDoc(doc(db, "certificates", certId)); 
             loadCerts(); 
           }
-        });
+        };
       });
 
     } catch (e) { 
@@ -836,16 +833,19 @@
       
       document.getElementById("lensCount").innerText = totalLenses;
 
-      document.querySelectorAll(".delete-lens-btn").forEach(btn => btn.onclick = async (e) => { 
-        if(confirm("Bu müşterinin takibini bitiriyorum patron?")) { 
-          await deleteDoc(doc(db, "lenses", e.target.closest('button').dataset.id)); 
-          loadLenses(); 
-        }
+      document.querySelectorAll(".delete-lens-btn").forEach(btn => {
+        btn.onclick = async (e) => { 
+          const id = e.currentTarget.getAttribute("data-id"); // currentTarget eklendi
+          if(confirm("Bu müşterinin takibini bitiriyorum patron?")) { 
+            await deleteDoc(doc(db, "lenses", id)); 
+            loadLenses(); 
+          }
+        };
       });
 
       document.querySelectorAll(".remind-lens-btn").forEach(btn => {
         btn.onclick = (e) => {
-          const link = e.target.closest('button').getAttribute('data-link');
+          const link = e.currentTarget.getAttribute('data-link'); // currentTarget eklendi
           window.open(link, '_blank');
         };
       });
