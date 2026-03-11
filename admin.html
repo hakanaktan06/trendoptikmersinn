@@ -24,7 +24,6 @@
     .lens-panel { border: 2px solid #0dcaf0 !important; box-shadow: 0 0 20px rgba(13, 202, 240, 0.1); }
     .theme-panel { border: 2px solid #ff3366 !important; box-shadow: 0 0 20px rgba(255, 51, 102, 0.15); }
     
-    /* VAHŞET ALARM EFEKTİ */
     @keyframes pulse-red {
       0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
       70% { box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); }
@@ -32,7 +31,6 @@
     }
     .pulse-anim { animation: pulse-red 2s infinite; border-radius: 5px; }
 
-    /* NEON NEFES ALAN KUTULAR (CYBERPUNK EFEKTİ) */
     .stat-card { transition: all 0.4s ease; position: relative; overflow: hidden; cursor: default; }
     .stat-card:hover { transform: translateY(-5px) scale(1.02); }
     .stat-card.product-stat:hover { box-shadow: 0 10px 30px rgba(245, 166, 35, 0.25); border-color: #f5a623; }
@@ -77,13 +75,14 @@
     <div class="row g-4 mb-5 mt-2 justify-content-center">
       <div class="col-md-6">
         <div class="glass-panel theme-panel text-center">
-          <h5 style="color: #ff3366;" class="mb-2"><i class="bi bi-magic me-2"></i>Sihirli Tema Motoru</h5>
-          <p class="opacity-75 small mb-3">Özel günlerde tüm siteyi tek tuşla süsle!</p>
+          <h5 style="color: #ff3366;" class="mb-2"><i class="bi bi-magic me-2"></i>Global Tema Şovu</h5>
+          <p class="opacity-75 small mb-3">Tüm siteyi tek tıkla günün anlam ve önemine göre süsle.</p>
           <select id="siteThemeSelect" class="form-select mb-4 text-center fw-bold fs-5">
             <option value="standart">⚫ Standart (Sade & Asil)</option>
-            <option value="yilbasi">❄️ Yılbaşı (Kar Yağışı)</option>
-            <option value="sevgililer">❤️ Sevgililer Günü (Kalpler)</option>
-            <option value="bayram">✨ Bayram (Işıl Işıl)</option>
+            <option value="yilbasi">❄️ Yılbaşı (Ürünlerde Kar Birikintisi)</option>
+            <option value="sevgililer">❤️ Sevgililer Günü (İpli Kalp Balonları)</option>
+            <option value="kadinlar">💜 Kadınlar Günü (Zarif Çiçekler)</option>
+            <option value="bayram">🏮 Ramazan Bayramı (Sarkan Kandiller)</option>
           </select>
           <button id="saveThemeBtn" class="btn w-100 rounded-pill py-2 fw-bold" style="background:#ff3366; color:#fff; box-shadow: 0 4px 15px rgba(255, 51, 102, 0.4);">SİTE TEMASINI GÜNCELLE</button>
         </div>
@@ -179,7 +178,6 @@
 </div>
 
 <script type="module">
-  // YENİ: setDoc ve getDoc import edildi (Tema sistemi için)
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
   import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
   import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, setDoc, getDoc, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
@@ -203,17 +201,13 @@
   const pImgUrl = document.getElementById("pImgUrl");
   const productTableBody = document.getElementById("productTableBody");
   
-  let editModeId = null;
-  let adminProducts = [];
-  let adminOrders = [];
+  let editModeId = null; let adminProducts = []; let adminOrders = [];
 
-  // ODOMETRE (SAYI ANİMASYONU)
   function animateValue(id, newValue) {
     const obj = document.getElementById(id);
     const startValue = parseInt(obj.innerText) || 0;
     if (startValue === newValue) return;
-    const duration = 1000;
-    let startTimestamp = null;
+    const duration = 1000; let startTimestamp = null;
     const step = (timestamp) => {
       if (!startTimestamp) startTimestamp = timestamp;
       const progress = Math.min((timestamp - startTimestamp) / duration, 1);
@@ -223,7 +217,6 @@
     window.requestAnimationFrame(step);
   }
 
-  // DİNAMİK SAAT KARŞILAMASI
   function updateGreeting() {
     const hour = new Date().getHours();
     let greetingMsg = "Hoş Geldin";
@@ -234,24 +227,22 @@
     document.getElementById("greetingText").innerHTML = `${greetingMsg}, <span class="accent">Patron</span>`;
   }
 
-  // YENİ: SİHİRLİ TEMA SİSTEMİ YÜKLEME VE KAYDETME
+  // SİHİRLİ TEMA SİSTEMİ YÜKLEME VE KAYDETME
   async function loadThemeConfig() {
     try {
       const snap = await getDoc(doc(db, "settings", "theme"));
-      if (snap.exists()) {
-        document.getElementById("siteThemeSelect").value = snap.data().activeTheme;
-      }
+      if (snap.exists()) document.getElementById("siteThemeSelect").value = snap.data().activeTheme;
     } catch(e) { console.log("Tema yüklenemedi"); }
   }
 
   document.getElementById("saveThemeBtn").addEventListener("click", async () => {
     const btn = document.getElementById("saveThemeBtn");
     const selectedTheme = document.getElementById("siteThemeSelect").value;
-    btn.innerText = "YAYINLANIYOR...";
+    btn.innerText = "SİTEYE YANSITILIYOR...";
     try {
       await setDoc(doc(db, "settings", "theme"), { activeTheme: selectedTheme });
-      alert("Vahşet! Site teması anında güncellendi.");
-    } catch (e) { alert("Tema güncellenirken hata oluştu!"); }
+      alert("Vahşet! Müşterilerin ekranına tema anında yansıdı.");
+    } catch (e) { alert("Hata!"); }
     finally { btn.innerText = "SİTE TEMASINI GÜNCELLE"; }
   });
 
@@ -271,19 +262,17 @@
   onAuthStateChanged(auth, (user) => {
     if (user) {
       loginSection.style.display = "none"; dashboardSection.style.display = "block";
-      updateGreeting(); loadThemeConfig(); // Tema bilgisini çek
-      loadProducts(); loadOrders(); loadCerts(); loadLenses(); 
+      updateGreeting(); loadThemeConfig(); loadProducts(); loadOrders(); loadCerts(); loadLenses(); 
     } else {
       loginSection.style.display = "flex"; dashboardSection.style.display = "none";
     }
   });
 
-  // ================== BÖLÜM 1: ÜRÜN VİTRİN ==================
+  // ÜRÜN VİTRİN MANTIĞI...
   document.getElementById("addBtn").addEventListener("click", async () => {
     const name = document.getElementById("pName").value; const category = document.getElementById("pCategory").value;
     const price = document.getElementById("pPrice").value; const desc = document.getElementById("pDesc").value; const imgUrl = document.getElementById("pImgUrl").value;
-    if(!name || !price || !imgUrl) return alert("Ad, Fiyat ve Resim alanlarını doldur kanka!");
-    const addBtn = document.getElementById("addBtn"); addBtn.disabled = true; addBtn.innerText = "İşleniyor...";
+    if(!name || !price || !imgUrl) return alert("Bilgileri gir!"); const addBtn = document.getElementById("addBtn"); addBtn.disabled = true; addBtn.innerText = "İşleniyor...";
     try {
       if (editModeId) { await updateDoc(doc(db, "products", editModeId), { name, category, price, desc, img: imgUrl }); } 
       else { await addDoc(collection(db, "products"), { name, category, price, desc, img: imgUrl, createdAt: serverTimestamp(), clicks: 0 }); }
@@ -292,14 +281,11 @@
   });
 
   function resetForm() {
-    editModeId = null; document.getElementById("pName").value = ""; document.getElementById("pPrice").value = "";
-    document.getElementById("pDesc").value = ""; document.getElementById("pImgUrl").value = "";
-    imagePreview.innerHTML = "URL girince resim burada görünecek"; imagePreview.style.border = "2px dashed rgba(255, 255, 255, 0.2)";
+    editModeId = null; document.getElementById("pName").value = ""; document.getElementById("pPrice").value = ""; document.getElementById("pDesc").value = ""; document.getElementById("pImgUrl").value = "";
+    imagePreview.innerHTML = "Görsel"; imagePreview.style.border = "2px dashed rgba(255,255,255,0.2)";
     document.getElementById("formTitle").innerHTML = `<i class="bi bi-plus-circle me-2"></i>Yeni Ürün Ekle`;
-    document.getElementById("addBtn").innerText = "Ürünü Kaydet"; document.getElementById("addBtn").classList.replace("btn-success", "btn-accent");
-    document.getElementById("cancelEditBtn").style.display = "none";
+    document.getElementById("addBtn").innerText = "Ürünü Kaydet"; document.getElementById("addBtn").classList.replace("btn-success", "btn-accent"); document.getElementById("cancelEditBtn").style.display = "none";
   }
-
   document.getElementById("cancelEditBtn").addEventListener("click", resetForm);
 
   async function loadProducts() {
@@ -309,19 +295,15 @@
       tbody.innerHTML = ""; adminProducts = []; 
       if(qs.empty) { animateValue("totalProductCount", 0); return; }
       qs.forEach((d) => {
-        const p = d.data(); adminProducts.push({ id: d.id, ...p });
-        const finalPrice = p.price.toString().includes("₺") ? p.price : `${p.price} ₺`;
+        const p = d.data(); adminProducts.push({ id: d.id, ...p }); const finalPrice = p.price.toString().includes("₺") ? p.price : `${p.price} ₺`;
         tbody.innerHTML += `<tr><td><input type="checkbox" class="form-check-input vip-check" data-id="${d.id}"></td><td><img src="${p.img}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;"></td><td class="fw-bold">${p.name}</td><td><span class="badge bg-secondary">${p.category}</span></td><td class="accent fw-bold">${finalPrice}</td><td class="text-warning fw-bold"><i class="bi bi-fire"></i> ${p.clicks || 0}</td><td><button class="btn btn-sm btn-primary edit-btn me-1" data-id="${d.id}"><i class="bi bi-pencil"></i></button><button class="btn btn-sm btn-danger delete-btn" data-id="${d.id}"><i class="bi bi-trash"></i></button></td></tr>`;
       });
       animateValue("totalProductCount", adminProducts.length);
       document.querySelectorAll(".edit-btn").forEach(btn => btn.onclick = (e) => {
         const id = e.target.closest('button').dataset.id; const p = adminProducts.find(x => x.id === id);
-        document.getElementById("pName").value = p.name; document.getElementById("pCategory").value = p.category;
-        document.getElementById("pPrice").value = p.price.toString().replace(/[^0-9]/g, ''); document.getElementById("pDesc").value = p.desc;
-        document.getElementById("pImgUrl").value = p.img; imagePreview.innerHTML = `<img src="${p.img}" style="width:100%; height:100%; object-fit:cover;">`; imagePreview.style.border = "none";
-        editModeId = id; document.getElementById("formTitle").innerHTML = `<i class="bi bi-pencil-square me-2"></i>Ürünü Düzenle`;
-        document.getElementById("addBtn").innerText = "Kaydet"; document.getElementById("addBtn").classList.replace("btn-accent", "btn-success");
-        document.getElementById("cancelEditBtn").style.display = "block"; window.scrollTo({ top: 0, behavior: 'smooth' });
+        document.getElementById("pName").value = p.name; document.getElementById("pCategory").value = p.category; document.getElementById("pPrice").value = p.price.toString().replace(/[^0-9]/g, ''); document.getElementById("pDesc").value = p.desc; document.getElementById("pImgUrl").value = p.img;
+        imagePreview.innerHTML = `<img src="${p.img}" style="width:100%; height:100%; object-fit:cover;">`; imagePreview.style.border = "none"; editModeId = id;
+        document.getElementById("formTitle").innerHTML = `<i class="bi bi-pencil-square me-2"></i>Ürünü Düzenle`; document.getElementById("addBtn").innerText = "Kaydet"; document.getElementById("addBtn").classList.replace("btn-accent", "btn-success"); document.getElementById("cancelEditBtn").style.display = "block"; window.scrollTo({ top: 0, behavior: 'smooth' });
       });
       document.querySelectorAll(".delete-btn").forEach(btn => btn.onclick = async (e) => { if(confirm("Siliyorum emin misin?")) { await deleteDoc(doc(db, "products", e.target.closest('button').dataset.id)); loadProducts(); }});
     } catch (e) { console.error(e); }
@@ -335,7 +317,7 @@
     if(discount) { msg += `🎁 SİZE ÖZEL: ${discount} ₺ 🎁\n\nhttps://www.trendoptikmersin.com`; navigator.clipboard.writeText(msg); alert("Kopyalandı!"); }
   });
 
-  // ================== BÖLÜM 2: SİPARİŞ MANTIĞI ==================
+  // SİPARİŞ MANTIĞI...
   document.getElementById("addOrderBtn").addEventListener("click", async () => {
     const customerName = document.getElementById("oName").value; const phone = document.getElementById("oPhone").value.trim();
     const product = document.getElementById("oProduct").value; const status = document.getElementById("oStatus").value;
@@ -360,12 +342,12 @@
     } catch (e) { console.error(e); }
   }
 
-  // ================== BÖLÜM 3: VIP SERTİFİKA MANTIĞI ==================
+  // VIP SERTİFİKA MANTIĞI...
   document.getElementById("createCertBtn").addEventListener("click", async () => {
     const name = document.getElementById("certName").value; const product = document.getElementById("certProduct").value;
     const discount = document.getElementById("certDiscount").value; const duration = document.getElementById("certDuration").value;
     const generatedNo = `TRND-${new Date().getFullYear()}-${Math.floor(Math.random()*16777215).toString(16).toUpperCase().substring(0,4)}`;
-    if(!name || !product) return alert("Bilgileri gir kanka!");
+    if(!name || !product) return alert("Bilgileri gir!");
     try { await addDoc(collection(db, "certificates"), { customerName: name, product, discountRate: discount, duration, certNo: generatedNo, createdAt: serverTimestamp() });
       document.getElementById("certName").value = ""; document.getElementById("certProduct").value = ""; loadCerts();
     } catch (e) { alert("Hata!"); }
@@ -385,7 +367,7 @@
     } catch (e) { console.error(e); }
   }
 
-  // ================== BÖLÜM 4: LENS TAKİP MANTIĞI ==================
+  // LENS TAKİP MANTIĞI...
   document.getElementById("addLensBtn").addEventListener("click", async () => {
     const name = document.getElementById("lName").value; const phone = document.getElementById("lPhone").value;
     const product = document.getElementById("lProduct").value; const duration = parseInt(document.getElementById("lDuration").value);
