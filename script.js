@@ -425,10 +425,14 @@ document.addEventListener("DOMContentLoaded", async function () {
     // Balyoz Algoritması: Arama kutusunu ezen ebeveynleri (parent) bul ve yukarı çıkar!
     function elevateParents(el) {
         let current = el;
-        while (current && current !== document.body && current !== document.documentElement) {
+        // DÜZELTME BURADA: 'SECTION' etiketine kadar çıkmasını söylüyoruz. 
+        // Tüm section'ı yükseltirsen z-index savaşı başlar ve input kararıp kör olur.
+        while (current && current.tagName !== 'SECTION' && current !== document.body && current !== document.documentElement) {
             if (window.getComputedStyle(current).position === 'static') {
                 current.style.setProperty('position', 'relative', 'important');
             }
+            // Z-index'i doğrudan inline çakıyoruz ki her halükarda ezip geçsin
+            current.style.setProperty('z-index', '999995', 'important'); 
             current.classList.add('spotlight-elevated');
             current = current.parentElement;
         }
@@ -437,8 +441,12 @@ document.addEventListener("DOMContentLoaded", async function () {
     function restoreParents() {
         document.querySelectorAll('.spotlight-elevated').forEach(el => {
             el.classList.remove('spotlight-elevated');
+            // Aramadan çıkınca zırhları tam çıkartıyoruz (inline stilleri temizliyoruz)
+            el.style.removeProperty('z-index');
+            el.style.removeProperty('position');
         });
     }
+
 
     function positionDropdown() {
         const rect = searchInput.getBoundingClientRect();
