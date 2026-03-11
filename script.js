@@ -330,10 +330,11 @@ document.addEventListener("DOMContentLoaded", async function () {
       <div class="${gridClass}" style="${delayStyle}">
         <div class="card h-100 border-0 shadow-sm product-card position-relative">
           ${t.ribbon}
-          <div style="height:250px; overflow:hidden; position:relative;">
-            <div style="background-image:url('${product.img}'); background-size:cover; background-position:center; filter:blur(20px); position:absolute; width:100%; height:100%; transform:scale(1.2); opacity:0.6;"></div>
-            <img src="${product.img}" loading="lazy" style="height:250px; width:100%; object-fit:contain; position:relative; z-index:2;">
-          </div>
+          <div style="height:250px; overflow:hidden; position:relative; cursor:pointer;" onclick="window.location.href='urun-detay.html?id=${product.id}'">
+  <div style="background-image:url('${product.img}'); background-size:cover; background-position:center; filter:blur(20px); position:absolute; width:100%; height:100%; transform:scale(1.2); opacity:0.6;"></div>
+  <img src="${product.img}" loading="lazy" style="height:250px; width:100%; object-fit:contain; position:relative; z-index:2;">
+</div>
+
           <div class="card-body text-center d-flex flex-column">
             <h5 class="fw-bold">${product.name}</h5>
             <p class="opacity-75 small mb-auto">${product.desc}</p>
