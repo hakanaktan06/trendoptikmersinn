@@ -1,1 +1,24 @@
+body{
+background:#0f0f0f;
+color:white;
+font-family:'Poppins',sans-serif;
+}
 
+.glass-panel{
+background:rgba(255,255,255,0.05);
+border:1px solid rgba(255,255,255,0.1);
+border-radius:16px;
+padding:20px;
+backdrop-filter:blur(10px);
+}
+
+.accent{
+color:#f5a623;
+}
+
+.btn-accent{
+background:#f5a623;
+color:black;
+font-weight:600;
+border:none;
+}
