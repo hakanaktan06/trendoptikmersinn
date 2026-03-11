@@ -981,7 +981,7 @@
     const qs = await getDocs(query(collection(db, "certificates"), orderBy("createdAt", "desc")));
     tbody.innerHTML = "";
     qs.forEach((d) => {
-      const c = d.data(); const link = `https://www.trendoptikmersin.com/sertifika?id=${d.id}`;
+        const c = d.data(); const link = `https://trendoptikmersin.com/sertifika?id=${d.id}`;
       tbody.innerHTML += `<tr><td>${c.certNo}</td><td>${c.customerName}</td><td>${c.product}</td><td>
         <button class="btn btn-sm btn-outline-warning" onclick="navigator.clipboard.writeText('${link}'); trendAlert('Tamam','Kopyalandı','success')"><i class="bi bi-link"></i></button>
         <button class="btn btn-sm btn-danger ms-1" onclick="trendConfirm('Sil','Emin misin?', async () => { await deleteDoc(doc(db,'certificates','${d.id}')); loadCerts(); })"><i class="bi bi-trash"></i></button>
