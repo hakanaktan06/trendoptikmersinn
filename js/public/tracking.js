@@ -1,47 +1,54 @@
 import { db } from "../firebase-init.js";
-import { collection, getDocs } 
-from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+import { collection,getDocs,query } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
-const btn = document.getElementById("trackBtn");
+const trackBtn=document.getElementById("trackBtn")
+const trackPhone=document.getElementById("trackPhone")
+const trackResult=document.getElementById("trackResult")
 
-if(btn){
+if(trackBtn){
 
-btn.onclick = async ()=>{
+trackBtn.addEventListener("click",async()=>{
 
-const phone = document.getElementById("trackPhone").value;
+const phone=trackPhone.value.trim()
 
-const snap = await getDocs(collection(db,"orders"));
+if(!phone) return alert("Telefon girin")
 
-let found = null;
+trackBtn.disabled=true
 
-snap.forEach(doc=>{
+try{
 
-const d = doc.data();
+const qs=await getDocs(query(collection(db,"orders")))
 
-if(d.phone === phone){
-found = d;
-}
+let found=null
 
-});
+qs.forEach(doc=>{
+if(doc.data().phone===phone) found=doc.data()
+})
 
-const result = document.getElementById("trackResult");
-
-result.style.display = "block";
+trackResult.style.display="block"
 
 if(found){
 
-result.innerHTML = `
+trackResult.innerHTML=`
 <h6>${found.customerName}</h6>
 <p>${found.product}</p>
 <b>${found.status}</b>
-`;
+`
 
 }else{
 
-result.innerHTML = "Sipariş bulunamadı.";
+trackResult.innerHTML="Sipariş bulunamadı"
 
 }
 
+}catch(e){
+
+trackResult.innerHTML="Hata oluştu"
+
 }
+
+trackBtn.disabled=false
+
+})
 
 }
