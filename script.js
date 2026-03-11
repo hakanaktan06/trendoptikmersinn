@@ -100,6 +100,46 @@ document.addEventListener("DOMContentLoaded", async function () {
           border-top: 10px solid rgba(0,0,0,0.6); 
           border-left: 10px solid transparent; 
       }
+
+      /* YENİ: CANLI ARAMA DROPDOWN STİLLERİ */
+      .live-search-dropdown {
+          position: absolute;
+          top: calc(100% + 5px);
+          left: 0;
+          width: 100%;
+          background: rgba(15, 15, 15, 0.95);
+          backdrop-filter: blur(15px);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 12px;
+          box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+          max-height: 350px;
+          overflow-y: auto;
+          z-index: 1050;
+          display: none;
+          flex-direction: column;
+      }
+      .live-search-dropdown::-webkit-scrollbar { width: 6px; }
+      .live-search-dropdown::-webkit-scrollbar-thumb { background: var(--theme-color); border-radius: 10px; }
+      .live-search-dropdown.show { display: flex; animation: slideDown 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+      @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+      
+      .live-search-item {
+          display: flex;
+          align-items: center;
+          padding: 12px 15px;
+          border-bottom: 1px solid rgba(255,255,255,0.05);
+          transition: 0.3s;
+          gap: 15px;
+          color: #fff;
+          text-decoration: none;
+      }
+      .live-search-item:last-child { border-bottom: none; }
+      .live-search-item:hover { background: rgba(255,255,255,0.03); padding-left: 20px; }
+      .live-search-img { width: 50px; height: 50px; object-fit: cover; border-radius: 8px; }
+      .live-search-info { flex-grow: 1; }
+      .live-search-title { font-weight: 700; font-size: 0.95rem; margin: 0; }
+      .live-search-price { color: var(--theme-color); font-weight: 700; font-size: 0.85rem; margin: 0; }
+      .live-search-action .btn { font-size: 0.8rem; padding: 6px 12px; border-radius: 20px; }
     `;
     document.head.appendChild(style);
   }
@@ -361,10 +401,76 @@ document.addEventListener("DOMContentLoaded", async function () {
     activateFade();
   }
 
+  // ==========================================
+  // YENİ: VAHŞET CANLI AKILLI ARAMA MOTORU 
+  // ==========================================
   if (searchInput) {
-    searchInput.addEventListener("keyup", function () {
-      const value = this.value.toLowerCase();
-      displayAllProducts(allProducts.filter(p => p.name.toLowerCase().includes(value) || p.desc.toLowerCase().includes(value)));
+    // Arama kutusunu saran div'i bul ve relative yap (Dropdown altına düşsün diye)
+    const searchContainer = searchInput.parentElement;
+    searchContainer.style.position = 'relative';
+    
+    // Dropdown kutusunu yarat
+    const dropdown = document.createElement('div');
+    dropdown.className = 'live-search-dropdown';
+    searchContainer.appendChild(dropdown);
+
+    searchInput.addEventListener("input", function () {
+      const value = this.value.toLowerCase().trim();
+      dropdown.innerHTML = ''; // İçini temizle
+      
+      // Eğer kutu boşsa veya silindiyse
+      if (value.length === 0) {
+          dropdown.classList.remove('show');
+          displayAllProducts(allProducts); // Sayfadaki ürünleri de eski haline getir
+          return;
+      }
+
+      // Kelimeye göre filtrele
+      const filtered = allProducts.filter(p => p.name.toLowerCase().includes(value) || p.desc.toLowerCase().includes(value));
+      displayAllProducts(filtered); // Alt sayfada grid'i de eşzamanlı filtrele
+
+      if (filtered.length > 0) {
+          filtered.forEach(product => {
+              const finalPrice = product.price.toString().includes("₺") ? product.price : `${product.price} ₺`;
+              const t = themeData[currentTheme];
+              const wpMessage = `${t.wpMsg} "${product.name}" modeliyle ilgileniyorum. Fiyatı: ${finalPrice}. Stokta mevcut mu?`;
+              const wpLink = `https://wa.me/905312075818?text=${encodeURIComponent(wpMessage)}`;
+
+              const item = document.createElement('div');
+              item.className = 'live-search-item';
+              item.innerHTML = `
+                  <img src="${product.img}" class="live-search-img">
+                  <div class="live-search-info">
+                      <p class="live-search-title">${product.name}</p>
+                      <p class="live-search-price">${finalPrice}</p>
+                  </div>
+                  <div class="live-search-action">
+                      <button class="btn btn-accent fw-bold" onclick="window.askWhatsApp('${product.id}', '${wpLink}'); event.stopPropagation();">
+                          ${t.wpBtn}
+                      </button>
+                  </div>
+              `;
+              dropdown.appendChild(item);
+          });
+          dropdown.classList.add('show');
+      } else {
+          dropdown.innerHTML = `<div class="p-4 text-center opacity-50 fw-bold">Aradığınız gözlük bulunamadı...</div>`;
+          dropdown.classList.add('show');
+      }
+    });
+
+    // Dışarı tıklayınca dropdown kapansın
+    document.addEventListener('click', (e) => {
+        if (!searchContainer.contains(e.target)) {
+            dropdown.classList.remove('show');
+        }
+    });
+
+    // Arama kutusuna tekrar basınca içi doluysa açılsın
+    searchInput.addEventListener('focus', () => {
+        if(searchInput.value.trim().length > 0) {
+            dropdown.classList.add('show');
+        }
     });
   }
 
