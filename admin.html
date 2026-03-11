@@ -716,26 +716,52 @@
     } catch (e) { alert("Hata!"); }
   });
 
-  async function loadCerts() {
-    const qs = await getDocs(query(collection(db, "certificates"), orderBy("createdAt", "desc")));
+    async function loadCerts() {
     const tbody = document.getElementById("certTableBody");
-    tbody.innerHTML = "";
-    qs.forEach((d) => {
-      const c = d.data();
-      const link = `https://www.trendoptikmersin.com/sertifika?id=${d.id}`;
-      tbody.innerHTML += `
-        <tr>
-          <td class="accent fw-bold">${c.certNo}</td>
-          <td>${c.customerName}</td>
-          <td>${c.product}</td>
-          <td>%${c.discountRate}</td>
-          <td>
-            <button class="btn btn-sm btn-outline-warning" onclick="navigator.clipboard.writeText('${link}'); alert('Link Kopyalandı!')"><i class="bi bi-link"></i></button>
-            <button class="btn btn-sm btn-danger delete-cert-btn" data-id="${d.id}"><i class="bi bi-trash"></i></button>
-          </td>
-        </tr>`;
-    });
+    try {
+      const qs = await getDocs(query(collection(db, "certificates"), orderBy("createdAt", "desc")));
+      tbody.innerHTML = "";
+      qs.forEach((d) => {
+        const c = d.data(); 
+        const link = `https://www.trendoptikmersin.com/sertifika?id=${d.id}`;
+        tbody.innerHTML += `
+          <tr>
+            <td class="accent fw-bold small">${c.certNo}</td>
+            <td>${c.customerName}</td>
+            <td>${c.product}</td>
+            <td>%${c.discountRate}</td>
+            <td>
+              <button class="btn btn-sm btn-outline-warning" onclick="navigator.clipboard.writeText('${link}'); alert('Link Kopyalandı!')">
+                <i class="bi bi-link"></i>
+              </button>
+              <button class="btn btn-sm btn-danger delete-cert-btn ms-1" data-id="${d.id}">
+                <i class="bi bi-trash"></i>
+              </button>
+            </td>
+          </tr>`;
+      });
+      
+      // Sayacı güncelle
+      animateValue("certCount", qs.size);
+
+      // KUSURSUZ SİLME MOTORU (İkona da tıklasan, kenarına da tıklasan anlar)
+      document.querySelectorAll(".delete-cert-btn").forEach(btn => {
+        btn.addEventListener("click", async (e) => {
+          const btnElement = e.target.closest('button');
+          const certId = btnElement.getAttribute('data-id');
+          
+          if(confirm("Bu VIP sertifikayı siliyorum patron, emin misin?")) { 
+            await deleteDoc(doc(db, "certificates", certId)); 
+            loadCerts(); 
+          }
+        });
+      });
+
+    } catch (e) { 
+      console.error("Sertifika yükleme hatası:", e); 
+    }
   }
+
 
   // ================== BÖLÜM 4: LENS TAKİP MANTIĞI ==================
   document.getElementById("addLensBtn").addEventListener("click", async () => {
