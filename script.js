@@ -102,42 +102,30 @@ document.addEventListener("DOMContentLoaded", async function () {
       }
 
       /* ========================================= */
-      /* YENİ: KUSURSUZ CANLI ARAMA (SPOTLIGHT EFEKTİ) */
+      /* YENİ: KUSURSUZ CANLI ARAMA (BALYOZ EFEKTİ) */
       /* ========================================= */
+      
       #search-spotlight-overlay { 
           position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
-          background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); 
+          background: rgba(0,0,0,0.88); backdrop-filter: blur(8px); 
           z-index: 99990; opacity: 0; pointer-events: none; transition: 0.3s; 
       }
-      #search-spotlight-overlay.active { 
-          opacity: 1; pointer-events: all; 
+      #search-spotlight-overlay.active { opacity: 1; pointer-events: all; }
+      
+      .spotlight-elevated {
+          position: relative !important;
+          z-index: 99995 !important;
       }
       
-      /* BALYOZ SINIFI: Arama kutusunu karanlığın içinden fırlatır! */
-      .spotlight-input-active {
-          position: relative !important;
-          z-index: 999999 !important;
-          background-color: #ffffff !important;
-          color: #000000 !important;
-          box-shadow: 0 0 20px rgba(245, 166, 35, 0.5) !important;
-      }
-      .spotlight-input-active::placeholder { 
-          color: #666 !important; 
-      }
-      .spotlight-parent-active {
-          position: relative !important;
-          z-index: 999995 !important;
-      }
-
       .live-search-dropdown {
-          position: absolute; /* BODY'E BAĞLI, FİLTRELERİ EZER GEÇER! */
-          background: #0a0a0c !important; 
-          border: 2px solid var(--theme-color); 
+          position: absolute; 
+          background: #0a0a0c; 
+          border: 2px solid var(--theme-color);
           border-radius: 12px;
           box-shadow: 0 25px 60px rgba(0,0,0,1);
           max-height: 400px;
           overflow-y: auto;
-          z-index: 999999 !important; 
+          z-index: 999999 !important; /* DÜNYANIN EN ÜST KATMANI */
           display: none;
           flex-direction: column;
       }
@@ -155,7 +143,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       .live-search-item:hover { background: rgba(255,255,255,0.08); padding-left: 20px; }
       .live-search-img { width: 60px; height: 60px; object-fit: cover; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background:#111; }
       .live-search-info { flex-grow: 1; }
-      .live-search-title { font-weight: 700; font-size: 1rem; margin: 0 0 5px 0; color: #fff; }
+      .live-search-title { font-weight: 700; font-size: 1rem; margin: 0 0 5px 0; }
       .live-search-price { color: var(--theme-color); font-weight: 800; font-size: 0.9rem; margin: 0; }
       .live-search-action .btn { font-size: 0.85rem; padding: 8px 16px; border-radius: 30px; pointer-events: none; background: var(--theme-color); color:#000; font-weight:bold; }
     `;
@@ -420,12 +408,11 @@ document.addEventListener("DOMContentLoaded", async function () {
   }
 
   // ==========================================
-  // YENİ: VAHŞET CANLI AKILLI ARAMA (KÖRLÜK SORUNU KÖKTEN ÇÖZÜLDÜ!)
+  // YENİ: VAHŞET CANLI AKILLI ARAMA (BALYOZ KURALI: ASLA KÖR OLMAZ)
   // ==========================================
   if (searchInput) {
-    const searchContainer = searchInput.parentElement;
     
-    // 1. Karartma Perdesini direkt BODY'e ekliyoruz ki her şeyi kapatsın
+    // 1. Karartma Perdesini direkt BODY'e ekliyoruz ki tüm ekranı kapatsın
     const overlay = document.createElement('div');
     overlay.id = 'search-spotlight-overlay';
     document.body.appendChild(overlay);
@@ -435,7 +422,24 @@ document.addEventListener("DOMContentLoaded", async function () {
     dropdown.className = 'live-search-dropdown';
     document.body.appendChild(dropdown);
 
-    // Menünün yerini arama kutusuna göre hesaplayan motor
+    // Balyoz Algoritması: Arama kutusunu ezen ebeveynleri (parent) bul ve yukarı çıkar!
+    function elevateParents(el) {
+        let current = el;
+        while (current && current !== document.body && current !== document.documentElement) {
+            if (window.getComputedStyle(current).position === 'static') {
+                current.style.setProperty('position', 'relative', 'important');
+            }
+            current.classList.add('spotlight-elevated');
+            current = current.parentElement;
+        }
+    }
+
+    function restoreParents() {
+        document.querySelectorAll('.spotlight-elevated').forEach(el => {
+            el.classList.remove('spotlight-elevated');
+        });
+    }
+
     function positionDropdown() {
         const rect = searchInput.getBoundingClientRect();
         dropdown.style.top = (rect.bottom + window.scrollY + 10) + 'px';
@@ -447,11 +451,13 @@ document.addEventListener("DOMContentLoaded", async function () {
     function openSpotlight() {
         overlay.classList.add('active');
         
-        // BALYOZ CSS Sınıflarını Ekle
-        searchInput.classList.add('spotlight-input-active');
-        if(searchContainer) {
-            searchContainer.classList.add('spotlight-parent-active');
-        }
+        // Zırh giydirme işlemi (O kutunun karanlıkta kalması artık FİZİKEN İMKANSIZ)
+        elevateParents(searchInput);
+        
+        searchInput.style.setProperty('position', 'relative', 'important');
+        searchInput.style.setProperty('z-index', '999999', 'important');
+        searchInput.style.setProperty('background-color', '#fff', 'important');
+        searchInput.style.setProperty('color', '#000', 'important');
     }
 
     // Aramadan Çıkınca Her Şeyi Eski Haline Döndür
@@ -459,12 +465,13 @@ document.addEventListener("DOMContentLoaded", async function () {
         dropdown.classList.remove('show');
         overlay.classList.remove('active');
         
-        // Balyoz CSS Sınıflarını Çıkar
-        searchInput.classList.remove('spotlight-input-active');
-        if(searchContainer) {
-            searchContainer.classList.remove('spotlight-parent-active');
-        }
+        // Zırhları Çıkar
+        searchInput.style.zIndex = '';
+        searchInput.style.position = '';
+        searchInput.style.backgroundColor = '';
+        searchInput.style.color = '';
         
+        restoreParents();
         searchInput.value = ''; 
         displayAllProducts(allProducts); 
     }
@@ -503,7 +510,7 @@ document.addEventListener("DOMContentLoaded", async function () {
                         <p class="live-search-price">${finalPrice}</p>
                     </div>
                     <div class="live-search-action">
-                        <button class="btn btn-accent fw-bold">${t.wpBtn}</button>
+                        <button class="btn btn-accent fw-bold" onclick="window.askWhatsApp('${product.id}', '${wpLink}'); event.stopPropagation();">${t.wpBtn}</button>
                     </div>
                 `;
                 dropdown.appendChild(item);
