@@ -101,23 +101,19 @@ document.addEventListener("DOMContentLoaded", async function () {
           border-left: 10px solid transparent; 
       }
 
-      /* YENİ: KUSURSUZ CANLI ARAMA (SİNEMATİK EFEKT) STİLLERİ */
-      #search-spotlight-overlay { 
-          position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
-          background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); 
-          z-index: 99990; opacity: 0; pointer-events: none; transition: 0.3s; 
-      }
-      #search-spotlight-overlay.active { opacity: 1; pointer-events: all; }
-      
+      /* KUSURSUZLAŞTIRILMIŞ CANLI ARAMA MENÜSÜ */
       .live-search-dropdown {
-          position: absolute; /* BODY'e bağlanacak, ezip geçecek */
-          background: #0a0a0c; 
-          border: 2px solid var(--theme-color);
+          position: absolute;
+          top: calc(100% + 10px);
+          left: 0;
+          width: 100%;
+          background: #0a0a0c !important; 
+          border: 2px solid var(--theme-color); 
           border-radius: 12px;
-          box-shadow: 0 25px 60px rgba(0,0,0,1);
-          max-height: 400px;
+          box-shadow: 0 25px 60px rgba(0,0,0,1); 
+          max-height: 350px;
           overflow-y: auto;
-          z-index: 999999 !important; /* DÜNYANIN EN ÜST KATMANI */
+          z-index: 10 !important; /* Wrapper 999999 olacağı için bunun 10 olması yeterli */
           display: none;
           flex-direction: column;
       }
@@ -127,17 +123,23 @@ document.addEventListener("DOMContentLoaded", async function () {
       @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
       
       .live-search-item {
-          display: flex; align-items: center; padding: 15px; 
-          border-bottom: 1px solid rgba(255,255,255,0.05); 
-          transition: 0.3s; gap: 15px; color: #fff; text-decoration: none; cursor: pointer;
+          display: flex;
+          align-items: center;
+          padding: 12px 15px;
+          border-bottom: 1px solid rgba(255,255,255,0.1);
+          transition: 0.3s;
+          gap: 15px;
+          color: #fff;
+          text-decoration: none;
+          cursor: pointer;
       }
       .live-search-item:last-child { border-bottom: none; }
-      .live-search-item:hover { background: rgba(255,255,255,0.08); padding-left: 20px; }
-      .live-search-img { width: 60px; height: 60px; object-fit: cover; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background:#111; }
+      .live-search-item:hover { background: rgba(255,255,255,0.05); padding-left: 20px; }
+      .live-search-img { width: 50px; height: 50px; object-fit: cover; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); }
       .live-search-info { flex-grow: 1; }
-      .live-search-title { font-weight: 700; font-size: 1rem; margin: 0 0 5px 0; }
-      .live-search-price { color: var(--theme-color); font-weight: 800; font-size: 0.9rem; margin: 0; }
-      .live-search-action .btn { font-size: 0.85rem; padding: 8px 16px; border-radius: 30px; pointer-events: none; }
+      .live-search-title { font-weight: 700; font-size: 0.95rem; margin: 0; }
+      .live-search-price { color: var(--theme-color); font-weight: 700; font-size: 0.85rem; margin: 0; }
+      .live-search-action .btn { font-size: 0.8rem; padding: 6px 12px; border-radius: 20px; }
     `;
     document.head.appendChild(style);
   }
@@ -405,44 +407,55 @@ document.addEventListener("DOMContentLoaded", async function () {
   // YENİ: VAHŞET CANLI AKILLI ARAMA (SİNEMATİK & KATMAN ÇÖZÜMLÜ)
   // ==========================================
   if (searchInput) {
-    // 1. Sinematik Karartma Perdesi
+    const searchContainer = searchInput.parentElement;
+    
+    // 1. Karartma Perdesini direkt arama kutusunun parent'ına ekliyoruz. 
+    // z-index: -1 sayesinde inputun ARKASINDA duracak ama ekranı kaplayacak!
     const overlay = document.createElement('div');
-    overlay.id = 'search-spotlight-overlay';
-    document.body.appendChild(overlay);
+    overlay.style.cssText = 'position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); z-index: -1; opacity: 0; pointer-events: none; transition: 0.3s;';
+    searchContainer.appendChild(overlay);
 
-    // 2. Açılır Menü (Direkt Body'e bağlanır, Filtreleri Ezer!)
+    // 2. Dropdown (Arama menüsü) de parent'a bağlanıyor.
     const dropdown = document.createElement('div');
     dropdown.className = 'live-search-dropdown';
-    document.body.appendChild(dropdown);
+    searchContainer.appendChild(dropdown);
 
-    // Menüyü arama kutusunun tam altına hizalama matematiği
-    function positionDropdown() {
-      const rect = searchInput.getBoundingClientRect();
-      dropdown.style.top = (rect.bottom + window.scrollY + 10) + 'px';
-      dropdown.style.left = rect.left + 'px';
-      dropdown.style.width = rect.width + 'px';
+    function openSpotlight() {
+        // Arama kutusunu arşa çıkar, geri kalan her şeyi altına al
+        searchContainer.style.position = 'relative';
+        searchContainer.style.zIndex = '999999'; 
+        overlay.style.opacity = '1';
+        overlay.style.pointerEvents = 'all';
+    }
+
+    function closeSearch() {
+        dropdown.classList.remove('show');
+        overlay.style.opacity = '0';
+        overlay.style.pointerEvents = 'none';
+        searchInput.value = ''; 
+        displayAllProducts(allProducts); // Filtreyi sıfırla, arka plan eski haline dönsün
+        setTimeout(() => {
+            if(overlay.style.opacity === '0') {
+                searchContainer.style.zIndex = '';
+            }
+        }, 300);
     }
 
     searchInput.addEventListener("input", function () {
-      positionDropdown();
       const value = this.value.toLowerCase().trim();
       dropdown.innerHTML = ''; 
       
       if (value.length === 0) {
           dropdown.classList.remove('show');
-          overlay.classList.remove('active');
-          searchInput.style.position = '';
-          searchInput.style.zIndex = '';
+          displayAllProducts(allProducts);
           return;
       }
 
-      // Kutuya dokunulduğu an ekranı karartıp kutuyu üst katmana al
-      overlay.classList.add('active');
-      searchInput.style.position = 'relative';
-      searchInput.style.zIndex = '99995';
+      openSpotlight();
 
-      // SADECE dropdown içinde filtrele. Arka plandaki grid DEĞİŞMEZ!
+      // SADECE dropdown içinde arama yapar, arkadaki grid yerinden oynamaz
       const filtered = allProducts.filter(p => p.name.toLowerCase().includes(value) || p.desc.toLowerCase().includes(value));
+      displayAllProducts(filtered); 
 
       if (filtered.length > 0) {
           filtered.forEach(product => {
@@ -453,11 +466,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
               const item = document.createElement('div');
               item.className = 'live-search-item';
-              
-              // Satırın herhangi bir yerine tıklandığında WhatsApp'a gider
-              item.onclick = function() { 
-                  window.askWhatsApp(product.id, wpLink); 
-              };
+              item.onclick = function(e) { window.askWhatsApp(product.id, wpLink); e.stopPropagation(); };
 
               item.innerHTML = `
                   <img src="${product.img}" class="live-search-img">
@@ -466,7 +475,7 @@ document.addEventListener("DOMContentLoaded", async function () {
                       <p class="live-search-price">${finalPrice}</p>
                   </div>
                   <div class="live-search-action">
-                      <button class="btn btn-accent fw-bold">${t.wpBtn}</button>
+                      <button class="btn btn-accent fw-bold" onclick="window.askWhatsApp('${product.id}', '${wpLink}'); event.stopPropagation();">${t.wpBtn}</button>
                   </div>
               `;
               dropdown.appendChild(item);
@@ -478,18 +487,13 @@ document.addEventListener("DOMContentLoaded", async function () {
       }
     });
 
-    // Sayfa kaydırıldığında veya boyutu değiştiğinde menüyü hizala
-    window.addEventListener('resize', () => { if(dropdown.classList.contains('show')) positionDropdown(); });
-    window.addEventListener('scroll', () => { if(dropdown.classList.contains('show')) positionDropdown(); });
+    searchInput.addEventListener('focus', () => {
+        if(searchInput.value.trim().length > 0) {
+            openSpotlight();
+            dropdown.classList.add('show');
+        }
+    });
 
-    // Dışarı tıklanınca arama şovunu kapat
-    function closeSearch() {
-        dropdown.classList.remove('show');
-        overlay.classList.remove('active');
-        searchInput.style.position = '';
-        searchInput.style.zIndex = '';
-        searchInput.value = ''; 
-    }
     overlay.addEventListener('click', closeSearch);
   }
 
