@@ -984,7 +984,8 @@
         const c = d.data(); const link = `https://trendoptikmersin.com/sertifika?id=${d.id}`;
       tbody.innerHTML += `<tr><td>${c.certNo}</td><td>${c.customerName}</td><td>${c.product}</td><td>
         <button class="btn btn-sm btn-outline-warning" onclick="navigator.clipboard.writeText('${link}'); trendAlert('Tamam','Kopyalandı','success')"><i class="bi bi-link"></i></button>
-        <button class="btn btn-sm btn-danger ms-1" onclick="trendConfirm('Sil','Emin misin?', async () => { await deleteDoc(doc(db,'certificates','${d.id}')); loadCerts(); })"><i class="bi bi-trash"></i></button>
+        <button class="btn btn-sm btn-danger ms-1" onclick="window.deleteCert('${d.id}')"
+><i class="bi bi-trash"></i></button>
       </td></tr>`;
     });
     document.getElementById("certCount").innerText = qs.size;
@@ -1005,7 +1006,8 @@
       const lens = d.data(); if(!lens.createdAt) return;
       const diff = Math.ceil((new Date(lens.createdAt.toDate().getTime() + (lens.duration * 86400000)) - new Date()) / 86400000);
       tbody.innerHTML += `<tr><td>${lens.customerName}</td><td>${lens.product}</td><td>${diff} Gün</td><td>
-        <button class="btn btn-sm btn-danger" onclick="trendConfirm('Sil','Emin misin?', async () => { await deleteDoc(doc(db,'lenses','${d.id}')); loadLenses(); })"><i class="bi bi-x"></i></button>
+        <button class="btn btn-sm btn-danger" onclick="window.deleteLens('${d.id}')"
+><i class="bi bi-x"></i></button>
       </td></tr>`;
     });
     document.getElementById("lensCount").innerText = qs.size;
