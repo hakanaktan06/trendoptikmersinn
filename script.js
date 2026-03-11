@@ -1,6 +1,6 @@
 // Firebase v12.10.0 Importları
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-import { getFirestore, collection, getDocs, query, orderBy, limit, updateDoc, doc, increment, getDoc } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+import { getFirestore, collection, getDocs, query, orderBy, limit, updateDoc, doc, increment, getDoc, where } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDKROzPt8ZaQXk_m5sMEY853BCafnZFb4o",
@@ -17,7 +17,94 @@ const db = getFirestore(app);
 document.addEventListener("DOMContentLoaded", async function () {
 
   // ==========================================
-  // VAHŞET BUKALEMUN TEMA MOTORU (Geri Sayım Barı Kaldırıldı!)
+  // 1. VAHŞET SOSYAL KANIT BİLDİRİM MOTORU (TRENDYOL HİLESİ)
+  // ==========================================
+  function initSocialProof() {
+    // Sadece Ana Sayfa ve Ürünler sayfasında çalışsın (Admin panelinde çıkmasın)
+    if(window.location.pathname.includes("admin.html")) return;
+
+    const style = document.createElement('style');
+    style.innerHTML = `
+      #social-proof-popup {
+        position: fixed;
+        bottom: -100px;
+        left: 20px;
+        background: rgba(15, 15, 15, 0.95);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-left: 4px solid var(--theme-color, #f5a623);
+        color: #fff;
+        padding: 12px 20px;
+        border-radius: 8px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        z-index: 9999;
+        transition: bottom 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        font-size: 0.85rem;
+        max-width: 320px;
+        pointer-events: none; /* Tıklamayı engellemez */
+      }
+      #social-proof-popup.show { bottom: 20px; }
+      .sp-icon { font-size: 1.5rem; color: var(--theme-color, #f5a623); animation: spPulse 2s infinite; }
+      .sp-text strong { color: var(--theme-color, #f5a623); }
+      .sp-time { font-size: 0.7rem; opacity: 0.6; display: block; margin-top: 2px; }
+      @keyframes spPulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+      @media (max-width: 768px) {
+        #social-proof-popup { left: 50%; transform: translateX(-50%); width: 90%; bottom: -100px; }
+        #social-proof-popup.show { bottom: 80px; } /* Mobilde WhatsApp butonunun üstüne çıkar */
+      }
+    `;
+    document.head.appendChild(style);
+
+    const popup = document.createElement('div');
+    popup.id = 'social-proof-popup';
+    popup.innerHTML = `
+      <i class="bi bi-bag-check-fill sp-icon"></i>
+      <div class="sp-text">
+        <span id="sp-msg"></span>
+        <span class="sp-time">Şimdi onaylandı</span>
+      </div>
+    `;
+    document.body.appendChild(popup);
+
+    // Algoritma için sahte ama aşırı inandırıcı veri havuzu
+    const names = ["Ahmet", "Mehmet", "Ayşe", "Fatma", "Can", "Burak", "Zeynep", "Merve", "Emre", "Elif"];
+    const locations = ["Yenişehir", "Mezitli", "Pozcu", "Akdeniz", "Toroslar", "Erdemli"];
+    const actions = [
+      "az önce {product} siparişi verdi.",
+      "sepetine {product} ekledi.",
+      "{product} modeli için VIP Sertifika kullandı.",
+      "az önce {product} hakkında bilgi aldı."
+    ];
+
+    function showPopup() {
+      if (allProducts.length === 0) return;
+
+      const randomName = names[Math.floor(Math.random() * names.length)];
+      const randomLoc = locations[Math.floor(Math.random() * locations.length)];
+      const randomProduct = allProducts[Math.floor(Math.random() * allProducts.length)].name;
+      const randomAction = actions[Math.floor(Math.random() * actions.length)].replace("{product}", `<strong>${randomProduct}</strong>`);
+
+      document.getElementById('sp-msg').innerHTML = `<b>${randomName} (${randomLoc})</b>, ${randomAction}`;
+      popup.classList.add('show');
+
+      setTimeout(() => {
+        popup.classList.remove('show');
+      }, 5000);
+    }
+
+    // İlk pop-up site açıldıktan 10 saniye sonra çıksın
+    setTimeout(() => {
+      showPopup();
+      // Sonrasında her 15-25 saniye arasında rastgele çıksın
+      setInterval(showPopup, Math.floor(Math.random() * 10000) + 15000);
+    }, 10000);
+  }
+
+  // ==========================================
+  // 2. VAHŞET BUKALEMUN TEMA MOTORU 
   // ==========================================
   let currentTheme = 'standart';
   
@@ -54,7 +141,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
   };
 
-  // 1. DİNAMİK RENK VE STİL BASKISI
   function applyColorEngine(color) {
     const style = document.createElement('style');
     style.innerHTML = `
@@ -79,7 +165,6 @@ document.addEventListener("DOMContentLoaded", async function () {
           border-color: var(--theme-color) !important; 
           box-shadow: 0 10px 30px ${color}22 !important; 
       }
-      /* ELİT KUTU KURDELESİ */
       .theme-ribbon { 
           position: absolute; 
           top: 15px; 
@@ -106,13 +191,11 @@ document.addEventListener("DOMContentLoaded", async function () {
     document.head.appendChild(style);
   }
 
-  // 2. GÖRSEL EFEKTLER (KAR, KALP, KANDİL)
   function applyVisualEffects(theme) {
     const style = document.createElement('style');
     let css = '';
     let container = document.createElement('div');
     
-    // Tıklamayı engellememesi için pointer-events: none
     container.style.cssText = 'position: absolute; top: 0; left: 0; width: 100%; height: 100vh; overflow: hidden; pointer-events: none; z-index: 9999;';
 
     if (theme === 'yilbasi') {
@@ -179,7 +262,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     document.body.appendChild(container);
   }
 
-  // 3. SİSTEM BAŞLATICI
+  // 3. SİSTEM BAŞLATICI (HER ŞEYİ SIRAYLA ÇALIŞTIRIR)
   async function initializeSystem() {
     try {
       const snap = await getDoc(doc(db, "settings", "theme"));
@@ -201,6 +284,9 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     if (document.getElementById("homeProductGrid")) fetchHomeProducts();
     if (document.getElementById("allProductGrid")) fetchAllProducts();
+    
+    // Satış artırıcı Pop-up şovunu başlat!
+    initSocialProof();
   }
 
   initializeSystem();
@@ -283,6 +369,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       } catch(e) { } 
   };
 
+  // ÜRÜN KARTI OLUŞTURUCU (TEMA VERİSİ EKLİ)
   function createProductCard(product, index, isSlider = false) {
     const finalPrice = product.price.toString().includes("₺") ? product.price : `${product.price} ₺`;
     const t = themeData[currentTheme]; 
@@ -319,20 +406,33 @@ document.addEventListener("DOMContentLoaded", async function () {
     `;
   }
 
+  // YENİ: YILDIZLI ÜRÜNLERİ ANA SAYFAYA ÇEKME (Ana Sayfa Vitrini Algoritması)
   async function fetchHomeProducts() {
     homeProductGrid.innerHTML = `<div class="w-100 text-center my-5"><div class="spinner-border text-warning"></div></div>`;
     try {
-      const qs = await getDocs(query(collection(db, "products"), orderBy("createdAt", "desc"), limit(6)));
-      if (qs.empty) { 
-          homeProductGrid.innerHTML = `<div class="w-100 text-center"><p>Henüz ürün eklenmedi.</p></div>`; 
-          return; 
+      // Önce "isFeatured: true" olanları (Yıldızlananları) çek
+      const q = query(collection(db, "products"), where("isFeatured", "==", true));
+      let querySnapshot = await getDocs(q);
+      
+      // Eğer patron hiç yıldızlamadıysa, bari boş kalmasın diye en yeni 6 taneyi çek
+      if (querySnapshot.empty) { 
+          const fallbackQ = query(collection(db, "products"), orderBy("createdAt", "desc"), limit(6));
+          querySnapshot = await getDocs(fallbackQ);
       }
+
+      if (querySnapshot.empty) {
+        homeProductGrid.innerHTML = `<div class="w-100 text-center"><p>Henüz ürün eklenmedi.</p></div>`; 
+        return; 
+      }
+
       let htmlContent = ""; 
       let i = 0;
-      qs.forEach((doc) => { 
+      querySnapshot.forEach((doc) => { 
           htmlContent += createProductCard({ id: doc.id, ...doc.data() }, i++, true); 
       });
+      // Animasyonun pürüzsüz dönmesi için ürünleri iki kez basıyoruz (Sonsuz Döngü Hilesi)
       homeProductGrid.innerHTML = htmlContent + htmlContent;
+
     } catch (error) { 
         homeProductGrid.innerHTML = `<p class="text-danger text-center w-100">Ürünler yüklenemedi.</p>`; 
     }
