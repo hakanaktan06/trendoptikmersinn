@@ -1,49 +1,103 @@
 import { db } from "../firebase-init.js";
-import { collection, getDocs, query, orderBy, limit } 
-from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+import { currentTheme,themeData } from "./theme-engine.js";
+import { collection,getDocs,query,orderBy,limit,updateDoc,doc,increment } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
-const grid = document.getElementById("homeProductGrid");
+const homeProductGrid=document.getElementById("homeProductGrid")
+const allProductGrid=document.getElementById("allProductGrid")
 
-async function loadProducts(){
+let allProducts=[]
 
-if(!grid) return;
+window.askWhatsApp=async function(id,link){
+window.open(link,"_blank")
+try{await updateDoc(doc(db,"products",id),{clicks:increment(1)})}catch(e){}
+}
 
-const q = query(
-collection(db,"products"),
-orderBy("createdAt","desc"),
-limit(6)
-);
+window.shareProduct=function(name,price){
+const text=`Trend Optik'te şu modele bayıldım\n${name}\n${price}`
+navigator.clipboard.writeText(text)
+alert("Kopyalandı")
+}
 
-const snap = await getDocs(q);
+function createProductCard(product,index,isSlider=false){
 
-let html = "";
+const finalPrice=product.price.toString().includes("₺")?product.price:`${product.price} ₺`
+const t=themeData[currentTheme]
 
-snap.forEach(doc=>{
+const wpMessage=`${t.wpMsg} "${product.name}" modeliyle ilgileniyorum`
+const wpLink=`https://wa.me/905312075818?text=${encodeURIComponent(wpMessage)}`
 
-const p = doc.data();
+const gridClass=isSlider?"product-slide-item":"col-lg-3 col-md-6 mb-4"
 
-html += `
-<div class="product-slide-item">
+return `
+<div class="${gridClass}">
+<div class="card product-card position-relative">
 
-<div class="product-card">
+${t.ribbon}
 
-<img src="${p.img}" style="width:100%;height:250px;object-fit:contain">
+<img src="${product.img}" style="height:250px;width:100%;object-fit:contain">
 
-<h5>${p.name}</h5>
+<div class="card-body text-center">
 
-<p>${p.desc}</p>
+<h5>${product.name}</h5>
+<p>${product.desc}</p>
+<p class="accent fw-bold">${finalPrice}</p>
 
-<b>${p.price} ₺</b>
+<button onclick="askWhatsApp('${product.id}','${wpLink}')" class="btn btn-accent">WhatsApp</button>
+
+<button onclick="shareProduct('${product.name}','${finalPrice}')" class="btn btn-accent">
+<i class="bi bi-share"></i>
+</button>
 
 </div>
 
 </div>
-`;
+</div>
+`
+}
 
-});
+async function fetchHomeProducts(){
 
-grid.innerHTML = html + html;
+if(!homeProductGrid) return
+
+const qs=await getDocs(query(collection(db,"products"),orderBy("createdAt","desc"),limit(6)))
+
+let html=""
+let i=0
+
+qs.forEach(doc=>{
+html+=createProductCard({id:doc.id,...doc.data()},i++,true)
+})
+
+homeProductGrid.innerHTML=html+html
 
 }
 
-loadProducts();
+async function fetchAllProducts(){
+
+if(!allProductGrid) return
+
+const qs=await getDocs(query(collection(db,"products"),orderBy("createdAt","desc")))
+
+allProducts=[]
+qs.forEach(doc=>{
+allProducts.push({id:doc.id,...doc.data()})
+})
+
+displayAllProducts(allProducts)
+
+}
+
+function displayAllProducts(list){
+
+if(!allProductGrid) return
+
+allProductGrid.innerHTML=""
+
+list.forEach((p,i)=>{
+allProductGrid.innerHTML+=createProductCard(p,i,false)
+})
+
+}
+
+fetchHomeProducts()
+fetchAllProducts()
