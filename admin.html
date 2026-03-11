@@ -520,6 +520,9 @@
   // ================== YENİ: AKILLI RADAR (MUAYENE TAKİBİ) ==================
   async function loadRadar() {
       const radarTableBody = document.getElementById("radarTableBody");
+      const radarBadge = document.getElementById("criticalRadarCount"); // Ana sayfadaki sayaç
+      
+      if(!radarTableBody) return;
       radarTableBody.innerHTML = "<tr><td colspan='4'>Analiz ediliyor...</td></tr>";
       
       try {
@@ -538,14 +541,14 @@
               const farkZaman = Math.abs(bugun - islemTarihi);
               const farkGun = Math.ceil(farkZaman / (1000 * 60 * 60 * 24));
 
-              // 1 yılı (360 gün) dolduranları getir
+              // 360 günü (yaklaşık 1 yıl) geçenleri listele
               if (farkGun >= 360) {
                   counter++;
                   const row = `
                       <tr class="border-start border-warning border-4">
                           <td class="fw-bold">${order.customerName}</td>
                           <td>${islemTarihi.toLocaleDateString('tr-TR')}</td>
-                          <td><span class="text-warning fw-bold">${farkGun} Gün</span></td>
+                          <td><span class="text-warning fw-bold">${farkGun} Gün Önce</span></td>
                           <td>
                               <a href="https://wa.me/${order.phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent('Merhaba ' + order.customerName + ', Trend Optik\'ten yazıyoruz. Göz muayenenizin üzerinden 1 yıl geçmiş. Göz sağlığınız için kontrol vaktiniz gelmiş olabilir, sizi dükkanımıza bekleriz.')}" 
                                  target="_blank" class="btn btn-sm btn-success rounded-pill px-3">
@@ -557,10 +560,16 @@
               }
           });
 
-          if(counter === 0) radarTableBody.innerHTML = "<tr><td colspan='4' class='opacity-50'>Şu an muayene zamanı gelen kimse yok.</td></tr>";
+          // SAYAÇ GÜNCELLEME (ANA SAYFA İÇİN)
+          if(radarBadge) radarBadge.innerText = counter;
+
+          if(counter === 0) {
+              radarTableBody.innerHTML = "<tr><td colspan='4' class='opacity-50'>Şu an muayene zamanı gelen kimse yok.</td></tr>";
+          }
 
       } catch (e) { console.error("Radar Hatası:", e); }
   }
+
 
   // =========================================
   // UYARI SİSTEMİ (CUSTOM MODALS)
