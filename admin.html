@@ -7,7 +7,7 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <style>
-    body { background-color: #0f0f0f; color: #fff; font-family: 'Poppins', sans-serif; padding-bottom: 80px; }
+    body { background-color: #0f0f0f; color: #fff; font-family: 'Poppins', sans-serif; padding-bottom: 80px; overflow-x: hidden; }
     .glass-panel { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 2rem; }
     .accent { color: #f5a623; }
     .btn-accent { background: #f5a623; color: #000; font-weight: bold; border: none; transition: 0.3s; }
@@ -19,7 +19,7 @@
     .table { color: #fff; }
     .table th { border-bottom: 2px solid #f5a623; }
     .table td { border-bottom: 1px solid rgba(255, 255, 255, 0.1); vertical-align: middle; }
-    #dashboardSection { display: none; }
+    
     .cert-panel { border: 2px solid #d4af37 !important; box-shadow: 0 0 20px rgba(212, 175, 55, 0.1); }
     .lens-panel { border: 2px solid #0dcaf0 !important; box-shadow: 0 0 20px rgba(13, 202, 240, 0.1); }
     
@@ -30,12 +30,44 @@
       100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
     }
     .pulse-anim { animation: pulse-red 2s infinite; border-radius: 5px; }
+
+
+    /* =========================================
+       YENİ: HOLDİNG TİPİ SOL MENÜ (SIDEBAR) MİMARİSİ 
+       ========================================= */
+    #dashboardSection { display: none; }
+    
+    .sidebar { width: 260px; background: rgba(10, 10, 10, 0.95); border-right: 1px solid rgba(255,255,255,0.05); position: fixed; top: 0; left: 0; height: 100vh; padding: 2rem 1.5rem; display: flex; flex-direction: column; z-index: 1000; }
+    .sidebar-brand { font-size: 1.5rem; font-weight: 800; margin-bottom: 3rem; text-align: center; letter-spacing: 1px; }
+    .sidebar-link { display: flex; align-items: center; padding: 12px 20px; color: rgba(255,255,255,0.5); text-decoration: none; border-radius: 12px; margin-bottom: 10px; font-weight: 500; transition: all 0.3s ease; cursor: pointer; }
+    .sidebar-link i { font-size: 1.2rem; margin-right: 15px; transition: 0.3s; }
+    .sidebar-link:hover { background: rgba(255,255,255,0.05); color: #fff; transform: translateX(5px); }
+    .sidebar-link.active { background: rgba(245, 166, 35, 0.1); color: #f5a623; border-left: 4px solid #f5a623; }
+    .sidebar-link.active i { color: #f5a623; }
+    
+    .main-content { margin-left: 260px; padding: 3rem 4rem; min-height: 100vh; }
+    
+    /* GÖSTER/GİZLE ANİMASYONLARI */
+    .admin-section { display: none; animation: fadeIn 0.4s ease-out forwards; }
+    .admin-section.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* MOBİL UYUM */
+    @media (max-width: 992px) {
+        .sidebar { width: 100%; height: auto; position: relative; padding: 1rem; border-right: none; border-bottom: 1px solid rgba(255,255,255,0.1); flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 10px; }
+        .sidebar-brand { width: 100%; margin-bottom: 1rem; }
+        .sidebar-link { margin-bottom: 0; padding: 8px 15px; font-size: 0.85rem; }
+        .sidebar-link i { margin-right: 8px; }
+        .main-content { margin-left: 0; padding: 2rem 1rem; }
+    }
+
   </style>
 </head>
 <body>
 
-<div class="container py-5">
-  <div class="text-center mb-5">
+
+<div class="container py-5" id="loginSectionWrapper">
+  <div class="text-center mb-5 mt-5">
     <h2 class="fw-bold"><span class="accent">Trend Optik</span> Yönetim</h2>
   </div>
 
@@ -51,284 +83,317 @@
       </div>
     </div>
   </div>
-
-  <div id="dashboardSection">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <h4 class="m-0">Hoş Geldiniz, <span class="accent">Patron</span></h4>
-      <button id="logoutBtn" class="btn btn-outline-danger rounded-pill px-4">Çıkış Yap</button>
-    </div>
-
-    <div class="row g-3 mb-4">
-      <div class="col-md-3">
-        <div class="glass-panel text-center p-3" style="border-bottom: 3px solid #f5a623;">
-          <h6 class="opacity-75 mb-1"><i class="bi bi-box-seam me-2"></i>Sistemdeki Ürün</h6>
-          <h2 class="fw-bold mb-0" id="totalProductCount">0</h2>
-        </div>
-      </div>
-      <div class="col-md-3">
-        <div class="glass-panel text-center p-3" style="border-bottom: 3px solid #f0ad4e;">
-          <h6 class="opacity-75 mb-1"><i class="bi bi-truck me-2"></i>Aktif Siparişler</h6>
-          <h2 class="fw-bold mb-0 text-warning" id="activeOrderCount">0</h2>
-        </div>
-      </div>
-      <div class="col-md-3">
-        <div class="glass-panel text-center p-3" style="border-bottom: 3px solid #d4af37;">
-          <h6 class="opacity-75 mb-1"><i class="bi bi-award-fill me-2"></i>VIP Sertifikalar</h6>
-          <h2 class="fw-bold mb-0" style="color: #d4af37;" id="certCount">0</h2>
-        </div>
-      </div>
-      <div class="col-md-3">
-        <div class="glass-panel text-center p-3" style="border-bottom: 3px solid #0dcaf0;">
-          <h6 class="opacity-75 mb-1"><i class="bi bi-eye-fill me-2"></i>Lens Takipleri</h6>
-          <h2 class="fw-bold mb-0 text-info" id="lensCount">0</h2>
-        </div>
-      </div>
-    </div>
-
-    <div class="row g-4 mb-5 mt-2 justify-content-center">
-      <div class="col-md-6">
-        <div class="glass-panel text-center" style="border: 2px solid #ff3366 !important; box-shadow: 0 0 20px rgba(255, 51, 102, 0.15);">
-          <h5 style="color: #ff3366;" class="mb-2"><i class="bi bi-magic me-2"></i>Global Tema Şovu</h5>
-          <p class="opacity-75 small mb-3">Tüm siteyi tek tıkla günün anlam ve önemine göre profesyonelce süsle.</p>
-          <select id="siteThemeSelect" class="form-select mb-4 text-center fw-bold fs-5">
-            <option value="standart">⚫ Standart (Sade & Asil)</option>
-            <option value="yilbasi">❄️ Yılbaşı (Kusursuz Kar Efekti)</option>
-            <option value="sevgililer">❤️ Sevgililer Günü (Zarif Kalpler)</option>
-            <option value="kadinlar">💜 Kadınlar Günü (Mor Taç Yapraklar)</option>
-            <option value="bayram">🏮 Ramazan Bayramı (Sarkan Kandiller)</option>
-          </select>
-          <button id="saveThemeBtn" class="btn w-100 rounded-pill py-2 fw-bold" style="background:#ff3366; color:#fff; box-shadow: 0 4px 15px rgba(255, 51, 102, 0.4);">SİTE TEMASINI GÜNCELLE</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="row g-4 mb-5">
-      <div class="col-md-4">
-        <div class="glass-panel">
-          <h5 class="accent mb-3" id="formTitle"><i class="bi bi-plus-circle me-2"></i>Yeni Ürün Ekle</h5>
-          
-          <div class="mb-3">
-            <label class="form-label small">Ürün Adı</label>
-            <input type="text" id="pName" class="form-control" placeholder="Örn: Ray-Ban Aviator">
-          </div>
-          
-          <div class="mb-3">
-            <label class="form-label small">Kategori</label>
-            <select id="pCategory" class="form-select">
-              <option value="gunes">Güneş</option>
-              <option value="klasik">Klasik</option>
-              <option value="kadin">Kadın</option>
-              <option value="cocuk">Çocuk</option>
-            </select>
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label small">Fiyat (₺ Simgesi Otomatik Eklenecek)</label>
-            <input type="number" id="pPrice" class="form-control" placeholder="Örn: 2500">
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label small">Kısa Açıklama</label>
-            <input type="text" id="pDesc" class="form-control" placeholder="Örn: Polarize cam, hafif çerçeve">
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label small d-flex justify-content-between">
-              <span>Resim URL (ImgBB)</span>
-              <a href="https://imgbb.com/" target="_blank" class="accent text-decoration-none">Yükle <i class="bi bi-box-arrow-up-right"></i></a>
-            </label>
-            <input type="text" id="pImgUrl" class="form-control" placeholder="https://i.ibb.co/.../resim.jpg">
-          </div>
-
-          <div class="mb-4">
-            <label class="form-label small">Görsel Önizleme</label>
-            <div id="imagePreview">URL girince resim burada görünecek</div>
-          </div>
-
-          <button id="addBtn" class="btn btn-accent w-100 rounded-pill py-2">Ürünü Kaydet</button>
-          <button id="cancelEditBtn" class="btn btn-outline-light w-100 rounded-pill py-2 mt-2" style="display:none;">İptal Et</button>
-        </div>
-      </div>
-
-      <div class="col-md-8">
-        <div class="glass-panel h-100">
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="accent m-0"><i class="bi bi-list-ul me-2"></i>Vitrin (Mevcut Ürünler)</h5>
-            <button id="vipBtn" class="btn btn-warning rounded-pill px-3 fw-bold text-dark"><i class="bi bi-stars"></i> VIP Teklif Oluştur</button>
-          </div>
-          <div class="table-responsive">
-            <table class="table table-hover table-dark text-center align-middle">
-              <thead>
-                <tr>
-                  <th>Seç</th>
-                  <th>Görsel</th>
-                  <th>Ürün Adı</th>
-                  <th>Kategori</th>
-                  <th>Fiyat</th>
-                  <th>🔥 İlgi</th>
-                  <th>İşlemler</th>
-                </tr>
-              </thead>
-              <tbody id="productTableBody">
-                </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <hr class="opacity-25 mb-5 mt-5">
-    <div class="text-center mb-4">
-      <h3 class="fw-bold accent"><i class="bi bi-truck me-2"></i>Sipariş & Gözlük Takip Sistemi</h3>
-    </div>
-
-    <div class="row g-4 mb-5">
-      <div class="col-md-4">
-        <div class="glass-panel">
-          <h5 class="accent mb-3"><i class="bi bi-person-plus me-2"></i>Yeni Sipariş Gir</h5>
-          
-          <div class="mb-3">
-            <label class="form-label small">Müşteri Adı Soyadı</label>
-            <input type="text" id="oName" class="form-control" placeholder="Örn: Ahmet Yılmaz">
-          </div>
-          
-          <div class="mb-3">
-            <label class="form-label small">Müşteri Telefonu (Sorgu İçin)</label>
-            <input type="text" id="oPhone" class="form-control" placeholder="Örn: 05551234567">
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label small">Hangi Ürün / Gözlük?</label>
-            <input type="text" id="oProduct" class="form-control" placeholder="Örn: Ray-Ban Dereceli Cam">
-          </div>
-
-          <div class="mb-4">
-            <label class="form-label small">Sipariş Durumu</label>
-            <select id="oStatus" class="form-select">
-              <option value="Sipariş Alındı">Sipariş Alındı</option>
-              <option value="Camlar Kesiliyor">Camlar Kesiliyor (Laboratuvar)</option>
-              <option value="Teslimata Hazır">Teslimata Hazır</option>
-            </select>
-          </div>
-
-          <button id="addOrderBtn" class="btn btn-info w-100 rounded-pill py-2 fw-bold text-dark">Siparişi Oluştur</button>
-        </div>
-      </div>
-
-      <div class="col-md-8">
-        <div class="glass-panel h-100">
-          <h5 class="accent mb-3"><i class="bi bi-card-checklist me-2"></i>Müşteri Bekleyen Siparişler</h5>
-          <div class="table-responsive">
-            <table class="table table-hover table-dark text-center align-middle">
-              <thead>
-                <tr>
-                  <th>Müşteri</th>
-                  <th>Telefon</th>
-                  <th>Ürün</th>
-                  <th>Durum</th>
-                  <th>İşlem</th>
-                </tr>
-              </thead>
-              <tbody id="orderTableBody">
-                </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <hr class="opacity-25 mb-5 mt-5">
-    <div class="text-center mb-4">
-      <h3 style="color: #d4af37;"><i class="bi bi-award-fill me-2"></i>VIP Dijital Garanti & Sadakat Sistemi</h3>
-    </div>
-
-    <div class="row g-4">
-      <div class="col-md-5">
-        <div class="glass-panel cert-panel">
-          <h5 style="color: #d4af37;" class="mb-3"><i class="bi bi-patch-check me-2"></i>Sertifika Oluştur</h5>
-          <input type="text" id="certName" class="form-control mb-3" placeholder="Müşteri Ad Soyad">
-          <input type="text" id="certProduct" class="form-control mb-3" placeholder="Gözlük / Lens Modeli">
-          <div class="row g-2 mb-4">
-            <div class="col-6">
-              <label class="small opacity-75">İndirim %</label>
-              <input type="number" id="certDiscount" class="form-control" value="15">
-            </div>
-            <div class="col-6">
-              <label class="small opacity-75">Süre (Ay)</label>
-              <input type="number" id="certDuration" class="form-control" value="24">
-            </div>
-          </div>
-          <button id="createCertBtn" class="btn w-100 rounded-pill py-2 fw-bold" style="background:#d4af37; color:#000;">DİJİTAL SERTİFİKAYI OLUŞTUR</button>
-        </div>
-      </div>
-      <div class="col-md-7">
-        <div class="glass-panel h-100 cert-panel">
-          <h5 style="color: #d4af37;" class="mb-3">Kayıtlı VIP Sertifikalar</h5>
-          <div class="table-responsive">
-            <table class="table table-hover table-dark text-center align-middle" style="font-size: 0.85rem;">
-              <thead>
-                <tr>
-                  <th>Garanti No</th>
-                  <th>Müşteri</th>
-                  <th>Ürün</th>
-                  <th>İndirim</th>
-                  <th>İşlem</th>
-                </tr>
-              </thead>
-              <tbody id="certTableBody"></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <hr class="opacity-25 mb-5 mt-5">
-    <div class="text-center mb-4">
-      <h3 style="color: #0dcaf0;"><i class="bi bi-eye-fill me-2"></i>Akıllı Lens Takip & Yenileme Radarı</h3>
-      <p class="opacity-75 small">Lens sattığın müşterileri buraya gir, süresi bitince sistem sana kırmızı alarm versin!</p>
-    </div>
-
-    <div class="row g-4">
-      <div class="col-md-4">
-        <div class="glass-panel lens-panel">
-          <h5 style="color: #0dcaf0;" class="mb-3"><i class="bi bi-person-lines-fill me-2"></i>Lens Müşterisi Ekle</h5>
-          <input type="text" id="lName" class="form-control mb-3" placeholder="Müşteri Ad Soyad">
-          <input type="text" id="lPhone" class="form-control mb-3" placeholder="Telefon (Örn: 5551234567)">
-          <input type="text" id="lProduct" class="form-control mb-3" placeholder="Lens Markası (Acuvue vs.)">
-          <label class="small opacity-75">Kaç Aylık Kutu Aldı?</label>
-          <select id="lDuration" class="form-select mb-4">
-            <option value="30">1 Aylık Kutu (30 Gün)</option>
-            <option value="90">3 Aylık Kutu (90 Gün)</option>
-            <option value="180">6 Aylık Kutu (180 Gün)</option>
-            <option value="365">Yıllık Kutu (365 Gün)</option>
-          </select>
-          <button id="addLensBtn" class="btn w-100 rounded-pill py-2 fw-bold" style="background:#0dcaf0; color:#000;">LENS TAKİBİNİ BAŞLAT</button>
-        </div>
-      </div>
-      <div class="col-md-8">
-        <div class="glass-panel h-100 lens-panel">
-          <h5 style="color: #0dcaf0;" class="mb-3"><i class="bi bi-radar me-2"></i>Aktif Müşteri Radarı</h5>
-          <div class="table-responsive">
-            <table class="table table-hover table-dark text-center align-middle" style="font-size: 0.85rem;">
-              <thead>
-                <tr>
-                  <th>Müşteri</th>
-                  <th>Lens Modeli</th>
-                  <th>Kalan Süre</th>
-                  <th>Satış / İşlem</th>
-                </tr>
-              </thead>
-              <tbody id="lensTableBody"></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-
-  </div>
 </div>
 
-<script type="module">
+
+
+<div id="dashboardSection">
+  
+  <div class="sidebar">
+    <div class="sidebar-brand"><span class="accent">Trend</span> Optik.</div>
+    <a class="sidebar-link active" onclick="switchTab('sec-home', this)"><i class="bi bi-grid-1x2-fill"></i> Ana Ekran</a>
+    <a class="sidebar-link" onclick="switchTab('sec-products', this)"><i class="bi bi-sunglasses"></i> Ürün Vitrini</a>
+    <a class="sidebar-link" onclick="switchTab('sec-orders', this)"><i class="bi bi-box-seam-fill"></i> Siparişler</a>
+    <a class="sidebar-link" onclick="switchTab('sec-certs', this)"><i class="bi bi-award-fill"></i> Sertifikalar</a>
+    <a class="sidebar-link" onclick="switchTab('sec-lenses', this)"><i class="bi bi-eye-fill"></i> Lens Radarı</a>
+    
+    <div class="mt-auto pt-4">
+      <button id="logoutBtn" class="btn btn-outline-danger w-100 rounded-pill py-2"><i class="bi bi-power me-2"></i>Sistemi Kapat</button>
+    </div>
+  </div>
+
+
+  <div class="main-content">
+
+    <div id="sec-home" class="admin-section active">
+        
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h4 class="m-0" id="greetingText">Hoş Geldiniz, <span class="accent">Patron</span></h4>
+        </div>
+
+        <div class="row g-3 mb-4">
+          <div class="col-md-3">
+            <div class="glass-panel text-center p-3" style="border-bottom: 3px solid #f5a623;">
+              <h6 class="opacity-75 mb-1"><i class="bi bi-box-seam me-2"></i>Sistemdeki Ürün</h6>
+              <h2 class="fw-bold mb-0" id="totalProductCount">0</h2>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="glass-panel text-center p-3" style="border-bottom: 3px solid #f0ad4e;">
+              <h6 class="opacity-75 mb-1"><i class="bi bi-truck me-2"></i>Aktif Siparişler</h6>
+              <h2 class="fw-bold mb-0 text-warning" id="activeOrderCount">0</h2>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="glass-panel text-center p-3" style="border-bottom: 3px solid #d4af37;">
+              <h6 class="opacity-75 mb-1"><i class="bi bi-award-fill me-2"></i>VIP Sertifikalar</h6>
+              <h2 class="fw-bold mb-0" style="color: #d4af37;" id="certCount">0</h2>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="glass-panel text-center p-3" style="border-bottom: 3px solid #0dcaf0;">
+              <h6 class="opacity-75 mb-1"><i class="bi bi-eye-fill me-2"></i>Lens Takipleri</h6>
+              <h2 class="fw-bold mb-0 text-info" id="lensCount">0</h2>
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-4 mb-5 mt-2 justify-content-center">
+          <div class="col-md-6">
+            <div class="glass-panel text-center" style="border: 2px solid #ff3366 !important; box-shadow: 0 0 20px rgba(255, 51, 102, 0.15);">
+              <h5 style="color: #ff3366;" class="mb-2"><i class="bi bi-magic me-2"></i>Global Tema Şovu</h5>
+              <p class="opacity-75 small mb-3">Tüm siteyi tek tıkla günün anlam ve önemine göre profesyonelce süsle.</p>
+              <select id="siteThemeSelect" class="form-select mb-4 text-center fw-bold fs-5">
+                <option value="standart">⚫ Standart (Sade & Asil)</option>
+                <option value="yilbasi">❄️ Yılbaşı (Kusursuz Kar Efekti)</option>
+                <option value="sevgililer">❤️ Sevgililer Günü (Zarif Kalpler)</option>
+                <option value="kadinlar">💜 Kadınlar Günü (Mor Taç Yapraklar)</option>
+                <option value="bayram">🏮 Ramazan Bayramı (Sarkan Kandiller)</option>
+              </select>
+              <button id="saveThemeBtn" class="btn w-100 rounded-pill py-2 fw-bold" style="background:#ff3366; color:#fff; box-shadow: 0 4px 15px rgba(255, 51, 102, 0.4);">SİTE TEMASINI GÜNCELLE</button>
+            </div>
+          </div>
+        </div>
+    </div>
+
+
+    <div id="sec-products" class="admin-section">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold accent">Ürün Vitrini</h2>
+        </div>
+        
+        <div class="row g-4 mb-5">
+          <div class="col-md-4">
+            <div class="glass-panel">
+              <h5 class="accent mb-3" id="formTitle"><i class="bi bi-plus-circle me-2"></i>Yeni Ürün Ekle</h5>
+              
+              <div class="mb-3">
+                <label class="form-label small">Ürün Adı</label>
+                <input type="text" id="pName" class="form-control" placeholder="Örn: Ray-Ban Aviator">
+              </div>
+              
+              <div class="mb-3">
+                <label class="form-label small">Kategori</label>
+                <select id="pCategory" class="form-select">
+                  <option value="gunes">Güneş</option>
+                  <option value="klasik">Klasik</option>
+                  <option value="kadin">Kadın</option>
+                  <option value="cocuk">Çocuk</option>
+                </select>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label small">Fiyat (₺ Simgesi Otomatik Eklenecek)</label>
+                <input type="number" id="pPrice" class="form-control" placeholder="Örn: 2500">
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label small">Kısa Açıklama</label>
+                <input type="text" id="pDesc" class="form-control" placeholder="Örn: Polarize cam, hafif çerçeve">
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label small d-flex justify-content-between">
+                  <span>Resim URL (ImgBB)</span>
+                  <a href="https://imgbb.com/" target="_blank" class="accent text-decoration-none">Yükle <i class="bi bi-box-arrow-up-right"></i></a>
+                </label>
+                <input type="text" id="pImgUrl" class="form-control" placeholder="https://i.ibb.co/.../resim.jpg">
+              </div>
+
+              <div class="mb-4">
+                <label class="form-label small">Görsel Önizleme</label>
+                <div id="imagePreview">URL girince resim burada görünecek</div>
+              </div>
+
+              <button id="addBtn" class="btn btn-accent w-100 rounded-pill py-2">Ürünü Kaydet</button>
+              <button id="cancelEditBtn" class="btn btn-outline-light w-100 rounded-pill py-2 mt-2" style="display:none;">İptal Et</button>
+            </div>
+          </div>
+
+          <div class="col-md-8">
+            <div class="glass-panel h-100">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="accent m-0"><i class="bi bi-list-ul me-2"></i>Vitrin (Mevcut Ürünler)</h5>
+                <button id="vipBtn" class="btn btn-warning rounded-pill px-3 fw-bold text-dark"><i class="bi bi-stars"></i> VIP Teklif Oluştur</button>
+              </div>
+              <div class="table-responsive">
+                <table class="table table-hover table-dark text-center align-middle">
+                  <thead>
+                    <tr>
+                      <th>Seç</th>
+                      <th>Görsel</th>
+                      <th>Ürün Adı</th>
+                      <th>Kategori</th>
+                      <th>Fiyat</th>
+                      <th>🔥 İlgi</th>
+                      <th>İşlemler</th>
+                    </tr>
+                  </thead>
+                  <tbody id="productTableBody">
+                    </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+    </div>
+
+
+    <div id="sec-orders" class="admin-section">
+        <div class="text-left mb-4">
+          <h3 class="fw-bold accent"><i class="bi bi-truck me-2"></i>Sipariş & Gözlük Takip Sistemi</h3>
+        </div>
+
+        <div class="row g-4 mb-5">
+          <div class="col-md-4">
+            <div class="glass-panel">
+              <h5 class="accent mb-3"><i class="bi bi-person-plus me-2"></i>Yeni Sipariş Gir</h5>
+              
+              <div class="mb-3">
+                <label class="form-label small">Müşteri Adı Soyadı</label>
+                <input type="text" id="oName" class="form-control" placeholder="Örn: Ahmet Yılmaz">
+              </div>
+              
+              <div class="mb-3">
+                <label class="form-label small">Müşteri Telefonu (Sorgu İçin)</label>
+                <input type="text" id="oPhone" class="form-control" placeholder="Örn: 05551234567">
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label small">Hangi Ürün / Gözlük?</label>
+                <input type="text" id="oProduct" class="form-control" placeholder="Örn: Ray-Ban Dereceli Cam">
+              </div>
+
+              <div class="mb-4">
+                <label class="form-label small">Sipariş Durumu</label>
+                <select id="oStatus" class="form-select">
+                  <option value="Sipariş Alındı">Sipariş Alındı</option>
+                  <option value="Camlar Kesiliyor">Camlar Kesiliyor (Laboratuvar)</option>
+                  <option value="Teslimata Hazır">Teslimata Hazır</option>
+                </select>
+              </div>
+
+              <button id="addOrderBtn" class="btn btn-info w-100 rounded-pill py-2 fw-bold text-dark">Siparişi Oluştur</button>
+            </div>
+          </div>
+
+          <div class="col-md-8">
+            <div class="glass-panel h-100">
+              <h5 class="accent mb-3"><i class="bi bi-card-checklist me-2"></i>Müşteri Bekleyen Siparişler</h5>
+              <div class="table-responsive">
+                <table class="table table-hover table-dark text-center align-middle">
+                  <thead>
+                    <tr>
+                      <th>Müşteri</th>
+                      <th>Telefon</th>
+                      <th>Ürün</th>
+                      <th>Durum</th>
+                      <th>İşlem</th>
+                    </tr>
+                  </thead>
+                  <tbody id="orderTableBody">
+                    </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+    </div>
+
+
+    <div id="sec-certs" class="admin-section">
+        <div class="text-left mb-4">
+          <h3 style="color: #d4af37;" class="fw-bold"><i class="bi bi-award-fill me-2"></i>VIP Dijital Garanti & Sadakat Sistemi</h3>
+        </div>
+
+        <div class="row g-4 mb-5">
+          <div class="col-md-5">
+            <div class="glass-panel cert-panel">
+              <h5 style="color: #d4af37;" class="mb-3"><i class="bi bi-patch-check me-2"></i>Sertifika Oluştur</h5>
+              <input type="text" id="certName" class="form-control mb-3" placeholder="Müşteri Ad Soyad">
+              <input type="text" id="certProduct" class="form-control mb-3" placeholder="Gözlük / Lens Modeli">
+              <div class="row g-2 mb-4">
+                <div class="col-6">
+                  <label class="small opacity-75">İndirim %</label>
+                  <input type="number" id="certDiscount" class="form-control" value="15">
+                </div>
+                <div class="col-6">
+                  <label class="small opacity-75">Süre (Ay)</label>
+                  <input type="number" id="certDuration" class="form-control" value="24">
+                </div>
+              </div>
+              <button id="createCertBtn" class="btn w-100 rounded-pill py-2 fw-bold" style="background:#d4af37; color:#000;">DİJİTAL SERTİFİKAYI OLUŞTUR</button>
+            </div>
+          </div>
+          <div class="col-md-7">
+            <div class="glass-panel h-100 cert-panel">
+              <h5 style="color: #d4af37;" class="mb-3">Kayıtlı VIP Sertifikalar</h5>
+              <div class="table-responsive">
+                <table class="table table-hover table-dark text-center align-middle" style="font-size: 0.85rem;">
+                  <thead>
+                    <tr>
+                      <th>Garanti No</th>
+                      <th>Müşteri</th>
+                      <th>Ürün</th>
+                      <th>İndirim</th>
+                      <th>İşlem</th>
+                    </tr>
+                  </thead>
+                  <tbody id="certTableBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+    </div>
+
+
+    <div id="sec-lenses" class="admin-section">
+        <div class="text-left mb-4">
+          <h3 style="color: #0dcaf0;" class="fw-bold"><i class="bi bi-eye-fill me-2"></i>Akıllı Lens Takip & Yenileme Radarı</h3>
+          <p class="opacity-75 small">Lens sattığın müşterileri buraya gir, süresi bitince sistem sana kırmızı alarm versin!</p>
+        </div>
+
+        <div class="row g-4 mb-5">
+          <div class="col-md-4">
+            <div class="glass-panel lens-panel">
+              <h5 style="color: #0dcaf0;" class="mb-3"><i class="bi bi-person-lines-fill me-2"></i>Lens Müşterisi Ekle</h5>
+              <input type="text" id="lName" class="form-control mb-3" placeholder="Müşteri Ad Soyad">
+              <input type="text" id="lPhone" class="form-control mb-3" placeholder="Telefon (Örn: 5551234567)">
+              <input type="text" id="lProduct" class="form-control mb-3" placeholder="Lens Markası (Acuvue vs.)">
+              <label class="small opacity-75">Kaç Aylık Kutu Aldı?</label>
+              <select id="lDuration" class="form-select mb-4">
+                <option value="30">1 Aylık Kutu (30 Gün)</option>
+                <option value="90">3 Aylık Kutu (90 Gün)</option>
+                <option value="180">6 Aylık Kutu (180 Gün)</option>
+                <option value="365">Yıllık Kutu (365 Gün)</option>
+              </select>
+              <button id="addLensBtn" class="btn w-100 rounded-pill py-2 fw-bold" style="background:#0dcaf0; color:#000;">LENS TAKİBİNİ BAŞLAT</button>
+            </div>
+          </div>
+          <div class="col-md-8">
+            <div class="glass-panel h-100 lens-panel">
+              <h5 style="color: #0dcaf0;" class="mb-3"><i class="bi bi-radar me-2"></i>Aktif Müşteri Radarı</h5>
+              <div class="table-responsive">
+                <table class="table table-hover table-dark text-center align-middle" style="font-size: 0.85rem;">
+                  <thead>
+                    <tr>
+                      <th>Müşteri</th>
+                      <th>Lens Modeli</th>
+                      <th>Kalan Süre</th>
+                      <th>Satış / İşlem</th>
+                    </tr>
+                  </thead>
+                  <tbody id="lensTableBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+    </div>
+
+
+  </div> </div> <script type="module">
   // setDoc ve getDoc import edildi (Tema sistemi için)
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
   import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
@@ -347,7 +412,7 @@
   const auth = getAuth(app);
   const db = getFirestore(app);
 
-  const loginSection = document.getElementById("loginSection");
+  const loginSectionWrapper = document.getElementById("loginSectionWrapper");
   const dashboardSection = document.getElementById("dashboardSection");
   const imagePreview = document.getElementById("imagePreview");
   const pImgUrl = document.getElementById("pImgUrl");
@@ -357,6 +422,54 @@
   let adminProducts = [];
   let adminOrders = [];
   let adminCerts = [];
+
+
+  // =========================================
+  // TAB (SEKME) DEĞİŞTİRME MOTORU (YENİ EKLENDİ)
+  // =========================================
+  window.switchTab = function(sectionId, element) {
+    // 1. Tüm sekmeleri gizle
+    document.querySelectorAll('.admin-section').forEach(el => {
+      el.classList.remove('active');
+    });
+    
+    // 2. Tıklanan sekmeyi göster
+    document.getElementById(sectionId).classList.add('active');
+    
+    // 3. Sol menüdeki butonun rengini değiştir (aktif yap)
+    document.querySelectorAll('.sidebar-link').forEach(el => {
+      el.classList.remove('active');
+    });
+    element.classList.add('active');
+    
+    // 4. Sayfayı en tepeye kaydır
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+
+  function animateValue(id, newValue) {
+    const obj = document.getElementById(id);
+    const startValue = parseInt(obj.innerText) || 0;
+    if (startValue === newValue) return;
+    const duration = 1000; let startTimestamp = null;
+    const step = (timestamp) => {
+      if (!startTimestamp) startTimestamp = timestamp;
+      const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+      obj.innerText = Math.floor(progress * (newValue - startValue) + startValue);
+      if (progress < 1) window.requestAnimationFrame(step); else obj.innerText = newValue;
+    };
+    window.requestAnimationFrame(step);
+  }
+
+  function updateGreeting() {
+    const hour = new Date().getHours();
+    let greetingMsg = "Hoş Geldin";
+    if (hour >= 5 && hour < 12) greetingMsg = "Günaydın";
+    else if (hour >= 12 && hour < 18) greetingMsg = "İyi Günler";
+    else if (hour >= 18 && hour < 22) greetingMsg = "İyi Akşamlar";
+    else greetingMsg = "İyi Geceler";
+    document.getElementById("greetingText").innerHTML = `${greetingMsg}, <span class="accent">Patron</span>`;
+  }
 
   // SİHİRLİ TEMA SİSTEMİ YÜKLEME VE KAYDETME
   async function loadThemeConfig() {
@@ -405,15 +518,16 @@
 
   onAuthStateChanged(auth, (user) => {
     if (user) {
-      loginSection.style.display = "none";
+      loginSectionWrapper.style.display = "none";
       dashboardSection.style.display = "block";
+      updateGreeting();
       loadThemeConfig(); 
       loadProducts(); 
       loadOrders(); 
       loadCerts(); 
       loadLenses(); 
     } else {
-      loginSection.style.display = "flex";
+      loginSectionWrapper.style.display = "block";
       dashboardSection.style.display = "none";
     }
   });
@@ -537,7 +651,7 @@
 
       document.querySelectorAll(".delete-btn").forEach(btn => {
         btn.addEventListener("click", async (e) => {
-          const id = e.currentTarget.getAttribute("data-id"); // currentTarget ile garantilendi!
+          const id = e.currentTarget.getAttribute("data-id"); 
           if(confirm("Dayı bu ürünü kalıcı olarak siliyorum emin misin?")) {
             await deleteDoc(doc(db, "products", id));
             loadProducts(); 
@@ -661,7 +775,7 @@
 
       document.querySelectorAll(".delete-order-btn").forEach(btn => {
         btn.addEventListener("click", async (e) => {
-          const id = e.currentTarget.getAttribute("data-id"); // currentTarget eklendi
+          const id = e.currentTarget.getAttribute("data-id"); 
           if(confirm("Bu sipariş kaydını tamamen siliyorum emin misin?")) {
             await deleteDoc(doc(db, "orders", id));
             loadOrders(); 
@@ -744,7 +858,6 @@
       // KUSURSUZ SİLME MOTORU (currentTarget ile Garantilendi)
       document.querySelectorAll(".delete-cert-btn").forEach(btn => {
         btn.onclick = async (e) => {
-          // currentTarget, tıklanan ikonun değil, direkt olarak butonun kendisinin verisini çeker!
           const certId = e.currentTarget.getAttribute('data-id');
           
           if(confirm("Bu VIP sertifikayı siliyorum patron, emin misin?")) { 
@@ -835,7 +948,7 @@
 
       document.querySelectorAll(".delete-lens-btn").forEach(btn => {
         btn.onclick = async (e) => { 
-          const id = e.currentTarget.getAttribute("data-id"); // currentTarget eklendi
+          const id = e.currentTarget.getAttribute("data-id"); 
           if(confirm("Bu müşterinin takibini bitiriyorum patron?")) { 
             await deleteDoc(doc(db, "lenses", id)); 
             loadLenses(); 
@@ -845,14 +958,13 @@
 
       document.querySelectorAll(".remind-lens-btn").forEach(btn => {
         btn.onclick = (e) => {
-          const link = e.currentTarget.getAttribute('data-link'); // currentTarget eklendi
+          const link = e.currentTarget.getAttribute('data-link'); 
           window.open(link, '_blank');
         };
       });
       
     } catch (e) { console.error("Lens yükleme hatası", e); }
   }
-
 
 </script>
 </body>
