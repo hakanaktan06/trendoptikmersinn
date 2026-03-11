@@ -101,19 +101,23 @@ document.addEventListener("DOMContentLoaded", async function () {
           border-left: 10px solid transparent; 
       }
 
-      /* KUSURSUZLAŞTIRILMIŞ CANLI ARAMA MENÜSÜ */
+      /* YENİ: KUSURSUZ CANLI ARAMA (SİNEMATİK EFEKT) STİLLERİ */
+      #search-spotlight-overlay { 
+          position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
+          background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); 
+          z-index: 99990; opacity: 0; pointer-events: none; transition: 0.3s; 
+      }
+      #search-spotlight-overlay.active { opacity: 1; pointer-events: all; }
+      
       .live-search-dropdown {
-          position: absolute;
-          top: calc(100% + 15px);
-          left: 0;
-          width: 100%;
-          background: #0a0a0c !important; /* SAYDAM DEĞİL! Tamamen katı siyah */
-          border: 2px solid var(--theme-color); /* Tema renginde kalın jilet çerçeve */
+          position: absolute; /* BODY'e bağlanacak, ezip geçecek */
+          background: #0a0a0c; 
+          border: 2px solid var(--theme-color);
           border-radius: 12px;
-          box-shadow: 0 25px 60px rgba(0,0,0,1); /* Devasa gölge */
-          max-height: 350px;
+          box-shadow: 0 25px 60px rgba(0,0,0,1);
+          max-height: 400px;
           overflow-y: auto;
-          z-index: 999999 !important; /* HER ŞEYİ EZER GEÇER */
+          z-index: 999999 !important; /* DÜNYANIN EN ÜST KATMANI */
           display: none;
           flex-direction: column;
       }
@@ -123,23 +127,17 @@ document.addEventListener("DOMContentLoaded", async function () {
       @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
       
       .live-search-item {
-          display: flex;
-          align-items: center;
-          padding: 12px 15px;
-          border-bottom: 1px solid rgba(255,255,255,0.1);
-          transition: 0.3s;
-          gap: 15px;
-          color: #fff;
-          text-decoration: none;
-          cursor: pointer;
+          display: flex; align-items: center; padding: 15px; 
+          border-bottom: 1px solid rgba(255,255,255,0.05); 
+          transition: 0.3s; gap: 15px; color: #fff; text-decoration: none; cursor: pointer;
       }
       .live-search-item:last-child { border-bottom: none; }
-      .live-search-item:hover { background: rgba(255,255,255,0.05); padding-left: 20px; }
-      .live-search-img { width: 50px; height: 50px; object-fit: cover; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); }
+      .live-search-item:hover { background: rgba(255,255,255,0.08); padding-left: 20px; }
+      .live-search-img { width: 60px; height: 60px; object-fit: cover; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background:#111; }
       .live-search-info { flex-grow: 1; }
-      .live-search-title { font-weight: 700; font-size: 0.95rem; margin: 0; }
-      .live-search-price { color: var(--theme-color); font-weight: 700; font-size: 0.85rem; margin: 0; }
-      .live-search-action .btn { font-size: 0.8rem; padding: 6px 12px; border-radius: 20px; }
+      .live-search-title { font-weight: 700; font-size: 1rem; margin: 0 0 5px 0; }
+      .live-search-price { color: var(--theme-color); font-weight: 800; font-size: 0.9rem; margin: 0; }
+      .live-search-action .btn { font-size: 0.85rem; padding: 8px 16px; border-radius: 30px; pointer-events: none; }
     `;
     document.head.appendChild(style);
   }
@@ -346,7 +344,9 @@ document.addEventListener("DOMContentLoaded", async function () {
     `;
   }
 
+  // ==========================================
   // YILDIZLI ÜRÜNLERİ ANA SAYFAYA ÇEKME
+  // ==========================================
   async function fetchHomeProducts() {
     homeProductGrid.innerHTML = `<div class="w-100 text-center my-5"><div class="spinner-border text-warning"></div></div>`;
     try {
@@ -402,45 +402,61 @@ document.addEventListener("DOMContentLoaded", async function () {
   }
 
   // ==========================================
-  // VAHŞET CANLI AKILLI ARAMA MOTORU (FİLTRELERİ EZEN VERSİYON)
+  // YENİ: VAHŞET CANLI AKILLI ARAMA (SİNEMATİK & KATMAN ÇÖZÜMLÜ)
   // ==========================================
   if (searchInput) {
-    // 1. Arama kutusunun olduğu div'i bul ve en üst katmana çıkar
-    const searchContainer = searchInput.parentElement;
-    searchContainer.style.position = 'relative';
-    searchContainer.style.zIndex = '99999'; 
-    
-    // 2. Açılır menüyü yarat
+    // 1. Sinematik Karartma Perdesi
+    const overlay = document.createElement('div');
+    overlay.id = 'search-spotlight-overlay';
+    document.body.appendChild(overlay);
+
+    // 2. Açılır Menü (Direkt Body'e bağlanır, Filtreleri Ezer!)
     const dropdown = document.createElement('div');
     dropdown.className = 'live-search-dropdown';
-    searchContainer.appendChild(dropdown);
+    document.body.appendChild(dropdown);
+
+    // Menüyü arama kutusunun tam altına hizalama matematiği
+    function positionDropdown() {
+      const rect = searchInput.getBoundingClientRect();
+      dropdown.style.top = (rect.bottom + window.scrollY + 10) + 'px';
+      dropdown.style.left = rect.left + 'px';
+      dropdown.style.width = rect.width + 'px';
+    }
 
     searchInput.addEventListener("input", function () {
+      positionDropdown();
       const value = this.value.toLowerCase().trim();
       dropdown.innerHTML = ''; 
       
-      // Kutu boşalırsa menüyü kapat, ama ARKA PLANI FİLTRELEME!
       if (value.length === 0) {
           dropdown.classList.remove('show');
+          overlay.classList.remove('active');
+          searchInput.style.position = '';
+          searchInput.style.zIndex = '';
           return;
       }
 
-      // Sadece kelimeye göre eşleşenleri bul
+      // Kutuya dokunulduğu an ekranı karartıp kutuyu üst katmana al
+      overlay.classList.add('active');
+      searchInput.style.position = 'relative';
+      searchInput.style.zIndex = '99995';
+
+      // SADECE dropdown içinde filtrele. Arka plandaki grid DEĞİŞMEZ!
       const filtered = allProducts.filter(p => p.name.toLowerCase().includes(value) || p.desc.toLowerCase().includes(value));
 
       if (filtered.length > 0) {
           filtered.forEach(product => {
               const finalPrice = product.price.toString().includes("₺") ? product.price : `${product.price} ₺`;
-              const t = themeData[currentTheme];
+              const t = themeData[currentTheme] || themeData['standart'];
               const wpMessage = `${t.wpMsg} "${product.name}" modeliyle ilgileniyorum. Fiyatı: ${finalPrice}. Stokta mevcut mu?`;
               const wpLink = `https://wa.me/905312075818?text=${encodeURIComponent(wpMessage)}`;
 
               const item = document.createElement('div');
               item.className = 'live-search-item';
               
-              // Satırın HERHANGİ BİR YERİNE tıklanırsa WhatsApp'a gitsin
-              item.onclick = function(e) {
-                  window.askWhatsApp(product.id, wpLink);
+              // Satırın herhangi bir yerine tıklandığında WhatsApp'a gider
+              item.onclick = function() { 
+                  window.askWhatsApp(product.id, wpLink); 
               };
 
               item.innerHTML = `
@@ -450,36 +466,36 @@ document.addEventListener("DOMContentLoaded", async function () {
                       <p class="live-search-price">${finalPrice}</p>
                   </div>
                   <div class="live-search-action">
-                      <button class="btn btn-accent fw-bold" onclick="window.askWhatsApp('${product.id}', '${wpLink}'); event.stopPropagation();">
-                          ${t.wpBtn}
-                      </button>
+                      <button class="btn btn-accent fw-bold">${t.wpBtn}</button>
                   </div>
               `;
               dropdown.appendChild(item);
           });
           dropdown.classList.add('show');
       } else {
-          dropdown.innerHTML = `<div class="p-4 text-center opacity-50 fw-bold">Aradığınız gözlük bulunamadı...</div>`;
+          dropdown.innerHTML = `<div class="p-4 text-center opacity-50 fw-bold" style="color:#fff;">Aradığınız gözlük bulunamadı...</div>`;
           dropdown.classList.add('show');
       }
     });
 
-    // Sayfanın herhangi bir yerine tıklayınca menü kapansın
-    document.addEventListener('click', (e) => {
-        if (!searchContainer.contains(e.target)) {
-            dropdown.classList.remove('show');
-        }
-    });
+    // Sayfa kaydırıldığında veya boyutu değiştiğinde menüyü hizala
+    window.addEventListener('resize', () => { if(dropdown.classList.contains('show')) positionDropdown(); });
+    window.addEventListener('scroll', () => { if(dropdown.classList.contains('show')) positionDropdown(); });
 
-    // Arama kutusuna tekrar basınca içi doluysa menü geri gelsin
-    searchInput.addEventListener('focus', () => {
-        if(searchInput.value.trim().length > 0) {
-            dropdown.classList.add('show');
-        }
-    });
+    // Dışarı tıklanınca arama şovunu kapat
+    function closeSearch() {
+        dropdown.classList.remove('show');
+        overlay.classList.remove('active');
+        searchInput.style.position = '';
+        searchInput.style.zIndex = '';
+        searchInput.value = ''; 
+    }
+    overlay.addEventListener('click', closeSearch);
   }
 
-  // Alt kısımdaki kategori filtre butonları
+  // ==========================================
+  // DİĞER FONKSİYONLAR
+  // ==========================================
   document.querySelectorAll(".filter-btn").forEach(btn => {
     btn.addEventListener("click", () => {
       document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active")); 
