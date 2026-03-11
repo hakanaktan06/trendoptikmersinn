@@ -1,16 +1,14 @@
 import { db } from "../firebase-init.js";
-import { collection, getDocs } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
-import { normalizePhone } from "../shared/phone.js";
+import { collection, getDocs } 
+from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
 const btn = document.getElementById("trackBtn");
-const input = document.getElementById("trackPhone");
-const result = document.getElementById("trackResult");
 
 if(btn){
 
-btn.addEventListener("click",async()=>{
+btn.onclick = async ()=>{
 
-const phone = normalizePhone(input.value);
+const phone = document.getElementById("trackPhone").value;
 
 const snap = await getDocs(collection(db,"orders"));
 
@@ -20,15 +18,15 @@ snap.forEach(doc=>{
 
 const d = doc.data();
 
-if(normalizePhone(d.phone) === phone){
-
+if(d.phone === phone){
 found = d;
-
 }
 
 });
 
-result.style.display="block";
+const result = document.getElementById("trackResult");
+
+result.style.display = "block";
 
 if(found){
 
@@ -44,6 +42,6 @@ result.innerHTML = "Sipariş bulunamadı.";
 
 }
 
-});
+}
 
 }
