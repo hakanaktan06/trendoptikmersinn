@@ -1,6 +1,6 @@
-// Firebase v12.10.0 Importları (updateDoc ve increment eklendi)
+// Firebase v12.10.0 Importları (getDoc eklendi)
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-import { getFirestore, collection, getDocs, query, orderBy, limit, updateDoc, doc, increment } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+import { getFirestore, collection, getDocs, query, orderBy, limit, updateDoc, doc, increment, getDoc } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDKROzPt8ZaQXk_m5sMEY853BCafnZFb4o",
@@ -15,6 +15,74 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 document.addEventListener("DOMContentLoaded", function () {
+  
+  // ==========================================
+  // VAHŞET TEMA MOTORU (SİHİRLİ EFEKTLER)
+  // ==========================================
+  async function initMagicTheme() {
+    try {
+      const snap = await getDoc(doc(db, "settings", "theme"));
+      if (snap.exists()) {
+        const theme = snap.data().activeTheme;
+        if (theme === "yilbasi") applyParticleTheme("❄", "white", "snow");
+        else if (theme === "sevgililer") applyParticleTheme("❤", "#ff3366", "heart");
+        else if (theme === "bayram") applyParticleTheme("✨", "#d4af37", "bayram");
+      }
+    } catch (e) { console.log("Tema motoru çalışamadı:", e); }
+  }
+
+  function applyParticleTheme(char, color, type) {
+    const style = document.createElement('style');
+    let keyframes = "";
+    
+    // Temaya Göre Animasyon Yönü (Kar aşağı, kalp yukarı)
+    if(type === "snow") {
+        keyframes = `@keyframes magicAnim { 0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; } 100% { transform: translateY(110vh) rotate(360deg); opacity: 0.2; } }`;
+    } else if (type === "heart") {
+        keyframes = `@keyframes magicAnim { 0% { transform: translateY(110vh) scale(0.5); opacity: 1; } 100% { transform: translateY(-10vh) scale(1.5); opacity: 0; } }`;
+    } else { // bayram
+        keyframes = `@keyframes magicAnim { 0% { transform: translateY(-10vh) scale(0.8); opacity: 0; } 50% { opacity: 1; } 100% { transform: translateY(110vh) scale(1.2); opacity: 0; } }`;
+    }
+
+    style.innerHTML = `
+        .magic-particle {
+            position: fixed;
+            z-index: 9999;
+            user-select: none;
+            pointer-events: none;
+            color: ${color};
+            animation: magicAnim linear infinite;
+            text-shadow: 0 0 10px ${color};
+        }
+        ${keyframes}
+    `;
+    document.head.appendChild(style);
+
+    const container = document.createElement('div');
+    container.id = "magic-theme-container";
+    document.body.appendChild(container);
+
+    // Telefon kasmaması için mobilde 15, PC'de 35 parçacık
+    const count = window.innerWidth < 768 ? 15 : 35; 
+
+    for (let i = 0; i < count; i++) {
+        let p = document.createElement('div');
+        p.className = 'magic-particle';
+        p.innerText = char;
+        p.style.left = Math.random() * 100 + 'vw';
+        
+        if(type === "heart") p.style.bottom = "-10%"; else p.style.top = "-10%";
+        
+        p.style.animationDuration = (Math.random() * 5 + 6) + 's';
+        p.style.animationDelay = (Math.random() * 5) + 's';
+        p.style.fontSize = (Math.random() * 1 + 0.8) + 'rem';
+        container.appendChild(p);
+    }
+  }
+  
+  initMagicTheme(); // Sayfa açılır açılmaz temayı bas
+  // ==========================================
+
   const navbar = document.querySelector(".navbar");
   const themeToggle = document.getElementById("themeToggle");
   const homeProductGrid = document.getElementById("homeProductGrid"); 
@@ -98,13 +166,12 @@ document.addEventListener("DOMContentLoaded", function () {
     } catch(e) { console.log("Tıklama kaydedilemedi", e); }
   };
 
-  // YENİ ÜRÜN KARTI OLUŞTURMA (isSlider parametresi ile vitrin ve tüm ürünler ayrıldı)
+  // YENİ ÜRÜN KARTI OLUŞTURMA
   function createProductCard(product, index, isSlider = false) {
     const finalPrice = product.price.toString().includes("₺") ? product.price : `${product.price} ₺`;
     const wpMessage = `Merhaba Trend Optik! Sitenizdeki "${product.name}" modeliyle ilgileniyorum. Fiyatı: ${finalPrice}. Stokta mevcut mu?`;
     const wpLink = `https://wa.me/905312075818?text=${encodeURIComponent(wpMessage)}`;
     
-    // Eğer vitrinse yan yana kayması için özel sınıf, normal sayfaysa grid sınıfı kullan
     const gridClass = isSlider ? "product-slide-item" : "col-lg-3 col-md-6 mb-4 fade-in";
     const delayStyle = isSlider ? "" : `transition-delay:${index * 0.1}s`;
     
@@ -134,7 +201,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // ==========================================
-  // ANA SAYFA VİTRİNİ - KUSURSUZ AKIŞ (CSS TABANLI)
+  // ANA SAYFA VİTRİNİ
   // ==========================================
   if (homeProductGrid) {
     async function fetchHomeProducts() {
@@ -142,26 +209,13 @@ document.addEventListener("DOMContentLoaded", function () {
       try {
         const q = query(collection(db, "products"), orderBy("createdAt", "desc"), limit(6));
         const querySnapshot = await getDocs(q);
-        
         if (querySnapshot.empty) {
-          homeProductGrid.innerHTML = `<div class="w-100 text-center"><p>Henüz ürün eklenmedi.</p></div>`;
-          return;
+          homeProductGrid.innerHTML = `<div class="w-100 text-center"><p>Henüz ürün eklenmedi.</p></div>`; return;
         }
-        
-        let htmlContent = "";
-        let i = 0;
-        querySnapshot.forEach((doc) => {
-          // isSlider parametresini true gönderiyoruz
-          htmlContent += createProductCard({ id: doc.id, ...doc.data() }, i++, true);
-        });
-        
-        // VAHŞET HİLESİ: Sonsuz döngü hissi vermek için ürünleri YAN YANA İKİ KEZ basıyoruz. 
-        // HTML'deki CSS animasyonu yarıya gelince başa saracak, kullanıcı bunu asla fark etmeyecek!
+        let htmlContent = ""; let i = 0;
+        querySnapshot.forEach((doc) => { htmlContent += createProductCard({ id: doc.id, ...doc.data() }, i++, true); });
         homeProductGrid.innerHTML = htmlContent + htmlContent;
-        
-      } catch (error) {
-        homeProductGrid.innerHTML = `<p class="text-danger text-center w-100">Ürünler yüklenemedi.</p>`;
-      }
+      } catch (error) { homeProductGrid.innerHTML = `<p class="text-danger text-center w-100">Ürünler yüklenemedi.</p>`; }
     }
     fetchHomeProducts();
   }
@@ -174,25 +228,15 @@ document.addEventListener("DOMContentLoaded", function () {
         const q = query(collection(db, "products"), orderBy("createdAt", "desc"));
         const querySnapshot = await getDocs(q);
         allProducts = [];
-        querySnapshot.forEach((doc) => {
-          allProducts.push({ id: doc.id, ...doc.data() });
-        });
+        querySnapshot.forEach((doc) => { allProducts.push({ id: doc.id, ...doc.data() }); });
         displayAllProducts(allProducts);
-      } catch (error) {
-        allProductGrid.innerHTML = `<p class="text-danger text-center">Ürünler yüklenemedi.</p>`;
-      }
+      } catch (error) { allProductGrid.innerHTML = `<p class="text-danger text-center">Ürünler yüklenemedi.</p>`; }
     }
 
     function displayAllProducts(list) {
       allProductGrid.innerHTML = "";
-      if (list.length === 0) {
-        allProductGrid.innerHTML = `<div class="col-12 text-center"><p class="opacity-75">Bu kriterlere uygun ürün bulunamadı.</p></div>`;
-        return;
-      }
-      list.forEach((product, index) => {
-        // isSlider false gidiyor, normal sayfada kartlar grid gibi alt alta dizelecek
-        allProductGrid.innerHTML += createProductCard(product, index, false);
-      });
+      if (list.length === 0) { allProductGrid.innerHTML = `<div class="col-12 text-center"><p class="opacity-75">Bu kriterlere uygun ürün bulunamadı.</p></div>`; return; }
+      list.forEach((product, index) => { allProductGrid.innerHTML += createProductCard(product, index, false); });
       activateFade();
     }
 
@@ -237,8 +281,7 @@ document.addEventListener("DOMContentLoaded", function () {
       if (entries[0].isIntersecting && !started) {
         counters.forEach(counter => {
           const target = +counter.getAttribute("data-target");
-          let count = 0;
-          const speed = target / 120;
+          let count = 0; const speed = target / 120;
           function update() {
             count += speed;
             if (count < target) { counter.innerText = Math.ceil(count); requestAnimationFrame(update); } 
@@ -309,12 +352,8 @@ document.addEventListener("DOMContentLoaded", function () {
   if(trackPhone) {
     const trackSearchBar = document.getElementById('trackSearchBar');
     if (trackSearchBar) {
-        trackPhone.addEventListener('focus', () => {
-            trackSearchBar.classList.add('is-focused');
-        });
-        trackPhone.addEventListener('blur', () => {
-            trackSearchBar.classList.remove('is-focused');
-        });
+        trackPhone.addEventListener('focus', () => trackSearchBar.classList.add('is-focused') );
+        trackPhone.addEventListener('blur', () => trackSearchBar.classList.remove('is-focused') );
     }
   }
 
