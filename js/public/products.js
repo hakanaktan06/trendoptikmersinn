@@ -1,50 +1,49 @@
 import { db } from "../firebase-init.js";
-import { collection, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+import { collection, getDocs, query, orderBy, limit } 
+from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
-const homeProductGrid = document.getElementById("homeProductGrid");
+const grid = document.getElementById("homeProductGrid");
 
-async function fetchProducts(){
+async function loadProducts(){
 
-  if(!homeProductGrid) return;
+if(!grid) return;
 
-  const q = query(
-    collection(db,"products"),
-    orderBy("createdAt","desc"),
-    limit(6)
-  );
+const q = query(
+collection(db,"products"),
+orderBy("createdAt","desc"),
+limit(6)
+);
 
-  const snap = await getDocs(q);
+const snap = await getDocs(q);
 
-  let html = "";
+let html = "";
 
-  snap.forEach(doc=>{
+snap.forEach(doc=>{
 
-    const p = doc.data();
+const p = doc.data();
 
-    html += `
-    
-    <div class="product-slide-item">
+html += `
+<div class="product-slide-item">
 
-      <div class="product-card">
+<div class="product-card">
 
-        <img src="${p.img}" />
+<img src="${p.img}" style="width:100%;height:250px;object-fit:contain">
 
-        <h5>${p.name}</h5>
+<h5>${p.name}</h5>
 
-        <p>${p.desc}</p>
+<p>${p.desc}</p>
 
-        <b>${p.price} ₺</b>
+<b>${p.price} ₺</b>
 
-      </div>
+</div>
 
-    </div>
-    
-    `;
+</div>
+`;
 
-  });
+});
 
-  homeProductGrid.innerHTML = html + html;
+grid.innerHTML = html + html;
 
 }
 
-fetchProducts();
+loadProducts();
