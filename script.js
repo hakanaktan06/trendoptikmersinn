@@ -508,8 +508,12 @@ document.addEventListener("DOMContentLoaded", async function () {
                 const wpLink = `https://wa.me/905312075818?text=${encodeURIComponent(wpMessage)}`;
 
                 const item = document.createElement('div');
-                item.className = 'live-search-item';
-                item.onclick = function(e) { window.askWhatsApp(product.id, wpLink); e.stopPropagation(); };
+item.className = 'live-search-item';
+// SATIRA TIKLAYINCA DETAYA GİDER!
+item.onclick = function(e) { 
+    window.location.href = `urun-detay.html?id=${product.id}`; 
+};
+
 
                 item.innerHTML = `
                     <img src="${product.img}" class="live-search-img">
