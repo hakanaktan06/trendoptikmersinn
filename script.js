@@ -17,7 +17,7 @@ const db = getFirestore(app);
 document.addEventListener("DOMContentLoaded", async function () {
 
   // ==========================================
-  // BUKALEMUN TEMA MOTORU VE CANLI ARAMA
+  // BUKALEMUN TEMA MOTORU
   // ==========================================
   let currentTheme = 'standart';
   
@@ -101,19 +101,19 @@ document.addEventListener("DOMContentLoaded", async function () {
           border-left: 10px solid transparent; 
       }
 
-      /* DÜZELTİLMİŞ CANLI ARAMA DROPDOWN STİLLERİ (Filtreleri ezer geçer) */
+      /* KUSURSUZLAŞTIRILMIŞ CANLI ARAMA MENÜSÜ */
       .live-search-dropdown {
           position: absolute;
-          top: calc(100% + 10px);
+          top: calc(100% + 15px);
           left: 0;
           width: 100%;
-          background: #111; /* Karmaşayı önlemek için daha koyu/katı arkaplan */
-          border: 1px solid var(--theme-color);
+          background: #0a0a0c !important; /* SAYDAM DEĞİL! Tamamen katı siyah */
+          border: 2px solid var(--theme-color); /* Tema renginde kalın jilet çerçeve */
           border-radius: 12px;
-          box-shadow: 0 20px 50px rgba(0,0,0,0.9);
+          box-shadow: 0 25px 60px rgba(0,0,0,1); /* Devasa gölge */
           max-height: 350px;
           overflow-y: auto;
-          z-index: 99999 !important; /* Her şeyin üstünde çıkması için eklendi */
+          z-index: 999999 !important; /* HER ŞEYİ EZER GEÇER */
           display: none;
           flex-direction: column;
       }
@@ -126,15 +126,16 @@ document.addEventListener("DOMContentLoaded", async function () {
           display: flex;
           align-items: center;
           padding: 12px 15px;
-          border-bottom: 1px solid rgba(255,255,255,0.05);
+          border-bottom: 1px solid rgba(255,255,255,0.1);
           transition: 0.3s;
           gap: 15px;
           color: #fff;
           text-decoration: none;
+          cursor: pointer;
       }
       .live-search-item:last-child { border-bottom: none; }
       .live-search-item:hover { background: rgba(255,255,255,0.05); padding-left: 20px; }
-      .live-search-img { width: 50px; height: 50px; object-fit: cover; border-radius: 8px; }
+      .live-search-img { width: 50px; height: 50px; object-fit: cover; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); }
       .live-search-info { flex-grow: 1; }
       .live-search-title { font-weight: 700; font-size: 0.95rem; margin: 0; }
       .live-search-price { color: var(--theme-color); font-weight: 700; font-size: 0.85rem; margin: 0; }
@@ -205,6 +206,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     document.body.appendChild(container);
   }
 
+  // 3. SİSTEM BAŞLATICI
   async function initializeSystem() {
     try {
       const snap = await getDoc(doc(db, "settings", "theme"));
@@ -344,6 +346,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     `;
   }
 
+  // YILDIZLI ÜRÜNLERİ ANA SAYFAYA ÇEKME
   async function fetchHomeProducts() {
     homeProductGrid.innerHTML = `<div class="w-100 text-center my-5"><div class="spinner-border text-warning"></div></div>`;
     try {
@@ -399,14 +402,15 @@ document.addEventListener("DOMContentLoaded", async function () {
   }
 
   // ==========================================
-  // CANLI AKILLI ARAMA MOTORU (FİLTRELERİ EZER GEÇER!)
+  // VAHŞET CANLI AKILLI ARAMA MOTORU (FİLTRELERİ EZEN VERSİYON)
   // ==========================================
   if (searchInput) {
-    // 1. Arama kutusunun bulunduğu genel alanı (parent) bul ve zırh giydir (z-index)
+    // 1. Arama kutusunun olduğu div'i bul ve en üst katmana çıkar
     const searchContainer = searchInput.parentElement;
     searchContainer.style.position = 'relative';
-    searchContainer.style.zIndex = '99999'; // KATMAN ÇATIŞMASI BURADA ÇÖZÜLDÜ!
+    searchContainer.style.zIndex = '99999'; 
     
+    // 2. Açılır menüyü yarat
     const dropdown = document.createElement('div');
     dropdown.className = 'live-search-dropdown';
     searchContainer.appendChild(dropdown);
@@ -415,14 +419,14 @@ document.addEventListener("DOMContentLoaded", async function () {
       const value = this.value.toLowerCase().trim();
       dropdown.innerHTML = ''; 
       
+      // Kutu boşalırsa menüyü kapat, ama ARKA PLANI FİLTRELEME!
       if (value.length === 0) {
           dropdown.classList.remove('show');
-          displayAllProducts(allProducts); 
           return;
       }
 
+      // Sadece kelimeye göre eşleşenleri bul
       const filtered = allProducts.filter(p => p.name.toLowerCase().includes(value) || p.desc.toLowerCase().includes(value));
-      displayAllProducts(filtered); 
 
       if (filtered.length > 0) {
           filtered.forEach(product => {
@@ -433,6 +437,12 @@ document.addEventListener("DOMContentLoaded", async function () {
 
               const item = document.createElement('div');
               item.className = 'live-search-item';
+              
+              // Satırın HERHANGİ BİR YERİNE tıklanırsa WhatsApp'a gitsin
+              item.onclick = function(e) {
+                  window.askWhatsApp(product.id, wpLink);
+              };
+
               item.innerHTML = `
                   <img src="${product.img}" class="live-search-img">
                   <div class="live-search-info">
@@ -454,12 +464,14 @@ document.addEventListener("DOMContentLoaded", async function () {
       }
     });
 
+    // Sayfanın herhangi bir yerine tıklayınca menü kapansın
     document.addEventListener('click', (e) => {
         if (!searchContainer.contains(e.target)) {
             dropdown.classList.remove('show');
         }
     });
 
+    // Arama kutusuna tekrar basınca içi doluysa menü geri gelsin
     searchInput.addEventListener('focus', () => {
         if(searchInput.value.trim().length > 0) {
             dropdown.classList.add('show');
@@ -467,6 +479,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     });
   }
 
+  // Alt kısımdaki kategori filtre butonları
   document.querySelectorAll(".filter-btn").forEach(btn => {
     btn.addEventListener("click", () => {
       document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active")); 
