@@ -17,94 +17,7 @@ const db = getFirestore(app);
 document.addEventListener("DOMContentLoaded", async function () {
 
   // ==========================================
-  // 1. VAHŞET SOSYAL KANIT BİLDİRİM MOTORU (TRENDYOL HİLESİ)
-  // ==========================================
-  function initSocialProof() {
-    // Sadece Ana Sayfa ve Ürünler sayfasında çalışsın (Admin panelinde çıkmasın)
-    if(window.location.pathname.includes("admin.html")) return;
-
-    const style = document.createElement('style');
-    style.innerHTML = `
-      #social-proof-popup {
-        position: fixed;
-        bottom: -100px;
-        left: 20px;
-        background: rgba(15, 15, 15, 0.95);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-left: 4px solid var(--theme-color, #f5a623);
-        color: #fff;
-        padding: 12px 20px;
-        border-radius: 8px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        display: flex;
-        align-items: center;
-        gap: 15px;
-        z-index: 9999;
-        transition: bottom 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-        font-size: 0.85rem;
-        max-width: 320px;
-        pointer-events: none; /* Tıklamayı engellemez */
-      }
-      #social-proof-popup.show { bottom: 20px; }
-      .sp-icon { font-size: 1.5rem; color: var(--theme-color, #f5a623); animation: spPulse 2s infinite; }
-      .sp-text strong { color: var(--theme-color, #f5a623); }
-      .sp-time { font-size: 0.7rem; opacity: 0.6; display: block; margin-top: 2px; }
-      @keyframes spPulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
-      @media (max-width: 768px) {
-        #social-proof-popup { left: 50%; transform: translateX(-50%); width: 90%; bottom: -100px; }
-        #social-proof-popup.show { bottom: 80px; } /* Mobilde WhatsApp butonunun üstüne çıkar */
-      }
-    `;
-    document.head.appendChild(style);
-
-    const popup = document.createElement('div');
-    popup.id = 'social-proof-popup';
-    popup.innerHTML = `
-      <i class="bi bi-bag-check-fill sp-icon"></i>
-      <div class="sp-text">
-        <span id="sp-msg"></span>
-        <span class="sp-time">Şimdi onaylandı</span>
-      </div>
-    `;
-    document.body.appendChild(popup);
-
-    // Algoritma için sahte ama aşırı inandırıcı veri havuzu
-    const names = ["Ahmet", "Mehmet", "Ayşe", "Fatma", "Can", "Burak", "Zeynep", "Merve", "Emre", "Elif"];
-    const locations = ["Yenişehir", "Mezitli", "Pozcu", "Akdeniz", "Toroslar", "Erdemli"];
-    const actions = [
-      "az önce {product} siparişi verdi.",
-      "sepetine {product} ekledi.",
-      "{product} modeli için VIP Sertifika kullandı.",
-      "az önce {product} hakkında bilgi aldı."
-    ];
-
-    function showPopup() {
-      if (allProducts.length === 0) return;
-
-      const randomName = names[Math.floor(Math.random() * names.length)];
-      const randomLoc = locations[Math.floor(Math.random() * locations.length)];
-      const randomProduct = allProducts[Math.floor(Math.random() * allProducts.length)].name;
-      const randomAction = actions[Math.floor(Math.random() * actions.length)].replace("{product}", `<strong>${randomProduct}</strong>`);
-
-      document.getElementById('sp-msg').innerHTML = `<b>${randomName} (${randomLoc})</b>, ${randomAction}`;
-      popup.classList.add('show');
-
-      setTimeout(() => {
-        popup.classList.remove('show');
-      }, 5000);
-    }
-
-    // İlk pop-up site açıldıktan 10 saniye sonra çıksın
-    setTimeout(() => {
-      showPopup();
-      // Sonrasında her 15-25 saniye arasında rastgele çıksın
-      setInterval(showPopup, Math.floor(Math.random() * 10000) + 15000);
-    }, 10000);
-  }
-
-  // ==========================================
-  // 2. VAHŞET BUKALEMUN TEMA MOTORU 
+  // BUKALEMUN TEMA MOTORU
   // ==========================================
   let currentTheme = 'standart';
   
@@ -113,31 +26,31 @@ document.addEventListener("DOMContentLoaded", async function () {
         color: '#f5a623', 
         wpBtn: '<i class="bi bi-whatsapp"></i> Sor', 
         wpMsg: 'Merhaba Trend Optik! Sitenizdeki', 
-        ribbon: ''
+        ribbon: '' 
     },
     'yilbasi': { 
         color: '#00b4d8', 
         wpBtn: '<i class="bi bi-gift-fill"></i> Yeni Yıl Hediyesi', 
         wpMsg: 'Trend Optik, yeni yıl hediyesi olarak sitemizdeki', 
-        ribbon: '<div class="theme-ribbon bg-info">❄️ Yılbaşı Fırsatı</div>'
+        ribbon: '<div class="theme-ribbon bg-info">❄️ Yılbaşı Fırsatı</div>' 
     },
     'sevgililer': { 
         color: '#ff3366', 
         wpBtn: '<i class="bi bi-suit-heart-fill"></i> Sevgilime Alacağım', 
         wpMsg: 'Trend Optik, Sevgililer Günü hediyesi olarak', 
-        ribbon: '<div class="theme-ribbon" style="background:#ff3366;">❤️ Aşkla Tasarlandı</div>'
+        ribbon: '<div class="theme-ribbon" style="background:#ff3366;">❤️ Aşkla Tasarlandı</div>' 
     },
     'kadinlar': { 
         color: '#d05ce3', 
         wpBtn: '<i class="bi bi-flower1"></i> Anneme/Eşime Hediye', 
         wpMsg: 'Trend Optik, Kadınlar Günü hediyesi olarak', 
-        ribbon: '<div class="theme-ribbon" style="background:#d05ce3;">💜 Özel Koleksiyon</div>'
+        ribbon: '<div class="theme-ribbon" style="background:#d05ce3;">💜 Özel Koleksiyon</div>' 
     },
     'bayram': { 
         color: '#d4af37', 
         wpBtn: '<i class="bi bi-moon-stars-fill"></i> Bayramlık', 
         wpMsg: 'Trend Optik, Bayram için sitemizdeki', 
-        ribbon: '<div class="theme-ribbon" style="background:#d4af37; color:#000;">🌙 Bayram Fırsatı</div>'
+        ribbon: '<div class="theme-ribbon" style="background:#d4af37; color:#000;">🌙 Bayram Fırsatı</div>' 
     }
   };
 
@@ -200,55 +113,46 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     if (theme === 'yilbasi') {
       css = `
-        .navbar-brand::after { content: ''; position: absolute; top: -3px; left: 0; width: 100%; height: 4px; background: rgba(255,255,255,0.9); border-radius: 10px; filter: blur(1px); }
-        .product-card { border-top: 1px solid rgba(255,255,255,0.5) !important; }
-        .snowflake { position: absolute; background: white; border-radius: 50%; filter: blur(1px); animation: snowFall linear infinite; }
+        .navbar-brand::after { content: ''; position: absolute; top: -3px; left: 0; width: 100%; height: 4px; background: rgba(255,255,255,0.9); border-radius: 10px; filter: blur(1px); } 
+        .product-card { border-top: 1px solid rgba(255,255,255,0.5) !important; } 
+        .snowflake { position: absolute; background: white; border-radius: 50%; filter: blur(1px); animation: snowFall linear infinite; } 
         @keyframes snowFall { 0% { transform: translateY(-10vh); opacity: 0; } 10% { opacity: 0.8; } 90% { opacity: 0.8; } 100% { transform: translateY(100vh); opacity: 0; } }
       `;
       container.style.position = 'fixed';
       for(let i = 0; i < 30; i++) {
-        let size = Math.random() * 4 + 2; 
-        let left = Math.random() * 100; 
-        let dur = Math.random() * 5 + 5; 
-        let del = Math.random() * 5;
-        container.innerHTML += `<div class="snowflake" style="width:${size}px;height:${size}px;left:${left}%;animation-duration:${dur}s;animation-delay:${del}s;"></div>`;
+        container.innerHTML += `<div class="snowflake" style="width:${Math.random() * 4 + 2}px;height:${Math.random() * 4 + 2}px;left:${Math.random() * 100}%;animation-duration:${Math.random() * 5 + 5}s;animation-delay:${Math.random() * 5}s;"></div>`;
       }
     } 
     else if (theme === 'sevgililer') {
       css = `
-        .css-heart { position: absolute; width: 12px; height: 12px; background: rgba(255, 51, 102, 0.6); transform: rotate(-45deg); animation: floatHeart linear infinite; filter: drop-shadow(0 0 5px rgba(255,51,102,0.5)); }
-        .css-heart::before, .css-heart::after { content: ""; position: absolute; width: 12px; height: 12px; background: inherit; border-radius: 50%; }
-        .css-heart::before { top: -6px; left: 0; } .css-heart::after { top: 0; left: 6px; }
+        .css-heart { position: absolute; width: 12px; height: 12px; background: rgba(255, 51, 102, 0.6); transform: rotate(-45deg); animation: floatHeart linear infinite; filter: drop-shadow(0 0 5px rgba(255,51,102,0.5)); } 
+        .css-heart::before, .css-heart::after { content: ""; position: absolute; width: 12px; height: 12px; background: inherit; border-radius: 50%; } 
+        .css-heart::before { top: -6px; left: 0; } 
+        .css-heart::after { top: 0; left: 6px; } 
         @keyframes floatHeart { 0% { transform: translateY(100vh) rotate(-45deg) scale(0.5); opacity: 0; } 20% { opacity: 1; } 80% { opacity: 1; } 100% { transform: translateY(-10vh) rotate(-45deg) scale(1.2); opacity: 0; } }
       `;
       container.style.position = 'fixed';
       for(let i = 0; i < 20; i++) {
-        let left = Math.random() * 100; 
-        let dur = Math.random() * 6 + 4; 
-        let del = Math.random() * 5;
-        container.innerHTML += `<div class="css-heart" style="left:${left}%;animation-duration:${dur}s;animation-delay:${del}s;"></div>`;
+        container.innerHTML += `<div class="css-heart" style="left:${Math.random() * 100}%;animation-duration:${Math.random() * 6 + 4}s;animation-delay:${Math.random() * 5}s;"></div>`;
       }
     }
     else if (theme === 'kadinlar') {
       css = `
-        .petal { position: absolute; width: 10px; height: 10px; background: linear-gradient(135deg, #d05ce3, #9c27b0); border-radius: 0 10px 0 10px; animation: fallPetal linear infinite; filter: drop-shadow(0 0 3px rgba(208,92,227,0.4)); opacity: 0.6; }
+        .petal { position: absolute; width: 10px; height: 10px; background: linear-gradient(135deg, #d05ce3, #9c27b0); border-radius: 0 10px 0 10px; animation: fallPetal linear infinite; filter: drop-shadow(0 0 3px rgba(208,92,227,0.4)); opacity: 0.6; } 
         @keyframes fallPetal { 0% { transform: translateY(-10vh) rotate(0deg); opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { transform: translateY(100vh) rotate(360deg); opacity: 0; } }
       `;
       container.style.position = 'fixed';
       for(let i = 0; i < 25; i++) {
-        let left = Math.random() * 100; 
-        let dur = Math.random() * 6 + 5; 
-        let del = Math.random() * 5;
-        container.innerHTML += `<div class="petal" style="left:${left}%;animation-duration:${dur}s;animation-delay:${del}s;"></div>`;
+        container.innerHTML += `<div class="petal" style="left:${Math.random() * 100}%;animation-duration:${Math.random() * 6 + 5}s;animation-delay:${Math.random() * 5}s;"></div>`;
       }
     }
     else if (theme === 'bayram') {
       container.style.position = 'absolute'; 
       container.style.height = '400px'; 
       css = `
-        .lantern { width: 30px; height: 50px; background: linear-gradient(to bottom, rgba(245,166,35,0.8), rgba(212,175,55,0.8)); border-radius: 15px 15px 5px 5px; position: absolute; top: 40px; animation: swing 4s ease-in-out infinite alternate; transform-origin: top center; box-shadow: 0 10px 20px rgba(245,166,35,0.3); }
-        .lantern::before { content: ''; position: absolute; top: -40px; left: 14px; width: 1px; height: 40px; background: rgba(255,255,255,0.2); }
-        .lantern::after { content: ''; position: absolute; bottom: -10px; left: 10px; width: 10px; height: 10px; background: rgba(245,166,35,0.8); clip-path: polygon(0 0, 100% 0, 50% 100%); }
+        .lantern { width: 30px; height: 50px; background: linear-gradient(to bottom, rgba(245,166,35,0.8), rgba(212,175,55,0.8)); border-radius: 15px 15px 5px 5px; position: absolute; top: 40px; animation: swing 4s ease-in-out infinite alternate; transform-origin: top center; box-shadow: 0 10px 20px rgba(245,166,35,0.3); } 
+        .lantern::before { content: ''; position: absolute; top: -40px; left: 14px; width: 1px; height: 40px; background: rgba(255,255,255,0.2); } 
+        .lantern::after { content: ''; position: absolute; bottom: -10px; left: 10px; width: 10px; height: 10px; background: rgba(245,166,35,0.8); clip-path: polygon(0 0, 100% 0, 50% 100%); } 
         @keyframes swing { 0% { transform: rotate(6deg); } 100% { transform: rotate(-6deg); } }
       `;
       container.innerHTML = `
@@ -262,7 +166,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     document.body.appendChild(container);
   }
 
-  // 3. SİSTEM BAŞLATICI (HER ŞEYİ SIRAYLA ÇALIŞTIRIR)
+  // 3. SİSTEM BAŞLATICI
   async function initializeSystem() {
     try {
       const snap = await getDoc(doc(db, "settings", "theme"));
@@ -284,9 +188,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     if (document.getElementById("homeProductGrid")) fetchHomeProducts();
     if (document.getElementById("allProductGrid")) fetchAllProducts();
-    
-    // Satış artırıcı Pop-up şovunu başlat!
-    initSocialProof();
   }
 
   initializeSystem();
@@ -369,7 +270,6 @@ document.addEventListener("DOMContentLoaded", async function () {
       } catch(e) { } 
   };
 
-  // ÜRÜN KARTI OLUŞTURUCU (TEMA VERİSİ EKLİ)
   function createProductCard(product, index, isSlider = false) {
     const finalPrice = product.price.toString().includes("₺") ? product.price : `${product.price} ₺`;
     const t = themeData[currentTheme]; 
@@ -406,15 +306,13 @@ document.addEventListener("DOMContentLoaded", async function () {
     `;
   }
 
-  // YENİ: YILDIZLI ÜRÜNLERİ ANA SAYFAYA ÇEKME (Ana Sayfa Vitrini Algoritması)
+  // YILDIZLI ÜRÜNLERİ ANA SAYFAYA ÇEKME
   async function fetchHomeProducts() {
     homeProductGrid.innerHTML = `<div class="w-100 text-center my-5"><div class="spinner-border text-warning"></div></div>`;
     try {
-      // Önce "isFeatured: true" olanları (Yıldızlananları) çek
       const q = query(collection(db, "products"), where("isFeatured", "==", true));
       let querySnapshot = await getDocs(q);
       
-      // Eğer patron hiç yıldızlamadıysa, bari boş kalmasın diye en yeni 6 taneyi çek
       if (querySnapshot.empty) { 
           const fallbackQ = query(collection(db, "products"), orderBy("createdAt", "desc"), limit(6));
           querySnapshot = await getDocs(fallbackQ);
@@ -430,7 +328,6 @@ document.addEventListener("DOMContentLoaded", async function () {
       querySnapshot.forEach((doc) => { 
           htmlContent += createProductCard({ id: doc.id, ...doc.data() }, i++, true); 
       });
-      // Animasyonun pürüzsüz dönmesi için ürünleri iki kez basıyoruz (Sonsuz Döngü Hilesi)
       homeProductGrid.innerHTML = htmlContent + htmlContent;
 
     } catch (error) { 
