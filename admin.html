@@ -45,13 +45,13 @@
     .admin-section.active { display: block; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* YENİ: ESTETİK SİSTEM BİLDİRİMLERİ (CUSTOM MODAL) */
+    /* SİSTEM BİLDİRİMLERİ (CUSTOM MODAL) */
     .trend-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 99999; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: 0.3s; }
     .trend-modal-overlay.show { opacity: 1; pointer-events: all; }
     .trend-modal-box { background: #111; border: 1px solid rgba(245, 166, 35, 0.4); border-radius: 16px; padding: 2rem; max-width: 400px; width: 90%; text-align: center; transform: scale(0.8); transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 15px 35px rgba(0,0,0,0.5); }
     .trend-modal-overlay.show .trend-modal-box { transform: scale(1); }
 
-    /* MOBİL UYUM */
+    /* MOBİL UYUM (Filtre ve VIP Butonu Düzeltmeleri Buraya Eklendi) */
     @media (max-width: 992px) {
         .sidebar { width: 100%; height: auto; position: sticky; top: 0; z-index: 1050; padding: 15px 10px; border-right: none; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; flex-direction: row; flex-wrap: nowrap; overflow-x: auto; align-items: center; justify-content: flex-start; gap: 10px; background: rgba(10, 10, 10, 0.98); backdrop-filter: blur(15px); -webkit-overflow-scrolling: touch; }
         .sidebar::-webkit-scrollbar { display: none; } 
@@ -66,6 +66,10 @@
         .table-responsive { border-radius: 12px; background: rgba(255,255,255,0.02); padding: 10px; border: 1px solid rgba(255,255,255,0.05); }
         .table td, .table th { padding: 18px 15px; white-space: nowrap; } 
         .btn-sm { padding: 10px 14px; font-size: 1.1rem; border-radius: 8px; } 
+        
+        /* MOBİL İÇİN FİLTRE VE VIP BUTONU FERAHLAŞTIRMASI */
+        .mobile-stack { flex-direction: column; width: 100%; gap: 15px !important; }
+        .mobile-stack select, .mobile-stack button { width: 100%; }
     }
   </style>
 </head>
@@ -225,17 +229,24 @@
 
         <div class="col-md-8">
           <div class="glass-panel h-100">
-            <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-3">
-              <h5 class="accent m-0"><i class="bi bi-list-ul me-2"></i>Mevcut Vitrin</h5>
-              <div class="d-flex gap-2">
-                <select id="vitrinFilter" class="form-select form-select-sm py-2 px-3 rounded-pill bg-dark text-white border-secondary">
-                  <option value="all">Tüm Kategoriler</option>
-                  <option value="gunes">Güneş Gözlükleri</option>
-                  <option value="klasik">Klasik Modeller</option>
-                  <option value="kadin">Kadın Özel</option>
-                  <option value="cocuk">Çocuk Modelleri</option>
-                </select>
-                <button id="vipBtn" class="btn btn-warning rounded-pill px-3 fw-bold text-dark"><i class="bi bi-stars"></i> VIP Teklif Oluştur</button>
+            
+            <div class="row align-items-center mb-4 g-3">
+              <div class="col-lg-4 text-center text-lg-start">
+                <h5 class="accent m-0 fw-bold"><i class="bi bi-list-ul me-2"></i>Mevcut Vitrin</h5>
+              </div>
+              <div class="col-lg-8">
+                <div class="d-flex mobile-stack justify-content-lg-end gap-2">
+                  <select id="vitrinFilter" class="form-select form-select-sm py-2 px-3 rounded-pill bg-dark text-white border-secondary" style="min-width: 180px;">
+                    <option value="all">Tüm Kategoriler</option>
+                    <option value="gunes">Güneş Gözlükleri</option>
+                    <option value="klasik">Klasik Modeller</option>
+                    <option value="kadin">Kadın Özel</option>
+                    <option value="cocuk">Çocuk Modelleri</option>
+                  </select>
+                  <button id="vipBtn" class="btn btn-warning rounded-pill px-4 py-2 fw-bold text-dark w-100 w-lg-auto">
+                    <i class="bi bi-stars"></i> VIP Teklif
+                  </button>
+                </div>
               </div>
             </div>
             
@@ -246,9 +257,9 @@
                     <th>Seç</th>
                     <th>Görsel</th>
                     <th>Ürün Adı</th>
+                    <th>Ana Sayfa <i class="bi bi-star-fill text-warning ms-1"></i></th>
                     <th>Kategori</th>
                     <th>Fiyat</th>
-                    <th>🔥 İlgi</th>
                     <th>İşlemler</th>
                   </tr>
                 </thead>
@@ -443,7 +454,7 @@
   let adminCerts = [];
 
   // =========================================
-  // VAHŞET UYARI SİSTEMİ (CUSTOM MODALS)
+  // UYARI SİSTEMİ (CUSTOM MODALS)
   // =========================================
   window.trendAlert = function(title, text, type="info") {
     document.getElementById('customModalTitle').innerText = title;
@@ -493,7 +504,7 @@
     const input = document.getElementById('customModalInput');
     input.style.display = "block";
     input.value = "";
-    setTimeout(() => input.focus(), 300); // Animasyon bitince odaklan
+    setTimeout(() => input.focus(), 300); 
     
     document.getElementById('customModalIcon').innerHTML = '<i class="bi bi-gem text-warning" style="font-size: 3rem;"></i>';
     
@@ -560,7 +571,7 @@
     btn.innerText = "YAYINLANIYOR...";
     try {
       await setDoc(doc(db, "settings", "theme"), { activeTheme: selectedTheme });
-      trendAlert("Sistem Güncellendi", "Vahşet! Site teması profesyonel şekilde yansıtıldı.", "success");
+      trendAlert("Sistem Güncellendi", "Site teması müşterilere başarıyla yansıtıldı.", "success");
     } catch (e) { 
       trendAlert("Hata!", "Tema güncellenirken bir sorun oluştu.", "error");
     }
@@ -614,7 +625,7 @@
     const imgUrl = document.getElementById("pImgUrl").value;
 
     if(!name || !price || !imgUrl) {
-      trendAlert("Eksik Bilgi!", "Lütfen Ad, Fiyat ve Resim alanlarını eksiksiz doldur patron.", "error");
+      trendAlert("Eksik Bilgi!", "Lütfen Ad, Fiyat ve Resim alanlarını doldur patron.", "error");
       return;
     }
 
@@ -626,7 +637,8 @@
         await updateDoc(doc(db, "products", editModeId), { name, category, price, desc, img: imgUrl });
         trendAlert("Başarılı", "Ürün başarıyla güncellendi.", "success");
       } else {
-        await addDoc(collection(db, "products"), { name, category, price, desc, img: imgUrl, createdAt: serverTimestamp(), clicks: 0 });
+        // isFeatured: false olarak default ekliyoruz
+        await addDoc(collection(db, "products"), { name, category, price, desc, img: imgUrl, createdAt: serverTimestamp(), clicks: 0, isFeatured: false });
         trendAlert("Başarılı", "Yeni ürün vitrine eklendi.", "success");
       }
       resetForm();
@@ -675,7 +687,7 @@
       });
 
       document.getElementById("totalProductCount").innerText = adminProducts.length;
-      renderProductsTable('all'); // Varsayılan tümünü göster
+      renderProductsTable(document.getElementById('vitrinFilter').value); 
 
     } catch (error) {
       productTableBody.innerHTML = `<tr><td colspan="7" class="text-danger">Bağlantı hatası!</td></tr>`;
@@ -693,16 +705,26 @@
 
     filteredProducts.forEach((product) => {
       const finalPrice = product.price.toString().includes("₺") ? product.price : `${product.price} ₺`;
-      const clicks = product.clicks || 0; 
+      
+      // ANA SAYFA YILDIZI MANTIĞI
+      const isFeatured = product.isFeatured ? true : false;
+      const starClass = isFeatured ? "btn-warning text-dark shadow" : "btn-outline-light opacity-50";
+      const starIcon = isFeatured ? "bi-star-fill" : "bi-star";
       
       const row = `
         <tr>
           <td><input type="checkbox" class="form-check-input vip-check" data-id="${product.id}"></td>
           <td><img src="${product.img}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;"></td>
           <td class="fw-bold">${product.name}</td>
+          
+          <td>
+            <button class="btn btn-sm ${starClass} feature-toggle-btn" data-id="${product.id}" data-featured="${isFeatured}" title="Ana Sayfada Göster">
+              <i class="bi ${starIcon}"></i>
+            </button>
+          </td>
+
           <td><span class="badge bg-secondary">${product.category}</span></td>
           <td class="accent fw-bold">${finalPrice}</td>
-          <td class="text-warning fw-bold"><i class="bi bi-fire"></i> ${clicks}</td>
           <td>
             <button class="btn btn-sm btn-primary edit-btn me-1" data-id="${product.id}"><i class="bi bi-pencil"></i></button>
             <button class="btn btn-sm btn-danger delete-btn" data-id="${product.id}"><i class="bi bi-trash"></i></button>
@@ -710,6 +732,27 @@
         </tr>
       `;
       productTableBody.innerHTML += row;
+    });
+
+    // Ana Sayfa Yıldızına Tıklama Olayı
+    document.querySelectorAll(".feature-toggle-btn").forEach(btn => {
+      btn.addEventListener("click", async (e) => {
+        const id = e.currentTarget.getAttribute("data-id");
+        const currentStatus = e.currentTarget.getAttribute("data-featured") === "true";
+        const newStatus = !currentStatus; // Tersine çevir
+
+        try {
+          await updateDoc(doc(db, "products", id), { isFeatured: newStatus });
+          if(newStatus) {
+             trendAlert("Vitrinde!", "Ürün, ana sayfa kayan vitrinine eklendi.", "success");
+          } else {
+             trendAlert("Vitrinden Alındı", "Ürün ana sayfa vitrininden kaldırıldı.", "info");
+          }
+          loadProducts(); // Tabloyu yenile
+        } catch (err) {
+          trendAlert("Hata", "Yıldız durumu güncellenemedi.", "error");
+        }
+      });
     });
 
     // Buton Tetikleyicilerini Yeniden Bağla
@@ -827,7 +870,6 @@
         if(order.status === "Teslim Edildi") badgeColor = "bg-success"; 
         if(order.status === "Arşivlendi") badgeColor = "bg-secondary"; 
 
-        // Arşivlenenleri gizlemek istersen buraya if koşulu eklenebilir. Şu an hepsi görünüyor.
         const row = `
           <tr>
             <td class="fw-bold">${order.customerName}</td>
