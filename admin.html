@@ -6,6 +6,7 @@
   <title>Trend Optik | Yönetim Paneli</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
   <style>
@@ -25,6 +26,9 @@
     .cert-panel { border: 2px solid #d4af37 !important; box-shadow: 0 0 20px rgba(212, 175, 55, 0.1); }
     .lens-panel { border: 2px solid #0dcaf0 !important; box-shadow: 0 0 20px rgba(13, 202, 240, 0.1); }
     
+    /* YENİ: RADAR PANEL STİLİ */
+    .radar-panel { border: 2px solid #ffc107 !important; box-shadow: 0 0 20px rgba(255, 193, 7, 0.15); }
+
     @keyframes pulse-red {
       0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
       70% { box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); }
@@ -32,7 +36,6 @@
     }
     .pulse-anim { animation: pulse-red 2s infinite; border-radius: 5px; }
 
-    /* HOLDİNG TİPİ SOL MENÜ (SIDEBAR) MİMARİSİ */
     .sidebar { width: 260px; background: rgba(10, 10, 10, 0.95); border-right: 1px solid rgba(255,255,255,0.05); position: fixed; top: 0; left: 0; height: 100vh; padding: 2rem 1.5rem; display: flex; flex-direction: column; z-index: 1000; }
     .sidebar-brand { font-size: 1.5rem; font-weight: 800; margin-bottom: 3rem; text-align: center; letter-spacing: 1px; }
     .sidebar-link { display: flex; align-items: center; padding: 12px 20px; color: rgba(255,255,255,0.5); text-decoration: none; border-radius: 12px; margin-bottom: 10px; font-weight: 500; transition: all 0.3s ease; cursor: pointer; }
@@ -47,13 +50,18 @@
     .admin-section.active { display: block; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* SİSTEM BİLDİRİMLERİ (CUSTOM MODAL) */
     .trend-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 99999; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: 0.3s; }
     .trend-modal-overlay.show { opacity: 1; pointer-events: all; }
     .trend-modal-box { background: #111; border: 1px solid rgba(245, 166, 35, 0.4); border-radius: 16px; padding: 2rem; max-width: 400px; width: 90%; text-align: center; transform: scale(0.8); transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 15px 35px rgba(0,0,0,0.5); }
     .trend-modal-overlay.show .trend-modal-box { transform: scale(1); }
 
-    /* MOBİL UYUM (Filtre ve VIP Butonu Düzeltmeleri Buraya Eklendi) */
+    /* YENİ: QR Yazdırma Tasarımı */
+    @media print {
+      body * { visibility: hidden; }
+      #qrPrintArea, #qrPrintArea * { visibility: visible; }
+      #qrPrintArea { position: fixed; left: 0; top: 0; width: 100%; text-align: center; padding-top: 50px; }
+    }
+
     @media (max-width: 992px) {
         .sidebar { width: 100%; height: auto; position: sticky; top: 0; z-index: 1050; padding: 15px 10px; border-right: none; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; flex-direction: row; flex-wrap: nowrap; overflow-x: auto; align-items: center; justify-content: flex-start; gap: 10px; background: rgba(10, 10, 10, 0.98); backdrop-filter: blur(15px); -webkit-overflow-scrolling: touch; }
         .sidebar::-webkit-scrollbar { display: none; } 
@@ -69,13 +77,29 @@
         .table td, .table th { padding: 18px 15px; white-space: nowrap; } 
         .btn-sm { padding: 10px 14px; font-size: 1.1rem; border-radius: 8px; } 
         
-        /* MOBİL İÇİN FİLTRE VE VIP BUTONU FERAHLAŞTIRMASI */
         .mobile-stack { flex-direction: column; width: 100%; gap: 15px !important; }
         .mobile-stack select, .mobile-stack button { width: 100%; }
     }
   </style>
 </head>
 <body>
+
+<div class="modal fade" id="qrModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content bg-white text-dark border-0 rounded-4 shadow-lg overflow-hidden">
+      <div id="qrPrintArea" class="p-5 text-center">
+        <h4 id="qrProductName" class="fw-bold mb-1">Ürün Adı</h4>
+        <p id="qrProductPrice" class="text-secondary fw-bold mb-4">0 ₺</p>
+        <div id="qrcode" class="d-inline-block p-3 border rounded-3 mb-3 bg-white"></div>
+        <p class="small text-muted px-4">Okutunca ürün detay sayfasına gider.</p>
+      </div>
+      <div class="p-3 bg-light d-flex gap-2">
+        <button class="btn btn-outline-dark w-100 rounded-pill" data-bs-dismiss="modal">Kapat</button>
+        <button class="btn btn-dark w-100 rounded-pill" onclick="window.print()">Yazdır</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <div id="customModalOverlay" class="trend-modal-overlay">
   <div class="trend-modal-box">
@@ -115,11 +139,10 @@
     <div class="sidebar-brand"><span class="accent">Trend</span> Optik.</div>
     <a class="sidebar-link active" onclick="switchTab('sec-home', this)"><i class="bi bi-grid-1x2-fill"></i> Ana Ekran</a>
     <a class="sidebar-link" onclick="switchTab('sec-products', this)"><i class="bi bi-sunglasses"></i> Ürün Vitrini</a>
-    <a class="sidebar-link" onclick="switchTab('sec-orders', this)"><i class="bi bi-box-seam-fill"></i> Siparişler</a>
+    <a class="sidebar-link" onclick="switchTab('sec-radar', this)"><i class="bi bi-radar"></i> Akıllı Radar</a> <a class="sidebar-link" onclick="switchTab('sec-orders', this)"><i class="bi bi-box-seam-fill"></i> Siparişler</a>
     <a class="sidebar-link" onclick="switchTab('sec-certs', this)"><i class="bi bi-award-fill"></i> Sertifikalar</a>
     <a class="sidebar-link" onclick="switchTab('sec-lenses', this)"><i class="bi bi-eye-fill"></i> Lens Radarı</a>
-    <a class="sidebar-link" onclick="switchTab('sec-radar', this)"><i class="bi bi-radar"></i> Akıllı Radar</a>
-
+    
     <div class="mt-auto pt-4">
       <button id="logoutBtn" class="btn btn-outline-danger w-100 rounded-pill py-2"><i class="bi bi-power"></i> Çıkış</button>
     </div>
@@ -172,6 +195,34 @@
               <option value="bayram">🏮 Ramazan Bayramı (Sarkan Kandiller)</option>
             </select>
             <button id="saveThemeBtn" class="btn w-100 rounded-pill py-2 fw-bold" style="background:#ff3366; color:#fff; box-shadow: 0 4px 15px rgba(255, 51, 102, 0.4);">SİTE TEMASINI GÜNCELLE</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="sec-radar" class="admin-section">
+      <div class="text-left mb-4">
+        <h3 style="color: #ffc107;" class="fw-bold"><i class="bi bi-radar me-2"></i>Akıllı Müşteri & Muayene Radarı</h3>
+        <p class="opacity-75 small">Sistem son 1 yılı analiz eder ve muayene zamanı gelenleri sana listeler.</p>
+      </div>
+      <div class="row g-4 mb-5">
+        <div class="col-md-12">
+          <div class="glass-panel radar-panel h-100">
+            <h5 class="text-warning mb-4"><i class="bi bi-exclamation-diamond-fill me-2"></i> Muayene Zamanı Gelenler (1 Yıl+)</h5>
+            <div class="table-responsive">
+              <table class="table table-hover table-dark text-center align-middle">
+                <thead>
+                  <tr>
+                    <th>Müşteri</th>
+                    <th>Son İşlem</th>
+                    <th>Geçen Süre</th>
+                    <th>İşlem</th>
+                  </tr>
+                </thead>
+                <tbody id="radarTableBody">
+                  </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
@@ -456,6 +507,76 @@
   let adminOrders = [];
   let adminCerts = [];
 
+  // ================== YENİ: QR KOD ÜRETME MOTORU ==================
+  window.generateQR = function(id) {
+    const product = adminProducts.find(p => p.id === id);
+    const qrContainer = document.getElementById("qrcode");
+    qrContainer.innerHTML = ""; 
+    
+    // Domain'i buraya yazıyoruz
+    const detailUrl = `https://www.trendoptikmersin.com/urun-detay.html?id=${id}`;
+
+    new QRCode(qrContainer, {
+        text: detailUrl,
+        width: 180,
+        height: 180,
+        colorDark : "#000000",
+        colorLight : "#ffffff",
+        correctLevel : QRCode.CorrectLevel.H
+    });
+
+    document.getElementById('qrProductName').innerText = product.name;
+    document.getElementById('qrProductPrice').innerText = product.price.toString().includes("₺") ? product.price : `${product.price} ₺`;
+    
+    const qrModal = new bootstrap.Modal(document.getElementById('qrModal'));
+    qrModal.show();
+  };
+
+  // ================== YENİ: AKILLI RADAR (MUAYENE TAKİBİ) ==================
+  async function loadRadar() {
+      const radarTableBody = document.getElementById("radarTableBody");
+      radarTableBody.innerHTML = "<tr><td colspan='4'>Analiz ediliyor...</td></tr>";
+      
+      try {
+          const q = query(collection(db, "orders"), orderBy("createdAt", "desc"));
+          const qs = await getDocs(q);
+          radarTableBody.innerHTML = "";
+          
+          let counter = 0;
+          const bugun = new Date();
+
+          qs.forEach((doc) => {
+              const order = doc.data();
+              if(!order.createdAt) return;
+
+              const islemTarihi = order.createdAt.toDate();
+              const farkZaman = Math.abs(bugun - islemTarihi);
+              const farkGun = Math.ceil(farkZaman / (1000 * 60 * 60 * 24));
+
+              // 1 yılı (360 gün) dolduranları getir
+              if (farkGun >= 360) {
+                  counter++;
+                  const row = `
+                      <tr class="border-start border-warning border-4">
+                          <td class="fw-bold">${order.customerName}</td>
+                          <td>${islemTarihi.toLocaleDateString('tr-TR')}</td>
+                          <td><span class="text-warning fw-bold">${farkGun} Gün</span></td>
+                          <td>
+                              <a href="https://wa.me/${order.phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent('Merhaba ' + order.customerName + ', Trend Optik\'ten yazıyoruz. Göz muayenenizin üzerinden 1 yıl geçmiş. Göz sağlığınız için kontrol vaktiniz gelmiş olabilir, sizi dükkanımıza bekleriz.')}" 
+                                 target="_blank" class="btn btn-sm btn-success rounded-pill px-3">
+                                 <i class="bi bi-whatsapp me-1"></i> Çağır
+                              </a>
+                          </td>
+                      </tr>`;
+                  radarTableBody.innerHTML += row;
+              }
+          });
+
+          if(counter === 0) radarTableBody.innerHTML = "<tr><td colspan='4' class='opacity-50'>Şu an muayene zamanı gelen kimse yok.</td></tr>";
+
+      } catch (e) { console.error("Radar Hatası:", e); }
+  }
+
   // =========================================
   // UYARI SİSTEMİ (CUSTOM MODALS)
   // =========================================
@@ -532,6 +653,10 @@
     document.getElementById(sectionId).classList.add('active');
     document.querySelectorAll('.sidebar-link').forEach(el => el.classList.remove('active'));
     element.classList.add('active');
+    
+    // Radar sekmesi açılınca yükle
+    if(sectionId === 'sec-radar') loadRadar();
+    
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -613,6 +738,7 @@
       loadOrders(); 
       loadCerts(); 
       loadLenses(); 
+      loadRadar(); // Radar başlangıçta yüklensin
     } else {
       loginSectionWrapper.style.display = "block";
       dashboardSection.style.display = "none";
@@ -729,12 +855,21 @@
           <td><span class="badge bg-secondary">${product.category}</span></td>
           <td class="accent fw-bold">${finalPrice}</td>
           <td>
+            <button class="btn btn-sm btn-outline-warning qr-trigger-btn me-1" data-id="${product.id}" title="QR Etiket"><i class="bi bi-qr-code"></i></button>
             <button class="btn btn-sm btn-primary edit-btn me-1" data-id="${product.id}"><i class="bi bi-pencil"></i></button>
             <button class="btn btn-sm btn-danger delete-btn" data-id="${product.id}"><i class="bi bi-trash"></i></button>
           </td>
         </tr>
       `;
       productTableBody.innerHTML += row;
+    });
+
+    // QR Buton Olayı
+    document.querySelectorAll(".qr-trigger-btn").forEach(btn => {
+        btn.onclick = (e) => {
+            const id = e.currentTarget.getAttribute("data-id");
+            window.generateQR(id);
+        };
     });
 
     // Ana Sayfa Yıldızına Tıklama Olayı
