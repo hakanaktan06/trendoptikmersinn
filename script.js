@@ -150,7 +150,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     document.head.appendChild(style);
   }
 
-      function applyVisualEffects(theme) {
+        function applyVisualEffects(theme) {
     // 1. Varsa eski efekti temizle
     const oldContainer = document.getElementById("trend-theme-container");
     if (oldContainer) oldContainer.remove();
@@ -232,6 +232,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     document.body.appendChild(container);
   }
+
 
 
 
