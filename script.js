@@ -150,73 +150,56 @@ document.addEventListener("DOMContentLoaded", async function () {
     document.head.appendChild(style);
   }
 
-           function applyVisualEffects(theme) {
-    // 1. Varsa eski şovları temizle
-    const oldContainer = document.getElementById("trend-premium-container");
-    if (oldContainer) oldContainer.remove();
+             function applyVisualEffects(theme) {
+    // 1. Önceki tüm hareketli/hareketsiz saçmalıkları kökünden temizle
+    const oldStyle = document.getElementById("trend-lens-filter");
+    if (oldStyle) oldStyle.remove();
+    
+    const oldContainer1 = document.getElementById("trend-theme-container");
+    if (oldContainer1) oldContainer1.remove();
+    const oldContainer2 = document.getElementById("trend-premium-container");
+    if (oldContainer2) oldContainer2.remove();
 
-    if (!theme || theme === 'standart') return;
-
-    // 2. Telefonda Yağ Gibi Akacak Sıvı Renkler (Her tema için 2 elit ton)
-    let color1 = "", color2 = "";
-    if (theme === "yilbasi") { 
-        color1 = "rgba(0, 180, 216, 0.15)"; color2 = "rgba(255, 255, 255, 0.1)"; 
-    } else if (theme === "sevgililer") { 
-        color1 = "rgba(255, 51, 102, 0.15)"; color2 = "rgba(136, 14, 79, 0.15)"; 
-    } else if (theme === "kadinlar") { 
-        color1 = "rgba(208, 92, 227, 0.15)"; color2 = "rgba(106, 27, 154, 0.15)"; 
-    } else if (theme === "bayram") { 
-        color1 = "rgba(212, 175, 55, 0.15)"; color2 = "rgba(184, 134, 11, 0.15)"; 
+    // 2. Standart temada hiçbir filtre yok, sitenin orijinal mat siyahı/beyazı kalır
+    if (!theme || theme === 'standart') {
+        document.body.style.backgroundColor = ""; 
+        return;
     }
 
-    // 3. Z-INDEX -1 ile En Arkadaki Kapsayıcı
-    const container = document.createElement("div");
-    container.id = "trend-premium-container";
-    container.style.cssText = "position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: -1; overflow: hidden; background: transparent;";
+    // 3. Premium Lens Filtresi Renkleri (Siyaha %3 renk damlatılmış gibi düşün)
+    let darkBg = "";
+    let lightBg = "";
 
-    // 4. Apple Tarzı Sıvı Animasyonları ve Buzlu Cam Efekti
-    if (!document.getElementById("trend-aurora-anim")) {
-        const style = document.createElement("style");
-        style.id = "trend-aurora-anim";
-        style.innerHTML = `
-            @keyframes liquidFlow1 {
-                0% { transform: translate(0, 0) scale(1); }
-                50% { transform: translate(10vw, -10vh) scale(1.2); }
-                100% { transform: translate(-5vw, 5vh) scale(1); }
-            }
-            @keyframes liquidFlow2 {
-                0% { transform: translate(0, 0) scale(1); }
-                50% { transform: translate(-15vw, 15vh) scale(0.9); }
-                100% { transform: translate(5vw, -5vh) scale(1.1); }
-            }
-            /* Gözlük Kartlarına Buzlu Cam Efekti (Lüks Dokunuş) */
-            .product-card {
-                background: rgba(255, 255, 255, 0.03) !important;
-                backdrop-filter: blur(10px);
-                border: 1px solid rgba(255, 255, 255, 0.05) !important;
-            }
-            .light-mode .product-card {
-                background: rgba(255, 255, 255, 0.6) !important;
-                border: 1px solid rgba(0, 0, 0, 0.05) !important;
-            }
-        `;
-        document.head.appendChild(style);
+    if (theme === "yilbasi") {
+        darkBg = "#050b14";   // Gece Mavisi (Soğuk füme/lacivert cam efekti)
+        lightBg = "#f0f4f8";  // Buzlu Beyaz
+    } else if (theme === "sevgililer") {
+        darkBg = "#140507";   // Koyu Bordo/Mürdüm (Sıcak kırmızı cam efekti)
+        lightBg = "#fff0f3";  // Çok uçuk sıcak beyaz
+    } else if (theme === "kadinlar") {
+        darkBg = "#110514";   // Patlıcan Moru (Zarif mor cam efekti)
+        lightBg = "#f9f0ff";  // Çok uçuk lila-beyaz
+    } else if (theme === "bayram") {
+        darkBg = "#141005";   // Koyu Kehribar (Kaplumbağa kabuğu/kahverengi cam efekti)
+        lightBg = "#fff8f0";  // Sıcak Krem
     }
 
-    // 5. Devasa Sıvı Işık Küreleri (Telefonda ekranı kaplayacaklar)
-    const orb1 = document.createElement("div");
-    orb1.style.cssText = "position: absolute; width: 150vw; height: 150vw; background: radial-gradient(circle, " + color1 + " 0%, transparent 60%); border-radius: 50%; top: -30vh; left: -30vw; filter: blur(60px); animation: liquidFlow1 20s infinite alternate ease-in-out;";
-
-    const orb2 = document.createElement("div");
-    orb2.style.cssText = "position: absolute; width: 120vw; height: 120vw; background: radial-gradient(circle, " + color2 + " 0%, transparent 60%); border-radius: 50%; bottom: -20vh; right: -20vw; filter: blur(60px); animation: liquidFlow2 25s infinite alternate ease-in-out;";
-
-    container.appendChild(orb1);
-    container.appendChild(orb2);
-    document.body.appendChild(container);
+    // 4. CSS ile Arka Planı Jilet Gibi ve Yumuşakça Değiştir
+    const style = document.createElement("style");
+    style.id = "trend-lens-filter";
+    style.innerHTML = `
+        /* Temalar arası geçerken 1 saniyelik çok yumuşak bir renk süzülmesi */
+        body {
+            transition: background-color 1s ease-in-out !important;
+            background-color: ${darkBg} !important;
+        }
+        /* Eğer dükkanda Açık Tema tuşuna basılırsa arka plan renkleri boğmasın diye */
+        body.light-mode {
+            background-color: ${lightBg} !important;
+        }
+    `;
+    document.head.appendChild(style);
   }
-
-
-
 
 
 
