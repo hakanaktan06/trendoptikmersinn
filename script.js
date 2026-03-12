@@ -150,90 +150,69 @@ document.addEventListener("DOMContentLoaded", async function () {
     document.head.appendChild(style);
   }
 
-          function applyVisualEffects(theme) {
+            function applyVisualEffects(theme) {
     // 1. Varsa eski efekti temizle
-    const oldContainer = document.getElementById("trend-theme-container");
+    const oldContainer = document.getElementById("trend-premium-bg");
     if (oldContainer) oldContainer.remove();
 
-    if (theme === 'standart') return;
+    if (!theme || theme === 'standart') return;
 
     // 2. Yeni Kapsayıcı (Z-INDEX -1 İLE EN ARKAYA ATIYORUZ)
     const container = document.createElement("div");
-    container.id = "trend-theme-container";
-    container.style.cssText = "position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: -1; overflow: hidden;";
+    container.id = "trend-premium-bg";
+    container.style.cssText = "position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: -1; overflow: hidden; background: transparent;";
 
-    // Animasyon CSS Kodları
-    if (!document.getElementById("trend-theme-anim")) {
+    // Animasyon CSS Kodları (Çok yumuşak ve yavaş hareket)
+    if (!document.getElementById("trend-premium-anim")) {
         const style = document.createElement("style");
-        style.id = "trend-theme-anim";
+        style.id = "trend-premium-anim";
         style.innerHTML = `
-            @keyframes fallAndSway {
-                0% { transform: translateY(-10vh) translateX(0) rotate(0deg); opacity: 0; }
-                10% { opacity: 0.6; }
-                50% { transform: translateY(50vh) translateX(20px) rotate(180deg); }
-                90% { opacity: 0.6; }
-                100% { transform: translateY(110vh) translateX(-20px) rotate(360deg); opacity: 0; }
-            }
-            @keyframes swingLantern {
-                0% { transform: rotate(6deg); }
-                100% { transform: rotate(-6deg); }
+            @keyframes floatOrb {
+                0% { transform: translate(0, 0) scale(1); }
+                33% { transform: translate(4vw, -5vh) scale(1.1); }
+                66% { transform: translate(-3vw, 4vh) scale(0.95); }
+                100% { transform: translate(0, 0) scale(1); }
             }
         `;
         document.head.appendChild(style);
     }
 
-    // 3. Temalara Göre Simgeleri Belirle
-    let symbols = [];
-    let isLantern = false;
-
+    // 3. Premium Temalara Göre Bulanık Işık Renkleri (Açık ve Koyu Moda Uyumlu)
+    let colors = [];
     if (theme === "yilbasi") {
-        symbols = ["❄", "❅", "❆"];
+        colors = ["rgba(173, 216, 230, 0.15)", "rgba(255, 255, 255, 0.1)"]; // Buz mavisi ve soft beyaz
     } else if (theme === "sevgililer") {
-        symbols = ["❤️", "💖", "💕"];
+        colors = ["rgba(255, 51, 102, 0.12)", "rgba(255, 105, 180, 0.1)"]; // Yakut ve rose gold
     } else if (theme === "kadinlar") {
-        symbols = ["🌸", "🌺", "🌼", "✨"]; 
+        colors = ["rgba(208, 92, 227, 0.12)", "rgba(156, 39, 176, 0.1)"]; // Zarif mor ve lila
     } else if (theme === "bayram") {
-        isLantern = true; 
+        colors = ["rgba(212, 175, 55, 0.12)", "rgba(245, 166, 35, 0.1)"]; // Altın sarısı ve kehribar
     }
 
-    // 4. Ekrana Parçacıkları Yağdır
-    if (!isLantern) {
-        const particleCount = 25; 
-        for (let i = 0; i < particleCount; i++) {
-            let particle = document.createElement("div");
-            particle.innerText = symbols[Math.floor(Math.random() * symbols.length)];
-            particle.style.position = "absolute";
-            particle.style.left = Math.random() * 100 + "vw";
-            particle.style.top = "-5vh";
-            
-            particle.style.fontSize = (Math.random() * 1.5 + 1) + "rem";
-            particle.style.opacity = Math.random() * 0.4 + 0.2; 
-            
-            const duration = Math.random() * 6 + 6; 
-            const delay = Math.random() * 5; 
-            
-            // Ters tırnak (backtick) hatası çözüldü
-            particle.style.animation = "fallAndSway " + duration + "s linear " + delay + "s infinite";
-            
-            container.appendChild(particle);
-        }
-    } else {
-        // Bayram Fenerleri
-        container.style.position = 'absolute'; 
-        container.style.height = '400px'; 
-        container.innerHTML = `
-          <style>
-          .lantern { width: 30px; height: 50px; background: linear-gradient(to bottom, rgba(245,166,35,0.8), rgba(212,175,55,0.8)); border-radius: 15px 15px 5px 5px; position: absolute; top: 40px; animation: swingLantern 4s ease-in-out infinite alternate; transform-origin: top center; box-shadow: 0 10px 20px rgba(245,166,35,0.3); } 
-          .lantern::before { content: ''; position: absolute; top: -40px; left: 14px; width: 1px; height: 40px; background: rgba(255,255,255,0.2); } 
-          .lantern::after { content: ''; position: absolute; bottom: -10px; left: 10px; width: 10px; height: 10px; background: rgba(245,166,35,0.8); clip-path: polygon(0 0, 100% 0, 50% 100%); }
-          </style>
-          <div class="lantern" style="left: 10%; animation-delay: 0s;"></div>
-          <div class="lantern" style="right: 10%; animation-delay: 1s;"></div>
+    // 4. Ekrana 4 Adet Devasa ve Yumuşak Işık Hüzmesi Ekle
+    for (let i = 0; i < 4; i++) {
+        let orb = document.createElement("div");
+        let size = Math.random() * 30 + 30; // 30vw - 60vw arası dev küreler
+        
+        // CSS Büyüsü: Radial gradient ve devasa blur ile aurora/bokeh etkisi
+        orb.style.cssText = `
+            position: absolute;
+            width: ${size}vw;
+            height: ${size}vw;
+            border-radius: 50%;
+            background: radial-gradient(circle, ${colors[i % 2]} 0%, transparent 70%);
+            filter: blur(60px);
+            top: ${Math.random() * 60 - 10}vh;
+            left: ${Math.random() * 60 - 10}vw;
+            animation: floatOrb ${Math.random() * 15 + 20}s ease-in-out infinite alternate;
         `;
+        
+        container.appendChild(orb);
     }
 
     document.body.appendChild(container);
   }
+
 
 
 
