@@ -151,70 +151,101 @@ document.addEventListener("DOMContentLoaded", async function () {
   }
 
        function applyVisualEffects(theme) {
-    // 1. Varsa eski efekti temizle
-    const oldContainer = document.getElementById("trend-premium-bg");
+    const oldContainer = document.getElementById("trend-theme-container");
     if (oldContainer) oldContainer.remove();
 
     if (!theme || theme === 'standart') return;
 
-    // 2. Yeni Kapsayıcı (Z-INDEX -1 İLE EN ARKAYA ATIYORUZ)
+    // Z-INDEX -1 ile EN ARKADA (Gözlüklerin arkasından dökülecek)
     const container = document.createElement("div");
-    container.id = "trend-premium-bg";
-    container.style.cssText = "position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: -1; overflow: hidden; background: transparent;";
+    container.id = "trend-theme-container";
+    container.style.cssText = "position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: -1; overflow: hidden;";
 
-    // Animasyon CSS Kodları (Çok yumuşak ve yavaş hareket)
+    // Premium Animasyon ve Kusursuz CSS Şekilleri
     if (!document.getElementById("trend-premium-anim")) {
         const style = document.createElement("style");
         style.id = "trend-premium-anim";
         style.innerHTML = `
-            @keyframes floatOrb {
-                0% { transform: translate(0, 0) scale(1); }
-                33% { transform: translate(4vw, -5vh) scale(1.1); }
-                66% { transform: translate(-3vw, 4vh) scale(0.95); }
-                100% { transform: translate(0, 0) scale(1); }
+            @keyframes premiumFall {
+                0% { transform: translateY(-10vh) translateX(0) rotate(0deg); opacity: 0; }
+                10% { opacity: 0.7; }
+                50% { transform: translateY(50vh) translateX(25px) rotate(180deg); }
+                90% { opacity: 0.7; }
+                100% { transform: translateY(110vh) translateX(-25px) rotate(360deg); opacity: 0; }
+            }
+            .premium-particle {
+                position: absolute;
+                opacity: 0.6;
+            }
+            /* 1. Yılbaşı: Parlayan Kusursuz Kar Taneleri (Yuvarlak Dairesel Işıklar) */
+            .theme-yilbasi {
+                background-color: #ffffff;
+                border-radius: 50%;
+                box-shadow: 0 0 12px rgba(255, 255, 255, 0.9);
+            }
+            /* 2. Sevgililer Günü: Vektörel Zarif Kalpler (Emoji değil, CSS çizimi) */
+            .theme-sevgililer {
+                background-color: #ff3366;
+                display: inline-block;
+                transform: rotate(-45deg);
+                box-shadow: 0 0 10px rgba(255, 51, 102, 0.4);
+            }
+            .theme-sevgililer::before, .theme-sevgililer::after {
+                content: ""; position: absolute; width: 100%; height: 100%;
+                background-color: inherit; border-radius: 50%;
+            }
+            .theme-sevgililer::before { top: -50%; left: 0; }
+            .theme-sevgililer::after { top: 0; left: 50%; }
+            
+            /* 3. Kadınlar Günü: Zarif Mor Taç Yaprakları (Göz yaşı damlası formunda) */
+            .theme-kadinlar {
+                background: linear-gradient(135deg, #d05ce3, #9c27b0);
+                border-radius: 50% 0 50% 0; /* Kusursuz yaprak kıvrımı */
+                box-shadow: 0 0 10px rgba(208, 92, 227, 0.5);
+            }
+            /* 4. Bayram: Altın Sarısı Işıltılar (Yıldız Tozu Etkisi) */
+            .theme-bayram {
+                background-color: #d4af37;
+                border-radius: 50%;
+                box-shadow: 0 0 15px rgba(212, 175, 55, 0.8), 0 0 5px rgba(255, 255, 255, 0.5);
             }
         `;
         document.head.appendChild(style);
     }
 
-    // 3. Premium Temalara Göre Bulanık Işık Renkleri (Açık ve Koyu Moda Uyumlu)
-    let colors = [];
-    if (theme === "yilbasi") {
-        colors = ["rgba(173, 216, 230, 0.15)", "rgba(255, 255, 255, 0.1)"]; // Buz mavisi ve soft beyaz
-    } else if (theme === "sevgililer") {
-        colors = ["rgba(255, 51, 102, 0.12)", "rgba(255, 105, 180, 0.1)"]; // Yakut ve rose gold
-    } else if (theme === "kadinlar") {
-        colors = ["rgba(208, 92, 227, 0.12)", "rgba(156, 39, 176, 0.1)"]; // Zarif mor ve lila
-    } else if (theme === "bayram") {
-        colors = ["rgba(212, 175, 55, 0.12)", "rgba(245, 166, 35, 0.1)"]; // Altın sarısı ve kehribar
-    }
+    const particleCount = 20; // Aynı anda dökülen zarif şekil sayısı
+    
+    for (let i = 0; i < particleCount; i++) {
+        let particle = document.createElement("div");
+        particle.className = "premium-particle theme-" + theme;
+        
+        // Boyutlandırma
+        let size = Math.random() * 8 + 6; // 6px ile 14px arası ince, kibar şekiller
+        
+        if (theme === "sevgililer") {
+            // Kalplerin şekli bozulmasın diye özel oran
+            particle.style.width = size + "px";
+            particle.style.height = size + "px";
+            particle.style.marginTop = (size / 2) + "px";
+        } else {
+            particle.style.width = size + "px";
+            particle.style.height = size + "px";
+        }
 
-    // 4. Ekrana 4 Adet Devasa ve Yumuşak Işık Hüzmesi Ekle
-    for (let i = 0; i < 4; i++) {
-        let orb = document.createElement("div");
-        let size = Math.random() * 30 + 30; // 30vw - 60vw arası dev küreler
+        particle.style.left = Math.random() * 100 + "vw";
+        particle.style.top = "-10vh";
         
-        // CSS Büyüsü: Radial gradient ve devasa blur ile aurora/bokeh etkisi
-        orb.style.cssText = `
-            position: absolute;
-            width: ${size}vw;
-            height: ${size}vw;
-            border-radius: 50%;
-            background: radial-gradient(circle, ${colors[i % 2]} 0%, transparent 70%);
-            filter: blur(60px);
-            top: ${Math.random() * 60 - 10}vh;
-            left: ${Math.random() * 60 - 10}vw;
-            animation: floatOrb ${Math.random() * 15 + 20}s ease-in-out infinite alternate;
-        `;
+        // Animasyon Hızları
+        const duration = Math.random() * 8 + 8; // Çok yavaş dökülsün, asil dursun
+        const delay = Math.random() * 5; 
         
-        container.appendChild(orb);
+        particle.style.animation = "premiumFall " + duration + "s linear " + delay + "s infinite";
+        
+        container.appendChild(particle);
     }
 
     document.body.appendChild(container);
   }
-
-
-
 
 
 
