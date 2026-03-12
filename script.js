@@ -150,19 +150,19 @@ document.addEventListener("DOMContentLoaded", async function () {
     document.head.appendChild(style);
   }
 
-    function applyVisualEffects(theme) {
-    // 1. Varsa eski efekti temizle ki üst üste binmesin
+      function applyVisualEffects(theme) {
+    // 1. Varsa eski efekti temizle
     const oldContainer = document.getElementById("trend-theme-container");
     if (oldContainer) oldContainer.remove();
 
     if (theme === 'standart') return;
 
-    // 2. Yeni Kapsayıcı (İŞTE BÜYÜ BURADA: Z-INDEX -1 İLE EN ARKAYA ATIYORUZ)
+    // 2. Yeni Kapsayıcı (Z-INDEX -1 İLE EN ARKAYA ATIYORUZ)
     const container = document.createElement("div");
     container.id = "trend-theme-container";
     container.style.cssText = "position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: -1; overflow: hidden;";
 
-    // Animasyon CSS Kodları (Süzülme ve Rüzgar Efekti)
+    // Animasyon CSS Kodları
     if (!document.getElementById("trend-theme-anim")) {
         const style = document.createElement("style");
         style.id = "trend-theme-anim";
@@ -191,14 +191,14 @@ document.addEventListener("DOMContentLoaded", async function () {
     } else if (theme === "sevgililer") {
         symbols = ["❤️", "💖", "💕"];
     } else if (theme === "kadinlar") {
-        symbols = ["🌸", "🌺", "🌼", "✨"]; // Acemi yapraklar gitti, elit çiçekler geldi!
+        symbols = ["🌸", "🌺", "🌼", "✨"]; 
     } else if (theme === "bayram") {
-        isLantern = true; // Bayram fenerleri özel sarkıtma olacak
+        isLantern = true; 
     }
 
-    // 4. Ekrana Parçacıkları Yağdır (Bayram Hariç)
+    // 4. Ekrana Parçacıkları Yağdır
     if (!isLantern) {
-        const particleCount = 25; // Aynı anda ekranda olacak simge sayısı
+        const particleCount = 25; 
         for (let i = 0; i < particleCount; i++) {
             let particle = document.createElement("div");
             particle.innerText = symbols[Math.floor(Math.random() * symbols.length)];
@@ -206,11 +206,9 @@ document.addEventListener("DOMContentLoaded", async function () {
             particle.style.left = Math.random() * 100 + "vw";
             particle.style.top = "-5vh";
             
-            // Rastgele boyut ve hafif şeffaflık (ürünlerin önüne geçmesin diye)
             particle.style.fontSize = (Math.random() * 1.5 + 1) + "rem";
             particle.style.opacity = Math.random() * 0.4 + 0.2; 
             
-            // Rastgele hız ve rüzgar gecikmesi
             const duration = Math.random() * 6 + 6; 
             const delay = Math.random() * 5; 
             particle.style.animation = \`fallAndSway \${duration}s linear \${delay}s infinite\`;
@@ -218,7 +216,7 @@ document.addEventListener("DOMContentLoaded", async function () {
             container.appendChild(particle);
         }
     } else {
-        // Bayram Fenerleri (Yukarıdan asılı duracak)
+        // Bayram Fenerleri
         container.style.position = 'absolute'; 
         container.style.height = '400px'; 
         container.innerHTML = \`
@@ -234,6 +232,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     document.body.appendChild(container);
   }
+
 
 
   // 3. SİSTEM BAŞLATICI
