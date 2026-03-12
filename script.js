@@ -150,7 +150,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     document.head.appendChild(style);
   }
 
-        function applyVisualEffects(theme) {
+          function applyVisualEffects(theme) {
     // 1. Varsa eski efekti temizle
     const oldContainer = document.getElementById("trend-theme-container");
     if (oldContainer) oldContainer.remove();
@@ -211,7 +211,9 @@ document.addEventListener("DOMContentLoaded", async function () {
             
             const duration = Math.random() * 6 + 6; 
             const delay = Math.random() * 5; 
-            particle.style.animation = \`fallAndSway \${duration}s linear \${delay}s infinite\`;
+            
+            // Ters tırnak (backtick) hatası çözüldü
+            particle.style.animation = "fallAndSway " + duration + "s linear " + delay + "s infinite";
             
             container.appendChild(particle);
         }
@@ -219,7 +221,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         // Bayram Fenerleri
         container.style.position = 'absolute'; 
         container.style.height = '400px'; 
-        container.innerHTML = \`
+        container.innerHTML = `
           <style>
           .lantern { width: 30px; height: 50px; background: linear-gradient(to bottom, rgba(245,166,35,0.8), rgba(212,175,55,0.8)); border-radius: 15px 15px 5px 5px; position: absolute; top: 40px; animation: swingLantern 4s ease-in-out infinite alternate; transform-origin: top center; box-shadow: 0 10px 20px rgba(245,166,35,0.3); } 
           .lantern::before { content: ''; position: absolute; top: -40px; left: 14px; width: 1px; height: 40px; background: rgba(255,255,255,0.2); } 
@@ -227,11 +229,12 @@ document.addEventListener("DOMContentLoaded", async function () {
           </style>
           <div class="lantern" style="left: 10%; animation-delay: 0s;"></div>
           <div class="lantern" style="right: 10%; animation-delay: 1s;"></div>
-        \`;
+        `;
     }
 
     document.body.appendChild(container);
   }
+
 
 
 
