@@ -177,14 +177,13 @@
           <div class="glass-panel text-center" style="border: 2px solid #ff3366 !important; box-shadow: 0 0 20px rgba(255, 51, 102, 0.15);">
             <h5 style="color: #ff3366;" class="mb-2"><i class="bi bi-magic me-2"></i>Global Tema Şovu</h5>
             <p class="opacity-75 small mb-3">Tüm siteyi tek tıkla günün anlam ve önemine göre profesyonelce süsle.</p>
-                        <select id="siteThemeSelect" class="form-select mb-4 text-center fw-bold fs-5" style="background: rgba(0,0,0,0.5); color: #fff; border: 1px solid rgba(255,255,255,0.2);">
-              <option value="standart">Standart (Sade ve Minimal)</option>
-              <option value="yilbasi">Kış Koleksiyonu (Buzul Işıltısı)</option>
-              <option value="sevgililer">Sevgililer Günü (Yakut Ambiyans)</option>
-              <option value="kadinlar">Kadınlar Günü (Zarif Lila)</option>
-              <option value="bayram">Özel Seri (Altın Yansıma)</option>
+            <select id="siteThemeSelect" class="form-select mb-4 text-center fw-bold fs-5">
+              <option value="standart">⚫ Standart (Sade & Asil)</option>
+              <option value="yilbasi">❄️ Yılbaşı (Kusursuz Kar Efekti)</option>
+              <option value="sevgililer">❤️ Sevgililer Günü (Zarif Kalpler)</option>
+              <option value="kadinlar">💜 Kadınlar Günü (Zarif Çiçekler)</option>
+              <option value="bayram">🏮 Ramazan Bayramı (Sarkan Kandiller)</option>
             </select>
-
             <button id="saveThemeBtn" class="btn w-100 rounded-pill py-2 fw-bold" style="background:#ff3366; color:#fff; box-shadow: 0 4px 15px rgba(255, 51, 102, 0.4);">SİTE TEMASINI GÜNCELLE</button>
           </div>
         </div>
@@ -443,6 +442,16 @@
             <input type="text" id="lName" class="form-control mb-3" placeholder="Müşteri Ad Soyad">
             <input type="text" id="lPhone" class="form-control mb-3" placeholder="Telefon (Örn: 5551234567)">
             <input type="text" id="lProduct" class="form-control mb-3" placeholder="Lens Markası (Acuvue vs.)">
+            
+            <div class="mb-3 p-3 rounded" style="background: rgba(13, 202, 240, 0.05); border: 1px dashed #0dcaf0;">
+              <label class="form-label small text-info fw-bold mb-1"><i class="bi bi-camera-fill me-1"></i> Reçete Fotoğrafı (İsteğe Bağlı)</label>
+              <p class="small opacity-50 mb-2" style="font-size: 0.75rem;">Telefonda tıklayınca kamerayı veya galeriyi açar.</p>
+              <input type="file" id="lPhotoInput" class="form-control form-control-sm text-info" accept="image/*">
+              <div id="lPhotoPreviewContainer" class="mt-2 text-center" style="display:none;">
+                <img src="" id="lPhotoImg" style="max-height: 120px; border-radius: 8px; border: 1px solid #0dcaf0; object-fit: contain;">
+              </div>
+            </div>
+
             <label class="small opacity-75">Kaç Aylık Kutu Aldı?</label>
             <select id="lDuration" class="form-select mb-4">
               <option value="30">1 Aylık Kutu (30 Gün)</option>
@@ -478,6 +487,7 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
   import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
   import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, setDoc, getDoc, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+  import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-storage.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyDKROzPt8ZaQXk_m5sMEY853BCafnZFb4o",
@@ -491,6 +501,7 @@
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getFirestore(app);
+  const storage = getStorage(app);
 
   const loginSectionWrapper = document.getElementById("loginSectionWrapper");
   const dashboardSection = document.getElementById("dashboardSection");
@@ -997,11 +1008,66 @@
     document.getElementById("certCount").innerText = qs.size;
   }
 
+  // --- LENS FOTOĞRAF MOTORU BAŞLANGIÇ ---
+  const lPhotoInput = document.getElementById("lPhotoInput");
+  const lPhotoPreviewContainer = document.getElementById("lPhotoPreviewContainer");
+  const lPhotoImg = document.getElementById("lPhotoImg");
+
+  lPhotoInput.addEventListener("change", function(e) {
+    const file = e.target.files[0];
+    if (file) {
+      lPhotoImg.src = URL.createObjectURL(file);
+      lPhotoPreviewContainer.style.display = "block";
+    } else {
+      lPhotoPreviewContainer.style.display = "none";
+    }
+  });
+
   document.getElementById("addLensBtn").addEventListener("click", async () => {
-    await addDoc(collection(db, "lenses"), {
-      customerName: document.getElementById("lName").value, phone: document.getElementById("lPhone").value, product: document.getElementById("lProduct").value, duration: parseInt(document.getElementById("lDuration").value), createdAt: serverTimestamp()
-    });
-    loadLenses();
+    const name = document.getElementById("lName").value;
+    const phone = document.getElementById("lPhone").value;
+    const product = document.getElementById("lProduct").value;
+    const duration = document.getElementById("lDuration").value;
+    const file = lPhotoInput.files[0];
+
+    if(!name || !phone || !product) return trendAlert("Eksik Bilgi", "Lütfen müşteri adı, telefon ve lens modelini girin.", "error");
+
+    const btn = document.getElementById("addLensBtn");
+    btn.disabled = true;
+    btn.innerHTML = `<span class="spinner-border spinner-border-sm"></span> Kaydediliyor...`;
+
+    try {
+      let photoUrl = "";
+      if (file) {
+        const storageRef = ref(storage, 'receteler/' + Date.now() + '_' + file.name);
+        await uploadBytes(storageRef, file);
+        photoUrl = await getDownloadURL(storageRef);
+      }
+
+      await addDoc(collection(db, "lenses"), {
+        customerName: name,
+        phone: phone,
+        product: product,
+        duration: parseInt(duration),
+        photoUrl: photoUrl,
+        createdAt: serverTimestamp()
+      });
+
+      document.getElementById("lName").value = "";
+      document.getElementById("lPhone").value = "";
+      document.getElementById("lProduct").value = "";
+      lPhotoInput.value = "";
+      lPhotoPreviewContainer.style.display = "none";
+
+      loadLenses();
+      trendAlert("Başarılı", "Lens kaydı eklendi.", "success");
+    } catch (e) {
+      console.error(e);
+      trendAlert("Hata", "Kaydedilemedi.", "error");
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = "LENS TAKİBİNİ BAŞLAT";
+    }
   });
 
   async function loadLenses() {
@@ -1011,13 +1077,17 @@
     qs.forEach((d) => {
       const lens = d.data(); if(!lens.createdAt) return;
       const diff = Math.ceil((new Date(lens.createdAt.toDate().getTime() + (lens.duration * 86400000)) - new Date()) / 86400000);
+
+      let receteBtn = lens.photoUrl ? `<button class="btn btn-sm btn-info me-1" onclick="window.open('${lens.photoUrl}', '_blank')" title="Reçeteyi Göster"><i class="bi bi-file-earmark-image"></i></button>` : '';
+
       tbody.innerHTML += `<tr><td>${lens.customerName}</td><td>${lens.product}</td><td>${diff} Gün</td><td>
-        <button class="btn btn-sm btn-danger" onclick="window.deleteLens('${d.id}')"
-><i class="bi bi-x"></i></button>
+        ${receteBtn}
+        <button class="btn btn-sm btn-danger" onclick="window.deleteLens('${d.id}')"><i class="bi bi-x"></i></button>
       </td></tr>`;
     });
     document.getElementById("lensCount").innerText = qs.size;
   }
+  // --- LENS FOTOĞRAF MOTORU BİTİŞ ---
   
   // --- SİLME KÖPRÜLERİ (BURAYI YAPIŞTIR) ---
   window.deleteCert = async function(id) {
