@@ -150,56 +150,139 @@ document.addEventListener("DOMContentLoaded", async function () {
     document.head.appendChild(style);
   }
 
-             function applyVisualEffects(theme) {
-    // 1. Önceki tüm hareketli/hareketsiz saçmalıkları kökünden temizle
-    const oldStyle = document.getElementById("trend-lens-filter");
+               function applyVisualEffects(theme) {
+    // 1. Önceki tüm hareketli/hareketsiz şovları kökünden temizle
+    document.querySelectorAll('.trend-theme-decor').forEach(el => el.remove());
+    const oldStyle = document.getElementById("trend-theme-style");
     if (oldStyle) oldStyle.remove();
-    
-    const oldContainer1 = document.getElementById("trend-theme-container");
-    if (oldContainer1) oldContainer1.remove();
-    const oldContainer2 = document.getElementById("trend-premium-container");
-    if (oldContainer2) oldContainer2.remove();
 
-    // 2. Standart temada hiçbir filtre yok, sitenin orijinal mat siyahı/beyazı kalır
     if (!theme || theme === 'standart') {
-        document.body.style.backgroundColor = ""; 
+        document.body.style.backgroundColor = ""; // Arka planı sıfırla
         return;
     }
 
-    // 3. Premium Lens Filtresi Renkleri (Siyaha %3 renk damlatılmış gibi düşün)
-    let darkBg = "";
-    let lightBg = "";
+    // 2. Tema Renkleri ve Sitenin Kendi İçindeki Vektörel İkonları (Bootstrap Icons)
+    let themeColor = "";
+    let logoIcon = "";
+    let cornerIcon = "";
+    let cornerText = "";
 
     if (theme === "yilbasi") {
-        darkBg = "#050b14";   // Gece Mavisi (Soğuk füme/lacivert cam efekti)
-        lightBg = "#f0f4f8";  // Buzlu Beyaz
+        themeColor = "#00b4d8"; // Buz Mavisi
+        logoIcon = "bi-snow2"; // Logoya kar kristali
+        cornerIcon = "bi-gift-fill"; // Sol alta lüks hediye paketi
+        cornerText = "Mutlu Yıllar";
     } else if (theme === "sevgililer") {
-        darkBg = "#140507";   // Koyu Bordo/Mürdüm (Sıcak kırmızı cam efekti)
-        lightBg = "#fff0f3";  // Çok uçuk sıcak beyaz
+        themeColor = "#ff3366"; // Yakut Kırmızısı
+        logoIcon = "bi-arrow-through-heart-fill"; // Logoya minik kalp
+        cornerIcon = "bi-envelope-paper-heart-fill"; // Sol alta aşk mektubu
+        cornerText = "Sevgiyle...";
     } else if (theme === "kadinlar") {
-        darkBg = "#110514";   // Patlıcan Moru (Zarif mor cam efekti)
-        lightBg = "#f9f0ff";  // Çok uçuk lila-beyaz
+        themeColor = "#d05ce3"; // Lila
+        logoIcon = "bi-flower1"; // Logoya zarif çiçek
+        cornerIcon = "bi-bag-heart-fill"; // Sol alta şık butik çantası
+        cornerText = "Kadınlar Günü";
     } else if (theme === "bayram") {
-        darkBg = "#141005";   // Koyu Kehribar (Kaplumbağa kabuğu/kahverengi cam efekti)
-        lightBg = "#fff8f0";  // Sıcak Krem
+        themeColor = "#d4af37"; // Altın Sarısı
+        logoIcon = "bi-moon-stars-fill"; // Logoya altın hilal
+        cornerIcon = "bi-basket2-fill"; // İŞTE SENİN FİKRİN: Şeker Sepeti!
+        cornerText = "İyi Bayramlar";
     }
 
-    // 4. CSS ile Arka Planı Jilet Gibi ve Yumuşakça Değiştir
+    // 3. Sıfır Hareket, Maksimum Kalite CSS (Apple Tarzı Cam Dokusu)
     const style = document.createElement("style");
-    style.id = "trend-lens-filter";
+    style.id = "trend-theme-style";
     style.innerHTML = `
-        /* Temalar arası geçerken 1 saniyelik çok yumuşak bir renk süzülmesi */
-        body {
-            transition: background-color 1s ease-in-out !important;
-            background-color: ${darkBg} !important;
+        /* Logodaki Zarif Dokunuş */
+        .logo-decor {
+            position: absolute;
+            top: -5px;
+            right: -15px;
+            font-size: 1.2rem;
+            color: ${themeColor};
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+            pointer-events: none;
         }
-        /* Eğer dükkanda Açık Tema tuşuna basılırsa arka plan renkleri boğmasın diye */
-        body.light-mode {
-            background-color: ${lightBg} !important;
+        .navbar-brand {
+            position: relative !important;
+            display: inline-block;
+        }
+
+        /* Ekranın Sol Altındaki VIP Tema Rozeti (Şeker Sepeti Alanı) */
+        .corner-badge-decor {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            background: rgba(15, 15, 15, 0.85); /* Asil koyu cam */
+            backdrop-filter: blur(15px); /* Arkasını hafif buzlu gösterir */
+            border: 1px solid rgba(255,255,255,0.08);
+            border-left: 4px solid ${themeColor};
+            padding: 12px 20px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: #fff;
+            pointer-events: none; /* Müşteri yanlışlıkla tıklayamaz */
+        }
+        .corner-badge-decor i {
+            font-size: 1.8rem;
+            color: ${themeColor};
+            filter: drop-shadow(0 0 10px ${themeColor}66);
+        }
+        .corner-badge-text {
+            display: flex;
+            flex-direction: column;
+        }
+        .corner-badge-title {
+            font-size: 0.7rem;
+            opacity: 0.5;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 700;
+        }
+        .corner-badge-value {
+            font-size: 1rem;
+            font-weight: 800;
+            margin: 0;
+            letter-spacing: 0.5px;
+        }
+        
+        /* Gündüz Modunda Göz Yormasın Diye */
+        body.light-mode .corner-badge-decor {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(0,0,0,0.1);
+            border-left: 4px solid ${themeColor};
+            color: #000;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
         }
     `;
     document.head.appendChild(style);
+
+    // 4. Logoyu Süsle (Trend Optik yazısının köşesine kondur)
+    const navbarBrands = document.querySelectorAll('.navbar-brand');
+    navbarBrands.forEach(brand => {
+        const decor = document.createElement("i");
+        decor.className = `bi ${logoIcon} trend-theme-decor logo-decor`;
+        brand.appendChild(decor);
+    });
+
+    // 5. VIP Rozeti Ekle (Sitenin köşesinde asilce duran şeker sepeti/hediye)
+    // WhatsApp butonu sağda olduğu için bunu sola koyduk, çakışmazlar!
+    const cornerBadge = document.createElement("div");
+    cornerBadge.className = "trend-theme-decor corner-badge-decor";
+    cornerBadge.innerHTML = `
+        <i class="bi ${cornerIcon}"></i>
+        <div class="corner-badge-text">
+            <span class="corner-badge-title">Trend Optik</span>
+            <span class="corner-badge-value">${cornerText}</span>
+        </div>
+    `;
+    document.body.appendChild(cornerBadge);
   }
+
 
 
 
