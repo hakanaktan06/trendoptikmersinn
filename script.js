@@ -1,4 +1,4 @@
- // Firebase v12.10.0 Importları
+// Firebase v12.10.0 Importları
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
 import { getFirestore, collection, getDocs, query, orderBy, limit, updateDoc, doc, increment, getDoc, where } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
