@@ -150,102 +150,97 @@ document.addEventListener("DOMContentLoaded", async function () {
     document.head.appendChild(style);
   }
 
-       function applyVisualEffects(theme) {
-    const oldContainer = document.getElementById("trend-theme-container");
+         function applyVisualEffects(theme) {
+    // 1. Varsa eski şovları ve mouse takipçisini temizle
+    const oldContainer = document.getElementById("trend-premium-container");
     if (oldContainer) oldContainer.remove();
+    
+    if (window.trendGlowListener) {
+        document.removeEventListener("mousemove", window.trendGlowListener);
+        window.trendGlowListener = null;
+    }
 
     if (!theme || theme === 'standart') return;
 
-    // Z-INDEX -1 ile EN ARKADA (Gözlüklerin arkasından dökülecek)
-    const container = document.createElement("div");
-    container.id = "trend-theme-container";
-    container.style.cssText = "position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: -1; overflow: hidden;";
+    // 2. Premium Işık Renkleri (Sadece kalite kokan soft neon tonlar)
+    let glowColor = "";
+    if (theme === "yilbasi") glowColor = "rgba(0, 180, 216, 0.4)"; // Buz Mavisi
+    else if (theme === "sevgililer") glowColor = "rgba(255, 51, 102, 0.4)"; // Yakut Kırmızısı
+    else if (theme === "kadinlar") glowColor = "rgba(208, 92, 227, 0.4)"; // Zarif Lila
+    else if (theme === "bayram") glowColor = "rgba(212, 175, 55, 0.4)"; // Altın Sarısı
 
-    // Premium Animasyon ve Kusursuz CSS Şekilleri
-    if (!document.getElementById("trend-premium-anim")) {
+    // 3. Z-INDEX -1 ile En Arkadaki Kapsayıcı
+    const container = document.createElement("div");
+    container.id = "trend-premium-container";
+    container.style.cssText = "position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: -1; overflow: hidden; background: transparent;";
+
+    // 4. Sabit Ambiyans Işığı (Köşeden nefes alan lüks ışık)
+    const ambientOrb = document.createElement("div");
+    ambientOrb.style.cssText = `
+        position: absolute;
+        width: 80vw;
+        height: 80vw;
+        background: radial-gradient(circle, ${glowColor.replace('0.4', '0.15')} 0%, transparent 70%);
+        border-radius: 50%;
+        top: -20%;
+        right: -10%;
+        filter: blur(100px);
+        animation: pulseGlow 6s infinite alternate ease-in-out;
+    `;
+
+    // 5. Mouse'u Takip Eden Akıllı Yansıma (İşte şov bu)
+    const cursorOrb = document.createElement("div");
+    cursorOrb.style.cssText = `
+        position: absolute;
+        width: 600px;
+        height: 600px;
+        background: radial-gradient(circle, ${glowColor} 0%, transparent 70%);
+        border-radius: 50%;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        filter: blur(90px);
+        opacity: 0.8;
+        transition: opacity 0.5s ease;
+    `;
+
+    // 6. Cam Efekti CSS (Frosted Glass)
+    if (!document.getElementById("trend-glow-anim")) {
         const style = document.createElement("style");
-        style.id = "trend-premium-anim";
+        style.id = "trend-glow-anim";
         style.innerHTML = `
-            @keyframes premiumFall {
-                0% { transform: translateY(-10vh) translateX(0) rotate(0deg); opacity: 0; }
-                10% { opacity: 0.7; }
-                50% { transform: translateY(50vh) translateX(25px) rotate(180deg); }
-                90% { opacity: 0.7; }
-                100% { transform: translateY(110vh) translateX(-25px) rotate(360deg); opacity: 0; }
+            @keyframes pulseGlow {
+                0% { transform: scale(1); opacity: 0.5; }
+                100% { transform: scale(1.1); opacity: 1; }
             }
-            .premium-particle {
-                position: absolute;
-                opacity: 0.6;
+            /* Gözlük Kartlarına Buzlu Cam Efekti Veriyoruz (Lüks Dokunuş) */
+            .product-card {
+                background: rgba(255, 255, 255, 0.03) !important;
+                backdrop-filter: blur(15px);
+                border: 1px solid rgba(255, 255, 255, 0.05) !important;
             }
-            /* 1. Yılbaşı: Parlayan Kusursuz Kar Taneleri (Yuvarlak Dairesel Işıklar) */
-            .theme-yilbasi {
-                background-color: #ffffff;
-                border-radius: 50%;
-                box-shadow: 0 0 12px rgba(255, 255, 255, 0.9);
-            }
-            /* 2. Sevgililer Günü: Vektörel Zarif Kalpler (Emoji değil, CSS çizimi) */
-            .theme-sevgililer {
-                background-color: #ff3366;
-                display: inline-block;
-                transform: rotate(-45deg);
-                box-shadow: 0 0 10px rgba(255, 51, 102, 0.4);
-            }
-            .theme-sevgililer::before, .theme-sevgililer::after {
-                content: ""; position: absolute; width: 100%; height: 100%;
-                background-color: inherit; border-radius: 50%;
-            }
-            .theme-sevgililer::before { top: -50%; left: 0; }
-            .theme-sevgililer::after { top: 0; left: 50%; }
-            
-            /* 3. Kadınlar Günü: Zarif Mor Taç Yaprakları (Göz yaşı damlası formunda) */
-            .theme-kadinlar {
-                background: linear-gradient(135deg, #d05ce3, #9c27b0);
-                border-radius: 50% 0 50% 0; /* Kusursuz yaprak kıvrımı */
-                box-shadow: 0 0 10px rgba(208, 92, 227, 0.5);
-            }
-            /* 4. Bayram: Altın Sarısı Işıltılar (Yıldız Tozu Etkisi) */
-            .theme-bayram {
-                background-color: #d4af37;
-                border-radius: 50%;
-                box-shadow: 0 0 15px rgba(212, 175, 55, 0.8), 0 0 5px rgba(255, 255, 255, 0.5);
+            .light-mode .product-card {
+                background: rgba(255, 255, 255, 0.7) !important;
+                border: 1px solid rgba(0, 0, 0, 0.05) !important;
             }
         `;
         document.head.appendChild(style);
     }
 
-    const particleCount = 20; // Aynı anda dökülen zarif şekil sayısı
-    
-    for (let i = 0; i < particleCount; i++) {
-        let particle = document.createElement("div");
-        particle.className = "premium-particle theme-" + theme;
-        
-        // Boyutlandırma
-        let size = Math.random() * 8 + 6; // 6px ile 14px arası ince, kibar şekiller
-        
-        if (theme === "sevgililer") {
-            // Kalplerin şekli bozulmasın diye özel oran
-            particle.style.width = size + "px";
-            particle.style.height = size + "px";
-            particle.style.marginTop = (size / 2) + "px";
-        } else {
-            particle.style.width = size + "px";
-            particle.style.height = size + "px";
-        }
-
-        particle.style.left = Math.random() * 100 + "vw";
-        particle.style.top = "-10vh";
-        
-        // Animasyon Hızları
-        const duration = Math.random() * 8 + 8; // Çok yavaş dökülsün, asil dursun
-        const delay = Math.random() * 5; 
-        
-        particle.style.animation = "premiumFall " + duration + "s linear " + delay + "s infinite";
-        
-        container.appendChild(particle);
-    }
-
+    container.appendChild(ambientOrb);
+    container.appendChild(cursorOrb);
     document.body.appendChild(container);
+
+    // 7. Akıllı Mouse Motoru (Tarayıcıyı yormadan imleci izler)
+    window.trendGlowListener = function(e) {
+        requestAnimationFrame(() => {
+            cursorOrb.style.left = e.clientX + 'px';
+            cursorOrb.style.top = e.clientY + 'px';
+        });
+    };
+    document.addEventListener("mousemove", window.trendGlowListener);
   }
+
 
 
 
