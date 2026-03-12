@@ -150,67 +150,91 @@ document.addEventListener("DOMContentLoaded", async function () {
     document.head.appendChild(style);
   }
 
-  function applyVisualEffects(theme) {
-    const style = document.createElement('style');
-    let css = '';
-    let container = document.createElement('div');
-    
-    container.style.cssText = 'position: absolute; top: 0; left: 0; width: 100%; height: 100vh; overflow: hidden; pointer-events: none; z-index: 9999;';
+    function applyVisualEffects(theme) {
+    // 1. Varsa eski efekti temizle ki üst üste binmesin
+    const oldContainer = document.getElementById("trend-theme-container");
+    if (oldContainer) oldContainer.remove();
 
-    if (theme === 'yilbasi') {
-      css = `
-        .navbar-brand::after { content: ''; position: absolute; top: -3px; left: 0; width: 100%; height: 4px; background: rgba(255,255,255,0.9); border-radius: 10px; filter: blur(1px); } 
-        .product-card { border-top: 1px solid rgba(255,255,255,0.5) !important; } 
-        .snowflake { position: absolute; background: white; border-radius: 50%; filter: blur(1px); animation: snowFall linear infinite; } 
-        @keyframes snowFall { 0% { transform: translateY(-10vh); opacity: 0; } 10% { opacity: 0.8; } 90% { opacity: 0.8; } 100% { transform: translateY(100vh); opacity: 0; } }
-      `;
-      container.style.position = 'fixed';
-      for(let i = 0; i < 30; i++) {
-        container.innerHTML += `<div class="snowflake" style="width:${Math.random() * 4 + 2}px;height:${Math.random() * 4 + 2}px;left:${Math.random() * 100}%;animation-duration:${Math.random() * 5 + 5}s;animation-delay:${Math.random() * 5}s;"></div>`;
-      }
-    } 
-    else if (theme === 'sevgililer') {
-      css = `
-        .css-heart { position: absolute; width: 12px; height: 12px; background: rgba(255, 51, 102, 0.6); transform: rotate(-45deg); animation: floatHeart linear infinite; filter: drop-shadow(0 0 5px rgba(255,51,102,0.5)); } 
-        .css-heart::before, .css-heart::after { content: ""; position: absolute; width: 12px; height: 12px; background: inherit; border-radius: 50%; } 
-        .css-heart::before { top: -6px; left: 0; } 
-        .css-heart::after { top: 0; left: 6px; } 
-        @keyframes floatHeart { 0% { transform: translateY(100vh) rotate(-45deg) scale(0.5); opacity: 0; } 20% { opacity: 1; } 80% { opacity: 1; } 100% { transform: translateY(-10vh) rotate(-45deg) scale(1.2); opacity: 0; } }
-      `;
-      container.style.position = 'fixed';
-      for(let i = 0; i < 20; i++) {
-        container.innerHTML += `<div class="css-heart" style="left:${Math.random() * 100}%;animation-duration:${Math.random() * 6 + 4}s;animation-delay:${Math.random() * 5}s;"></div>`;
-      }
-    }
-    else if (theme === 'kadinlar') {
-      css = `
-        .petal { position: absolute; width: 10px; height: 10px; background: linear-gradient(135deg, #d05ce3, #9c27b0); border-radius: 0 10px 0 10px; animation: fallPetal linear infinite; filter: drop-shadow(0 0 3px rgba(208,92,227,0.4)); opacity: 0.6; } 
-        @keyframes fallPetal { 0% { transform: translateY(-10vh) rotate(0deg); opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { transform: translateY(100vh) rotate(360deg); opacity: 0; } }
-      `;
-      container.style.position = 'fixed';
-      for(let i = 0; i < 25; i++) {
-        container.innerHTML += `<div class="petal" style="left:${Math.random() * 100}%;animation-duration:${Math.random() * 6 + 5}s;animation-delay:${Math.random() * 5}s;"></div>`;
-      }
-    }
-    else if (theme === 'bayram') {
-      container.style.position = 'absolute'; 
-      container.style.height = '400px'; 
-      css = `
-        .lantern { width: 30px; height: 50px; background: linear-gradient(to bottom, rgba(245,166,35,0.8), rgba(212,175,55,0.8)); border-radius: 15px 15px 5px 5px; position: absolute; top: 40px; animation: swing 4s ease-in-out infinite alternate; transform-origin: top center; box-shadow: 0 10px 20px rgba(245,166,35,0.3); } 
-        .lantern::before { content: ''; position: absolute; top: -40px; left: 14px; width: 1px; height: 40px; background: rgba(255,255,255,0.2); } 
-        .lantern::after { content: ''; position: absolute; bottom: -10px; left: 10px; width: 10px; height: 10px; background: rgba(245,166,35,0.8); clip-path: polygon(0 0, 100% 0, 50% 100%); } 
-        @keyframes swing { 0% { transform: rotate(6deg); } 100% { transform: rotate(-6deg); } }
-      `;
-      container.innerHTML = `
-        <div class="lantern" style="left: 10%; animation-delay: 0s;"></div>
-        <div class="lantern" style="right: 10%; animation-delay: 1s;"></div>
-      `;
+    if (theme === 'standart') return;
+
+    // 2. Yeni Kapsayıcı (İŞTE BÜYÜ BURADA: Z-INDEX -1 İLE EN ARKAYA ATIYORUZ)
+    const container = document.createElement("div");
+    container.id = "trend-theme-container";
+    container.style.cssText = "position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: -1; overflow: hidden;";
+
+    // Animasyon CSS Kodları (Süzülme ve Rüzgar Efekti)
+    if (!document.getElementById("trend-theme-anim")) {
+        const style = document.createElement("style");
+        style.id = "trend-theme-anim";
+        style.innerHTML = `
+            @keyframes fallAndSway {
+                0% { transform: translateY(-10vh) translateX(0) rotate(0deg); opacity: 0; }
+                10% { opacity: 0.6; }
+                50% { transform: translateY(50vh) translateX(20px) rotate(180deg); }
+                90% { opacity: 0.6; }
+                100% { transform: translateY(110vh) translateX(-20px) rotate(360deg); opacity: 0; }
+            }
+            @keyframes swingLantern {
+                0% { transform: rotate(6deg); }
+                100% { transform: rotate(-6deg); }
+            }
+        `;
+        document.head.appendChild(style);
     }
 
-    style.innerHTML = css;
-    document.head.appendChild(style);
+    // 3. Temalara Göre Simgeleri Belirle
+    let symbols = [];
+    let isLantern = false;
+
+    if (theme === "yilbasi") {
+        symbols = ["❄", "❅", "❆"];
+    } else if (theme === "sevgililer") {
+        symbols = ["❤️", "💖", "💕"];
+    } else if (theme === "kadinlar") {
+        symbols = ["🌸", "🌺", "🌼", "✨"]; // Acemi yapraklar gitti, elit çiçekler geldi!
+    } else if (theme === "bayram") {
+        isLantern = true; // Bayram fenerleri özel sarkıtma olacak
+    }
+
+    // 4. Ekrana Parçacıkları Yağdır (Bayram Hariç)
+    if (!isLantern) {
+        const particleCount = 25; // Aynı anda ekranda olacak simge sayısı
+        for (let i = 0; i < particleCount; i++) {
+            let particle = document.createElement("div");
+            particle.innerText = symbols[Math.floor(Math.random() * symbols.length)];
+            particle.style.position = "absolute";
+            particle.style.left = Math.random() * 100 + "vw";
+            particle.style.top = "-5vh";
+            
+            // Rastgele boyut ve hafif şeffaflık (ürünlerin önüne geçmesin diye)
+            particle.style.fontSize = (Math.random() * 1.5 + 1) + "rem";
+            particle.style.opacity = Math.random() * 0.4 + 0.2; 
+            
+            // Rastgele hız ve rüzgar gecikmesi
+            const duration = Math.random() * 6 + 6; 
+            const delay = Math.random() * 5; 
+            particle.style.animation = \`fallAndSway \${duration}s linear \${delay}s infinite\`;
+            
+            container.appendChild(particle);
+        }
+    } else {
+        // Bayram Fenerleri (Yukarıdan asılı duracak)
+        container.style.position = 'absolute'; 
+        container.style.height = '400px'; 
+        container.innerHTML = \`
+          <style>
+          .lantern { width: 30px; height: 50px; background: linear-gradient(to bottom, rgba(245,166,35,0.8), rgba(212,175,55,0.8)); border-radius: 15px 15px 5px 5px; position: absolute; top: 40px; animation: swingLantern 4s ease-in-out infinite alternate; transform-origin: top center; box-shadow: 0 10px 20px rgba(245,166,35,0.3); } 
+          .lantern::before { content: ''; position: absolute; top: -40px; left: 14px; width: 1px; height: 40px; background: rgba(255,255,255,0.2); } 
+          .lantern::after { content: ''; position: absolute; bottom: -10px; left: 10px; width: 10px; height: 10px; background: rgba(245,166,35,0.8); clip-path: polygon(0 0, 100% 0, 50% 100%); }
+          </style>
+          <div class="lantern" style="left: 10%; animation-delay: 0s;"></div>
+          <div class="lantern" style="right: 10%; animation-delay: 1s;"></div>
+        \`;
+    }
+
     document.body.appendChild(container);
   }
+
 
   // 3. SİSTEM BAŞLATICI
   async function initializeSystem() {
