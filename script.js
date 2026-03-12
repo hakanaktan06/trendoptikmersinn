@@ -150,118 +150,118 @@ document.addEventListener("DOMContentLoaded", async function () {
     document.head.appendChild(style);
   }
 
-             function applyVisualEffects(theme) {
-    // 1. Önceki tüm hatalı/eski süsleri ve sarmalayıcıları (wrapper) temizle
+               function applyVisualEffects(theme) {
+    // 1. Önceki tüm hatalı süsleri temizle
     document.querySelectorAll('.trend-theme-decor').forEach(el => el.remove());
     const oldStyle = document.getElementById("trend-theme-style");
     if (oldStyle) oldStyle.remove();
-
-    // Sitedeki TÜM "Trend Optik" yazılarını bulalım (Açılış ekranı VE Ana sayfa)
-    let heroTitles = Array.from(document.querySelectorAll('h1, h2, h3, h4, h5')).filter(el => 
-        el.innerHTML.includes('Trend Optik') && !el.classList.contains('navbar-brand')
-    );
-    
-    // Sitedeki "Randevu" butonunu bulalım
-    let randevuBtn = Array.from(document.querySelectorAll('a, button')).find(el => 
-        el.innerText.toLowerCase().includes('randevu')
-    );
-
-    // Temizleme işlemi (Tüm başlıkları orijinaline döndür)
-    heroTitles.forEach(title => {
-        if (title.dataset.originalHtml) {
-            title.innerHTML = title.dataset.originalHtml;
-        }
-    });
 
     if (!theme || theme === 'standart') {
         document.body.style.backgroundColor = ""; 
         return;
     }
 
-    // 2. Özel Vektörel Çizimler (Sadece Lüks Line-Art SVG)
-    let logoReplacement = "";
+    // 2. Sitedeki Asıl Başlığı Bul ("Optik" kelimesini içeren büyük başlık)
+    let heroTitle = Array.from(document.querySelectorAll('h1, h2, h3, h4, h5')).find(el => 
+        el.innerText.includes('Optik') && !el.classList.contains('navbar-brand')
+    );
+    
+    // 3. Randevu Butonunu Bul
+    let randevuBtn = Array.from(document.querySelectorAll('a, button, div.btn')).find(el => 
+        el.innerText && el.innerText.toLowerCase().includes('randevu')
+    );
+
+    // 4. PİKSELLEŞMEYEN VEKTÖREL (SVG) İKONLAR (Asma Kilit Çöpe!)
+    let logoDecorSvg = "";
     let buttonSideDecor = "";
 
     if (theme === "yilbasi") {
-        logoReplacement = '<span class="custom-letter">T<svg class="decor-svg hat-svg" viewBox="0 0 24 24"><path fill="none" stroke="#00b4d8" stroke-width="1.5" d="M12 2L12 6M12 22L12 18M2 12L6 12M22 12L18 12M4.9 4.9L7.7 7.7M19.1 19.1L16.3 16.3M4.9 19.1L7.7 16.3M19.1 4.9L16.3 7.7"/></svg></span>rend Optik';
-        buttonSideDecor = `<svg class="btn-side-svg" viewBox="0 0 24 24"><path fill="none" stroke="#00b4d8" stroke-width="1.5" d="M20 12v9a1 1 0 01-1 1H5a1 1 0 01-1-1v-9m16 0H4m16 0V7a1 1 0 00-1-1H5a1 1 0 00-1 1v5m4-5V5a2 2 0 012-2h4a2 2 0 012 2v2m-6 0h4"/></svg><span class="btn-side-text" style="color:#00b4d8">Yeni Yıl Hediyesi</span>`;
+        // Kar Tanesi
+        logoDecorSvg = `<svg viewBox="0 0 16 16" fill="#00b4d8"><path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m.25-14.75v1.5a.25.25 0 0 1-.5 0v-1.5a.25.25 0 0 1 .5 0m0 11.5v1.5a.25.25 0 0 1-.5 0v-1.5a.25.25 0 0 1 .5 0m5.5-6.25h-1.5a.25.25 0 0 1 0-.5h1.5a.25.25 0 0 1 0 .5m-11.5 0h-1.5a.25.25 0 0 1 0-.5h1.5a.25.25 0 0 1 0 .5"/></svg>`; 
+        // Hediye Paketi
+        buttonSideDecor = `<svg class="btn-side-svg" viewBox="0 0 16 16" fill="#00b4d8"><path d="M3 2.5a2.5 2.5 0 0 1 5 0 2.5 2.5 0 0 1 5 0v.006c0 .07 0 .27-.038.494H15a1 1 0 0 1 1 1v1a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h2.038A3 3 0 0 1 3 2.506zm1.068.5H7v-.5a1.5 1.5 0 1 0-3 0c0 .085.002.274.045.43zM9 3h2.932l.023-.07c.043-.156.045-.345.045-.43a1.5 1.5 0 0 0-3 0zm6 4v7.5a1.5 1.5 0 0 1-1.5 1.5H9V7zM2.5 16A1.5 1.5 0 0 1 1 14.5V7h6v9z"/></svg><span class="btn-side-text" style="color:#00b4d8">Yeni Yıl Hediyesi</span>`;
     } else if (theme === "sevgililer") {
-        logoReplacement = 'Trend Opt<span class="custom-letter">ı<svg class="decor-svg heart-dot" viewBox="0 0 24 24"><path fill="#ff3366" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></span>k';
-        buttonSideDecor = `<svg class="btn-side-svg" viewBox="0 0 24 24"><path fill="none" stroke="#ff3366" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg><span class="btn-side-text" style="color:#ff3366">Sevgiyle...</span>`;
+        // Kalp
+        logoDecorSvg = `<svg viewBox="0 0 16 16" fill="#ff3366"><path fill-rule="evenodd" d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314"/></svg>`; 
+        buttonSideDecor = `<svg class="btn-side-svg" viewBox="0 0 16 16" fill="#ff3366"><path fill-rule="evenodd" d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314"/></svg><span class="btn-side-text" style="color:#ff3366">Sevgiyle...</span>`;
     } else if (theme === "kadinlar") {
-        logoReplacement = 'Tr<span class="custom-letter">e<svg class="decor-svg flower-svg" viewBox="0 0 24 24"><path fill="none" stroke="#d05ce3" stroke-width="1.5" stroke-linecap="round" d="M12 22V12M12 12C12 12 7 8 7 4C7 4 12 2 12 7C12 2 17 4 17 4C17 8 12 12 12 12Z"/></svg></span>nd Optik';
-        buttonSideDecor = `<svg class="btn-side-svg" viewBox="0 0 24 24"><path fill="none" stroke="#d05ce3" stroke-width="1.5" stroke-linecap="round" d="M12 21.5c-3-3-6-6-6-10a6 6 0 1112 0c0 4-3 7-6 10zM12 15a3 3 0 100-6 3 3 0 000 6z"/></svg><span class="btn-side-text" style="color:#d05ce3">Özel Koleksiyon</span>`;
+        // Çiçek / Orkide
+        logoDecorSvg = `<svg viewBox="0 0 16 16" fill="#d05ce3"><path d="M15.825.12a.5.5 0 0 1 .132.584c-1.53 3.43-4.743 8.17-7.095 10.64a6.067 6.067 0 0 1-2.373 1.534c-.018.227-.06.538-.16.868-.201.659-.667 1.479-1.708 1.74a8.118 8.118 0 0 1-3.078.132 3.659 3.659 0 0 1-.562-.135 1.382 1.382 0 0 1-.466-.247.714.714 0 0 1-.204-.288.622.622 0 0 1 .004-.443c.095-.245.316-.38.461-.452.394-.197.625-.453.867-.826.095-.144.184-.297.287-.472l.117-.198c.151-.255.326-.54.546-.848.528-.739 1.201-.925 1.746-.896.126.007.243.025.348.048.062-.172.142-.38.238-.608.261-.619.658-1.419 1.187-2.069 2.176-2.67 6.18-6.206 9.117-8.104a.5.5 0 0 1 .596.04z"/></svg>`; 
+        buttonSideDecor = `<svg class="btn-side-svg" viewBox="0 0 16 16" fill="#d05ce3"><path d="M8 16a4 4 0 0 0 4-4 4 4 0 0 0 0-8 4 4 0 0 0-8 0 4 4 0 0 0 0 8 4 4 0 0 0 4 4m3-12a3 3 0 1 1-6 0 3 3 0 0 1 6 0m-3 9a3 3 0 1 1 0-6 3 3 0 0 1 0 6"/></svg><span class="btn-side-text" style="color:#d05ce3">Özel Koleksiyon</span>`;
     } else if (theme === "bayram") {
-        logoReplacement = 'Trend <span class="custom-letter">O<svg class="decor-svg crescent-inner" viewBox="0 0 24 24"><path fill="#d4af37" d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></span>ptik';
-        buttonSideDecor = `<svg class="btn-side-svg" viewBox="0 0 24 24"><path fill="none" stroke="#d4af37" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M8 10V7a4 4 0 118 0v3m-9 0h10a2 2 0 012 2v7a2 2 0 01-2 2H7a2 2 0 01-2-2v-7a2 2 0 012-2zM10 14a2 2 0 104 0 2 2 0 00-4 0z"/></svg><span class="btn-side-text" style="color:#d4af37">İyi Bayramlar</span>`;
+        // Hilal
+        logoDecorSvg = `<svg viewBox="0 0 16 16" fill="#d4af37"><path d="M6 .278a.768.768 0 0 1 .08.858 7.208 7.208 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277.527 0 1.04-.055 1.533-.16a.787.787 0 0 1 .81.316.733.733 0 0 1-.031.893A8.349 8.349 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.752.752 0 0 1 6 .278z"/></svg>`; 
+        // İŞTE SEPET (Sepet SVG'si, Asma Kilit Değil!)
+        buttonSideDecor = `<svg class="btn-side-svg" viewBox="0 0 16 16" fill="#d4af37"><path d="M5.071 1.243a.5.5 0 0 1 .858.514L3.383 6h9.234l-2.546-4.243a.5.5 0 1 1 .858-.514L13.783 6H15a1 1 0 0 1 1 1v1a1 1 0 0 1-1 1v4.5a2.5 2.5 0 0 1-2.5 2.5h-9A2.5 2.5 0 0 1 1 13.5V9a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h1.217zM2 9v4.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V9zM1 7v1h14V7z"/></svg><span class="btn-side-text" style="color:#d4af37">İyi Bayramlar</span>`;
     }
 
-    // 3. Jilet Gibi Keskin CSS Ayarları
+    // 5. Kesin ve Zerre Kaymayan CSS
     const style = document.createElement("style");
     style.id = "trend-theme-style";
     style.innerHTML = `
-        .custom-letter { position: relative; display: inline-block; }
-        .decor-svg { position: absolute; pointer-events: none; }
-        
-        .heart-dot { width: 0.4em; height: 0.4em; top: -0.2em; left: 50%; transform: translateX(-50%); filter: drop-shadow(0 2px 5px rgba(255,51,102,0.6)); animation: softPulse 3s infinite alternate; }
-        .crescent-inner { width: 0.45em; height: 0.45em; top: 50%; left: 50%; transform: translate(-50%, -50%); filter: drop-shadow(0 0 8px rgba(212,175,55,0.7)); }
-        .hat-svg { width: 0.6em; height: 0.6em; top: -0.4em; left: -0.2em; filter: drop-shadow(0 0 5px rgba(0,180,216,0.5)); }
-        .flower-svg { width: 0.5em; height: 0.5em; top: -0.3em; right: -0.3em; filter: drop-shadow(0 0 5px rgba(208,92,227,0.5)); }
-
-        @keyframes softPulse { 0% { transform: translateX(-50%) scale(0.95); opacity: 0.8; } 100% { transform: translateX(-50%) scale(1.1); opacity: 1; } }
-
-        /* BUTON VE SÜSÜ YAN YANA KİLİTLEYEN DÜZENEK (Wrapper) */
-        .trend-btn-wrapper {
-            display: inline-flex !important;
-            align-items: center !important;
-            justify-content: center;
-            gap: 12px !important;
-            flex-wrap: nowrap; /* Asla alt satıra atma */
-            margin-top: 10px;
+        /* Ana Başlık Yanı Süsü */
+        .title-sparkle {
+            display: inline-block;
+            margin-left: 10px;
+            vertical-align: super;
+            animation: softPulse 2s infinite alternate;
         }
+        .title-sparkle svg { width: 22px; height: 22px; filter: drop-shadow(0 0 8px currentColor); }
+
+        @keyframes softPulse { 0% { transform: scale(0.95); opacity: 0.8; } 100% { transform: scale(1.1); opacity: 1; } }
+
+        /* BUTON EZİLMESİNE KARŞI ZIRH */
+        .trend-btn-wrapper {
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: center !important;
+            justify-content: flex-start;
+            gap: 10px !important;
+            flex-wrap: nowrap !important; /* ASLA ALT SATIRA ATMA */
+            width: 100%;
+            overflow-x: auto; /* Telefonda sığmazsa gizlice kaysın ama bölünmesin */
+            padding-bottom: 5px;
+        }
+        .trend-btn-wrapper::-webkit-scrollbar { display: none; }
 
         .trend-side-decor-container {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            padding: 8px 16px;
-            background: rgba(255,255,255,0.05); /* Lüks hap (pill) görünümü */
+            padding: 8px 14px;
+            background: rgba(255,255,255,0.08); 
             border-radius: 50px;
-            border: 1px solid rgba(255,255,255,0.1);
-            animation: fadeIn 0.5s ease forwards;
-            white-space: nowrap; /* Metin asla iki satıra bölünmesin */
+            border: 1px solid rgba(255,255,255,0.15);
+            white-space: nowrap !important; /* ASLA BÖLÜNME */
+            flex-shrink: 0 !important; /* KÜÇÜLME */
             backdrop-filter: blur(5px);
         }
-        .light-mode .trend-side-decor-container {
-            background: rgba(0,0,0,0.03);
-            border: 1px solid rgba(0,0,0,0.05);
-        }
-        .btn-side-svg { width: 24px; height: 24px; }
-        .btn-side-text { font-size: 0.85rem; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; }
+        .light-mode .trend-side-decor-container { background: rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.08); }
+        .btn-side-svg { width: 20px; height: 20px; }
+        .btn-side-text { font-size: 0.8rem; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; }
     `;
     document.head.appendChild(style);
 
-    // 4. Bütün "Trend Optik" Başlıklarına Şovu Uygula
-    heroTitles.forEach(title => {
-        if (!title.dataset.originalHtml) {
-            title.dataset.originalHtml = title.innerHTML; // Orijinali yedekle
-        }
-        // Eğer HTML içinde "Trend Optik" geçiyorsa, tam o kısmı değiştir
-        title.innerHTML = title.innerHTML.replace('Trend Optik', logoReplacement);
-    });
+    // 6. Başlığın sonuna süsü ekle (Harf içini bozmadan yanına asilce koyuyoruz)
+    if (heroTitle) {
+        heroTitle.insertAdjacentHTML('beforeend', '<span class="trend-theme-decor title-sparkle">' + logoDecorSvg + '</span>');
+    }
 
-    // 5. Randevu Butonunun Yanına KİLİTLEMELİ Şekilde Rozeti Ekle
+    // 7. Randevu Butonu ile Rozeti ZIRH GİBİ Kilitle
     if (randevuBtn) {
-        // Eğer daha önce wrapper (kilit sarmalayıcı) oluşturmadıysak oluşturalım
+        // "Randevu Oluştur" yazısını asla bölme emri veriyoruz!
+        randevuBtn.style.whiteSpace = "nowrap";
+        randevuBtn.style.setProperty("white-space", "nowrap", "important");
+        randevuBtn.style.flexShrink = "0"; // Sıkışıp ezilmesini yasakladık
+
         let wrapper = randevuBtn.closest('.trend-btn-wrapper');
         if (!wrapper) {
             wrapper = document.createElement('div');
-            wrapper.className = 'trend-btn-wrapper trend-theme-decor'; // Temizlenmesi için class verdik
+            wrapper.className = 'trend-btn-wrapper trend-theme-decor'; 
             randevuBtn.parentNode.insertBefore(wrapper, randevuBtn);
-            wrapper.appendChild(randevuBtn); // Butonu içine aldık
+            wrapper.appendChild(randevuBtn); 
         }
         
-        // Şimdi rozeti butonun hemen yanına, KUTUNUN İÇİNE ekliyoruz (Asla alta düşmez)
         const sideDecor = document.createElement("div");
         sideDecor.className = "trend-side-decor-container trend-theme-decor";
         sideDecor.innerHTML = buttonSideDecor;
@@ -269,6 +269,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         wrapper.appendChild(sideDecor);
     }
   }
+
 
 
 
