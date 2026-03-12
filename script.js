@@ -150,14 +150,14 @@ document.addEventListener("DOMContentLoaded", async function () {
     document.head.appendChild(style);
   }
 
-         function applyVisualEffects(theme) {
-    // 1. Önceki tüm hatalı/eski süsleri temizle
+           function applyVisualEffects(theme) {
+    // 1. Önceki tüm hatalı/eski süsleri ve sarmalayıcıları (wrapper) temizle
     document.querySelectorAll('.trend-theme-decor').forEach(el => el.remove());
     const oldStyle = document.getElementById("trend-theme-style");
     if (oldStyle) oldStyle.remove();
 
-    // Sitedeki Orijinal "Trend Optik" yazısını bulalım (Navbar DEĞİL, Ana başlıktaki)
-    let heroTitle = Array.from(document.querySelectorAll('h1, h2, h3, h4')).find(el => 
+    // Sitedeki TÜM "Trend Optik" yazılarını bulalım (Açılış ekranı VE Ana sayfa)
+    let heroTitles = Array.from(document.querySelectorAll('h1, h2, h3, h4, h5')).filter(el => 
         el.innerHTML.includes('Trend Optik') && !el.classList.contains('navbar-brand')
     );
     
@@ -166,44 +166,33 @@ document.addEventListener("DOMContentLoaded", async function () {
         el.innerText.toLowerCase().includes('randevu')
     );
 
-    // Temizleme işlemi (Tema standartsa veya değiştiyse orijinal haline dönsün)
-    if (heroTitle && heroTitle.dataset.originalHtml) {
-        heroTitle.innerHTML = heroTitle.dataset.originalHtml;
-    }
+    // Temizleme işlemi (Tüm başlıkları orijinaline döndür)
+    heroTitles.forEach(title => {
+        if (title.dataset.originalHtml) {
+            title.innerHTML = title.dataset.originalHtml;
+        }
+    });
 
     if (!theme || theme === 'standart') {
         document.body.style.backgroundColor = ""; 
         return;
     }
 
-    // 2. Özel Vektörel Çizimler (Emoji Asla Yok, Sadece Lüks Line-Art SVG)
+    // 2. Özel Vektörel Çizimler (Sadece Lüks Line-Art SVG)
     let logoReplacement = "";
     let buttonSideDecor = "";
 
     if (theme === "yilbasi") {
-        // T harfinin üstüne zarif bir kar kristali silüeti
-        logoReplacement = heroTitle ? heroTitle.innerHTML.replace('Trend', '<span class="custom-letter">T<svg class="decor-svg hat-svg" viewBox="0 0 24 24"><path fill="none" stroke="#00b4d8" stroke-width="1.5" d="M12 2L12 6M12 22L12 18M2 12L6 12M22 12L18 12M4.9 4.9L7.7 7.7M19.1 19.1L16.3 16.3M4.9 19.1L7.7 16.3M19.1 4.9L16.3 7.7"/></svg></span>rend') : "";
-        
+        logoReplacement = '<span class="custom-letter">T<svg class="decor-svg hat-svg" viewBox="0 0 24 24"><path fill="none" stroke="#00b4d8" stroke-width="1.5" d="M12 2L12 6M12 22L12 18M2 12L6 12M22 12L18 12M4.9 4.9L7.7 7.7M19.1 19.1L16.3 16.3M4.9 19.1L7.7 16.3M19.1 4.9L16.3 7.7"/></svg></span>rend Optik';
         buttonSideDecor = `<svg class="btn-side-svg" viewBox="0 0 24 24"><path fill="none" stroke="#00b4d8" stroke-width="1.5" d="M20 12v9a1 1 0 01-1 1H5a1 1 0 01-1-1v-9m16 0H4m16 0V7a1 1 0 00-1-1H5a1 1 0 00-1 1v5m4-5V5a2 2 0 012-2h4a2 2 0 012 2v2m-6 0h4"/></svg><span class="btn-side-text" style="color:#00b4d8">Yeni Yıl Hediyesi</span>`;
-    
     } else if (theme === "sevgililer") {
-        // İŞTE VİZYON: 'i' harfinin noktasını siliyoruz (noktasız 'ı' yapıyoruz) ve üstüne yakut kalp SVG'si koyuyoruz!
-        logoReplacement = heroTitle ? heroTitle.innerHTML.replace('Optik', 'Opt<span class="custom-letter">ı<svg class="decor-svg heart-dot" viewBox="0 0 24 24"><path fill="#ff3366" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></span>k') : "";
-        
-        // Randevu butonunun yanına zarif içi boş aşk mektubu line-art
+        logoReplacement = 'Trend Opt<span class="custom-letter">ı<svg class="decor-svg heart-dot" viewBox="0 0 24 24"><path fill="#ff3366" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></span>k';
         buttonSideDecor = `<svg class="btn-side-svg" viewBox="0 0 24 24"><path fill="none" stroke="#ff3366" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg><span class="btn-side-text" style="color:#ff3366">Sevgiyle...</span>`;
-    
     } else if (theme === "kadinlar") {
-        // 'e' harfinin içinden süzülen zarif mor bir lale/orkide yaprağı
-        logoReplacement = heroTitle ? heroTitle.innerHTML.replace('Trend', 'Tr<span class="custom-letter">e<svg class="decor-svg flower-svg" viewBox="0 0 24 24"><path fill="none" stroke="#d05ce3" stroke-width="1.5" stroke-linecap="round" d="M12 22V12M12 12C12 12 7 8 7 4C7 4 12 2 12 7C12 2 17 4 17 4C17 8 12 12 12 12Z"/></svg></span>nd') : "";
-        
+        logoReplacement = 'Tr<span class="custom-letter">e<svg class="decor-svg flower-svg" viewBox="0 0 24 24"><path fill="none" stroke="#d05ce3" stroke-width="1.5" stroke-linecap="round" d="M12 22V12M12 12C12 12 7 8 7 4C7 4 12 2 12 7C12 2 17 4 17 4C17 8 12 12 12 12Z"/></svg></span>nd Optik';
         buttonSideDecor = `<svg class="btn-side-svg" viewBox="0 0 24 24"><path fill="none" stroke="#d05ce3" stroke-width="1.5" stroke-linecap="round" d="M12 21.5c-3-3-6-6-6-10a6 6 0 1112 0c0 4-3 7-6 10zM12 15a3 3 0 100-6 3 3 0 000 6z"/></svg><span class="btn-side-text" style="color:#d05ce3">Özel Koleksiyon</span>`;
-    
     } else if (theme === "bayram") {
-        // İŞTE VİZYON 2: 'O' harfinin içine mükemmel yerleşen altın yaldızlı hilal!
-        logoReplacement = heroTitle ? heroTitle.innerHTML.replace('Optik', '<span class="custom-letter">O<svg class="decor-svg crescent-inner" viewBox="0 0 24 24"><path fill="#d4af37" d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></span>ptik') : "";
-        
-        // İŞTE VİZYON 3: Randevu butonunun yanına Asil Şeker Sepeti (Vektörel Çizim)
+        logoReplacement = 'Trend <span class="custom-letter">O<svg class="decor-svg crescent-inner" viewBox="0 0 24 24"><path fill="#d4af37" d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></span>ptik';
         buttonSideDecor = `<svg class="btn-side-svg" viewBox="0 0 24 24"><path fill="none" stroke="#d4af37" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M8 10V7a4 4 0 118 0v3m-9 0h10a2 2 0 012 2v7a2 2 0 01-2 2H7a2 2 0 01-2-2v-7a2 2 0 012-2zM10 14a2 2 0 104 0 2 2 0 00-4 0z"/></svg><span class="btn-side-text" style="color:#d4af37">İyi Bayramlar</span>`;
     }
 
@@ -211,89 +200,76 @@ document.addEventListener("DOMContentLoaded", async function () {
     const style = document.createElement("style");
     style.id = "trend-theme-style";
     style.innerHTML = `
-        /* Harf İçi Tasarımları İçin */
-        .custom-letter {
-            position: relative;
-            display: inline-block;
-        }
-        .decor-svg {
-            position: absolute;
-            pointer-events: none;
-        }
+        .custom-letter { position: relative; display: inline-block; }
+        .decor-svg { position: absolute; pointer-events: none; }
         
-        /* NOKTASIZ 'I' NIN ÜSTÜNE GELEN YAKUT KALP */
-        .heart-dot {
-            width: 0.4em;
-            height: 0.4em;
-            top: -0.2em;
-            left: 50%;
-            transform: translateX(-50%);
-            filter: drop-shadow(0 2px 5px rgba(255,51,102,0.6));
-            animation: softPulse 3s infinite alternate;
-        }
-
-        /* 'O' HARFİNİN İÇİNE GİREN ALTIN HİLAL */
-        .crescent-inner {
-            width: 0.45em;
-            height: 0.45em;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            filter: drop-shadow(0 0 8px rgba(212,175,55,0.7));
-        }
-
-        /* DİĞER HARF SÜSLERİ */
+        .heart-dot { width: 0.4em; height: 0.4em; top: -0.2em; left: 50%; transform: translateX(-50%); filter: drop-shadow(0 2px 5px rgba(255,51,102,0.6)); animation: softPulse 3s infinite alternate; }
+        .crescent-inner { width: 0.45em; height: 0.45em; top: 50%; left: 50%; transform: translate(-50%, -50%); filter: drop-shadow(0 0 8px rgba(212,175,55,0.7)); }
         .hat-svg { width: 0.6em; height: 0.6em; top: -0.4em; left: -0.2em; filter: drop-shadow(0 0 5px rgba(0,180,216,0.5)); }
         .flower-svg { width: 0.5em; height: 0.5em; top: -0.3em; right: -0.3em; filter: drop-shadow(0 0 5px rgba(208,92,227,0.5)); }
 
-        @keyframes softPulse {
-            0% { transform: translateX(-50%) scale(0.95); opacity: 0.8; }
-            100% { transform: translateX(-50%) scale(1.1); opacity: 1; }
+        @keyframes softPulse { 0% { transform: translateX(-50%) scale(0.95); opacity: 0.8; } 100% { transform: translateX(-50%) scale(1.1); opacity: 1; } }
+
+        /* BUTON VE SÜSÜ YAN YANA KİLİTLEYEN DÜZENEK (Wrapper) */
+        .trend-btn-wrapper {
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center;
+            gap: 12px !important;
+            flex-wrap: nowrap; /* Asla alt satıra atma */
+            margin-top: 10px;
         }
 
-        /* BUTONUN YANINDAKİ ZARİF SEPET/MEKTUP ALANI */
         .trend-side-decor-container {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            margin-left: 15px; /* Randevu butonundan hafif uzaklık */
-            padding: 5px 12px;
-            border-left: 1px solid rgba(255,255,255,0.1);
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.05); /* Lüks hap (pill) görünümü */
+            border-radius: 50px;
+            border: 1px solid rgba(255,255,255,0.1);
             animation: fadeIn 0.5s ease forwards;
+            white-space: nowrap; /* Metin asla iki satıra bölünmesin */
+            backdrop-filter: blur(5px);
         }
         .light-mode .trend-side-decor-container {
-            border-left: 1px solid rgba(0,0,0,0.1);
+            background: rgba(0,0,0,0.03);
+            border: 1px solid rgba(0,0,0,0.05);
         }
-        .btn-side-svg {
-            width: 28px;
-            height: 28px;
-        }
-        .btn-side-text {
-            font-size: 0.85rem;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-        }
+        .btn-side-svg { width: 24px; height: 24px; }
+        .btn-side-text { font-size: 0.85rem; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; }
     `;
     document.head.appendChild(style);
 
-    // 4. Değişiklikleri Sitedeki Orijinal Yerlerine Uygula
-    if (heroTitle) {
-        if (!heroTitle.dataset.originalHtml) {
-            heroTitle.dataset.originalHtml = heroTitle.innerHTML; // Orijinali yedekle
+    // 4. Bütün "Trend Optik" Başlıklarına Şovu Uygula
+    heroTitles.forEach(title => {
+        if (!title.dataset.originalHtml) {
+            title.dataset.originalHtml = title.innerHTML; // Orijinali yedekle
         }
-        heroTitle.innerHTML = logoReplacement;
-    }
+        // Eğer HTML içinde "Trend Optik" geçiyorsa, tam o kısmı değiştir
+        title.innerHTML = title.innerHTML.replace('Trend Optik', logoReplacement);
+    });
 
+    // 5. Randevu Butonunun Yanına KİLİTLEMELİ Şekilde Rozeti Ekle
     if (randevuBtn) {
+        // Eğer daha önce wrapper (kilit sarmalayıcı) oluşturmadıysak oluşturalım
+        let wrapper = randevuBtn.closest('.trend-btn-wrapper');
+        if (!wrapper) {
+            wrapper = document.createElement('div');
+            wrapper.className = 'trend-btn-wrapper trend-theme-decor'; // Temizlenmesi için class verdik
+            randevuBtn.parentNode.insertBefore(wrapper, randevuBtn);
+            wrapper.appendChild(randevuBtn); // Butonu içine aldık
+        }
+        
+        // Şimdi rozeti butonun hemen yanına, KUTUNUN İÇİNE ekliyoruz (Asla alta düşmez)
         const sideDecor = document.createElement("div");
-        sideDecor.className = "trend-theme-decor trend-side-decor-container";
+        sideDecor.className = "trend-side-decor-container trend-theme-decor";
         sideDecor.innerHTML = buttonSideDecor;
         
-        // İkonu randevu butonunun hemen yanına ekle
-        randevuBtn.parentNode.insertBefore(sideDecor, randevuBtn.nextSibling);
+        wrapper.appendChild(sideDecor);
     }
   }
+
 
 
 
