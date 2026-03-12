@@ -150,7 +150,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     document.head.appendChild(style);
   }
 
-           function applyVisualEffects(theme) {
+             function applyVisualEffects(theme) {
     // 1. Önceki tüm hatalı/eski süsleri ve sarmalayıcıları (wrapper) temizle
     document.querySelectorAll('.trend-theme-decor').forEach(el => el.remove());
     const oldStyle = document.getElementById("trend-theme-style");
@@ -269,8 +269,6 @@ document.addEventListener("DOMContentLoaded", async function () {
         wrapper.appendChild(sideDecor);
     }
   }
-
-
 
 
 
